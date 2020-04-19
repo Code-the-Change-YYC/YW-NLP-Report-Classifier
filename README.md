@@ -1,3 +1,1 @@
 # YW-NLP
-
-Jofred Cayabyab
