@@ -8,4 +8,4 @@ This is an assignment to help get you familiarized with MongoDB, pymongo, and ou
 4. In this file, write a script that finds a document from your local MongoDB instance and writes it's contents to the console.
 5. Create a pull request of your branch in GitHub.
 
-You can look at my implementation if you need hints in this folder.
+You can look at my implementation in this folder if you need hints.
