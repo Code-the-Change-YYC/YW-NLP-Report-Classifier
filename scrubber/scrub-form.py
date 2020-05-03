@@ -26,6 +26,20 @@ scrubber.add_detector(CustomNameDetector)
 
 # use pandas to get csv description column
 report_data = pd.read_csv("data-sensitive.csv")
+
+# rename columns by index
+report_data.columns = ["DATETIME_INCIDENT", "LOCATION", "LOCATION_DETAIL",
+                        "CLIENT_PRIMARY", "CLIENT_SECONDARY", "CHILD_INVOLVED",
+                        "NON_CLIENT_INVOLVED", "PROGRAM", "CFS", "EMS", "FIRE",
+                        "MISC_SERVICE_FLAG", "DOAP_PACT", "POLICE", "MISC_SERVICE",
+                        "INCIDENT_TYPE_1", "INCIDENT_TYPE_2", "INCIDENT_1_OLD",
+                        "INCIDENT_TYPE_OTHER", "DESCRIPTION", "RESPONSE_CHILD_WELFARE",
+                        "RESPONSE_EVAC", "RESPONSE_FIRST_AID", "RESPONSE_INFECTION_PREVENTION_PROTOCOL",
+                        "RESPONSE_MENTAL_ASSESSMENT", "RESPONSE_NALOXONE",
+                        "RESPONSE_PERSON_BARRED", "RESPONSE_SAFETY_ASSESSMENT",
+                        "RESPONSE_SAFETY_PLANNING", "RESPONSE_OTHER", "RESPONSE_OTHER_DESC",
+                        "DATETIME_WRITTEN"]
+
 descriptions = report_data["DESCRIPTION"]
 
 scrubbed_descriptions = []
@@ -38,4 +52,4 @@ for description in descriptions:
 report_data["DESCRIPTION"] = scrubbed_descriptions
 
 # create new .csv file with scrubbed data
-# report_data.to_csv("data_scrubbed.csv")
+report_data.to_csv("data_scrubbed.csv", index=False)
