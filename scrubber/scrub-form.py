@@ -8,6 +8,8 @@ import pandas as pd
 # Custom scrubadub logic
 # List of words that should remain unscrubbed
 # Note: These are converted to lower case anyways
+from scrubber.initials_detector import InitialsDetector
+
 whitelisted_words = ["Staff", "EMS", "Fire", "CPS", "Rockyview", "Rocky",
                      "View", "Health", "Link", "Sheldon", "Gabapentin", "Chumir", "Hospital", "Fentanyl", "Writer"]
 
@@ -22,6 +24,7 @@ class CustomNameDetector(scrubadub.detectors.NameDetector):
 scrubber = scrubadub.Scrubber()
 scrubber.remove_detector("name")
 scrubber.add_detector(CustomNameDetector)
+scrubber.add_detector(InitialsDetector)
 
 
 # use pandas to get csv description column
