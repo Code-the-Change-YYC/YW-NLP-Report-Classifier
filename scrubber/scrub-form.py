@@ -51,65 +51,85 @@ for description in descriptions:
 # update pandas column
 report_data["DESCRIPTION"] = scrubbed_descriptions
 
+# options here for clean some white space and set all first letter of each sentence to be capped to reduce duplicate efforts in _t_replace_dict
+report_data["INCIDENT_1_OLD"] = report_data["INCIDENT_1_OLD"].str.strip()
+report_data["INCIDENT_TYPE_OTHER"] = report_data["INCIDENT_TYPE_OTHER"].str.strip()
+report_data["INCIDENT_1_OLD"] = report_data["INCIDENT_1_OLD"].str.capitalize()
+report_data["INCIDENT_TYPE_OTHER"] = report_data["INCIDENT_TYPE_OTHER"].str.capitalize()
+
+
+
 #clean up the incident type column to restore the proper drop-down options 
+# set varaibles for each drop down options 
+
+client_p = "Client aggression towards another person"
+client_pt = "Client aggression towards property"
+concern_c = "Concern for welfare of a child"
+hom_t = "Homicide (Threat or attempt)"
+med_e = "Medical emergency"
+men_he = "Mental health emergency"
+otr = "Other"
+secur_c = "Security concern"
+suicide_c = "Suicide attempt"
+
+
+
 # below is the record for replacement, e.g. x:y replace x with y
+
 _t_replace_dict = {
     # "child abandonment"
     # "Client aggression towards another person"
-    "Public Disturbance" :   "Client aggression towards another person",
-    "Noise Disturbance"  :   "Client aggression towards another person",
+    "Public disturbance" :   client_p,
+    "Noise disturbance"  :   client_p,
     # "Client aggression towards property"
-    "Damage to property within unit" :"Client aggression towards property",
+    "Damage to property within unit" : client_pt,
     #  "Client death (offsite)"
     #  "Client death (onsite)"
     #  "Client death missing"
     # "Concern for welfare of a child"
-    "Custodial parent did not pick up child after exchange" : "Concern for welfare of a child",
+    "Custodial parent did not pick up child after exchange" : concern_c,
     # "COVID-19 Confirmed"
     # "Exposure"
-    # "Homicde (Threat or attempt)"
-    "Threatening with alleged weapon"   : "Homicde (Threat or attempt)",
-    "Domestic violence"   : "Homicde (Threat or attempt)",
+    # "Homicide (Threat or attempt)"
+    "Threatening with alleged weapon"   : hom_t,
+    "Domestic violence"   : hom_t,
     # "Illegal activity on premises"
     # "Injury"
     # "Media/3rd party contact"
     # "Medical emergency"
-    "Medical": "Medical emergency",
-    "Client Health Risk"           : "Medical emergency",
-    "drug overdose"                : "Medical emergency",
-    "Health Concern"               : "Medical emergency",
-    "health concern"               : "Medical emergency",
-    "Health Corcern"               : "Medical emergency",
-    "High Intoxication, EMS call." : "Medical emergency",
-    "Hospital Trip"                : "Medical emergency",
-    "Medical Emergency"            : "Medical emergency",
-    "Medical Emergency (Overdose)" : "Medical emergency",
-    "overdose"                     : "Medical emergency",
-    "Medical Health Emergency"     : "Medical emergency",
-    "Seizure/ anxiety attack"      : "Medical emergency",
-    "Overdose"                     : "Medical emergency",
-    "Medical Concern"              : "Medical emergency",
-    "Medical Emergecny"            : "Medical emergency",
-    "Medical concern"              : "Medical emergency", 
+    "Medical": med_e,
+    "Client health risk"           : med_e,
+    "Drug overdose"                : med_e,
+    "Health concern"               : med_e,
+    "Health corcern"               : med_e,
+    "High intoxication, ems call." : med_e,
+    "Hospital trip"                : med_e,
+    "Medical emergecny"            : med_e,
+    "Medical emergency (overdose)" : med_e,
+    "Medical health emergency"     : med_e,
+    "Seizure/ anxiety attack"      : med_e,
+    "Overdose"                     : med_e,
+    "Medical Concern"              : med_e,
+    "Medical Emergecny"            : med_e,
+    "Medical concern"              : med_e, 
      
      # "Mental health emergency"
-     "Potential overdose"          : "Mental health emergency",
-     "Excessive use of medication" : "Mental health emergency",
+     "Potential overdose"          : men_he,
+     "Excessive use of medication" : men_he,
     
     # "Other"
-    "Positive incident involving CPS" : "Other",
-    "Small Fire on stove top" : "Other",
-    "fire" : "Other",
-    "Fire" : "Other",
-    "OD"   : "Other",
+    "Positive incident involving cps" : otr,
+    "Small fire on stove top" : otr,
+    "Fire" : otr,
+    "Od"   : otr,
 
     # "Security concern"
-    "Removal of Barred Guest" : "Security concern",
-    "Unwanted man at door refused to leave property" : "Security concern",
-    "property damage" : "Security concern",
+    "Removal of barred guest" : secur_c,
+    "Unwanted man at door refused to leave property" : secur_c,
+    "Property damage" : secur_c,
     
     # "Suicide attempt" 
-    "Client at-risk of suicide" : "Suicide attempt",
+    "Client at-risk of suicide" : suicide_c,
 
     # "Suspected or actual breach of privacy"
     # "Suspicion/allegation of abuse towards or against client"
@@ -117,7 +137,7 @@ _t_replace_dict = {
     }
 
 
-#clean each columns :  "INCIDENT_1_OLD","INCIDENT_TYPE_OTHER"
+ #clean each columns :  "INCIDENT_1_OLD","INCIDENT_TYPE_OTHER"
 
 report_data["INCIDENT_1_OLD"].replace(_t_replace_dict, inplace = True)
 report_data["INCIDENT_TYPE_OTHER"].replace(_t_replace_dict, inplace = True)
