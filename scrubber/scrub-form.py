@@ -56,6 +56,10 @@ report_data["INCIDENT_1_OLD"] = report_data["INCIDENT_1_OLD"].str.strip()
 report_data["INCIDENT_TYPE_OTHER"] = report_data["INCIDENT_TYPE_OTHER"].str.strip()
 report_data["INCIDENT_1_OLD"] = report_data["INCIDENT_1_OLD"].str.capitalize()
 report_data["INCIDENT_TYPE_OTHER"] = report_data["INCIDENT_TYPE_OTHER"].str.capitalize()
+report_data["INCIDENT_TYPE_1"] = report_data["INCIDENT_TYPE_1"].str.strip()
+report_data["INCIDENT_TYPE_2"] = report_data["INCIDENT_TYPE_2"].str.strip()
+report_data["INCIDENT_TYPE_1"] = report_data["INCIDENT_TYPE_1"].str.capitalize()
+report_data["INCIDENT_TYPE_2"] = report_data["INCIDENT_TYPE_2"].str.capitalize()
 
 
 
