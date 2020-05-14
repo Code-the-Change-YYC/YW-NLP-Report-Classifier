@@ -5,7 +5,7 @@ from scrubadub.filth import RegexFilth
 
 
 class InitialsFilth(RegexFilth):
-    regex = re.compile(r"\s+[A-Z][A-Z]\s+")
+    regex = re.compile(r"[A-Z][A-Z]")
     type = "Initials"
 
 

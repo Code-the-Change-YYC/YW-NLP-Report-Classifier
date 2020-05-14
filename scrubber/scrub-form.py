@@ -8,10 +8,25 @@ import pandas as pd
 # Custom scrubadub logic
 # List of words that should remain unscrubbed
 # Note: These are converted to lower case anyways
-from scrubber.initials_detector import InitialsDetector
+from initials_detector import InitialsDetector
 
-whitelisted_words = ["Staff", "EMS", "Fire", "CPS", "Rockyview", "Rocky",
-                     "View", "Health", "Link", "Sheldon", "Gabapentin", "Chumir", "Hospital", "Fentanyl", "Writer"]
+whitelisted_words = [
+    "Staff",
+    "EMS",
+    "Fire",
+    "CPS",
+    "Rockyview",
+    "Rocky",
+    "View",
+    "Health",
+    "Link",
+    "Sheldon",
+    "Gabapentin",
+    "Chumir",
+    "Hospital",
+    "Fentanyl",
+    "Writer",
+]
 
 
 class CustomNameDetector(scrubadub.detectors.NameDetector):
@@ -31,25 +46,47 @@ scrubber.add_detector(InitialsDetector)
 report_data = pd.read_csv("data-sensitive.csv")
 
 # rename columns by index
-report_data.columns = ["DATETIME_INCIDENT", "LOCATION", "LOCATION_DETAIL",
-                        "CLIENT_PRIMARY", "CLIENT_SECONDARY", "CHILD_INVOLVED",
-                        "NON_CLIENT_INVOLVED", "PROGRAM", "CFS", "EMS", "FIRE",
-                        "MISC_SERVICE_FLAG", "DOAP_PACT", "POLICE", "MISC_SERVICE",
-                        "INCIDENT_TYPE_1", "INCIDENT_TYPE_2", "INCIDENT_1_OLD",
-                        "INCIDENT_TYPE_OTHER", "DESCRIPTION", "RESPONSE_CHILD_WELFARE",
-                        "RESPONSE_EVAC", "RESPONSE_FIRST_AID", "RESPONSE_INFECTION_PREVENTION_PROTOCOL",
-                        "RESPONSE_MENTAL_ASSESSMENT", "RESPONSE_NALOXONE",
-                        "RESPONSE_PERSON_BARRED", "RESPONSE_SAFETY_ASSESSMENT",
-                        "RESPONSE_SAFETY_PLANNING", "RESPONSE_OTHER", "RESPONSE_OTHER_DESC",
-                        "DATETIME_WRITTEN"]
+report_data.columns = [
+    "DATETIME_INCIDENT",
+    "LOCATION",
+    "LOCATION_DETAIL",
+    "CLIENT_PRIMARY",
+    "CLIENT_SECONDARY",
+    "CHILD_INVOLVED",
+    "NON_CLIENT_INVOLVED",
+    "PROGRAM",
+    "CFS",
+    "EMS",
+    "FIRE",
+    "MISC_SERVICE_FLAG",
+    "DOAP_PACT",
+    "POLICE",
+    "MISC_SERVICE",
+    "INCIDENT_TYPE_1",
+    "INCIDENT_TYPE_2",
+    "INCIDENT_1_OLD",
+    "INCIDENT_TYPE_OTHER",
+    "DESCRIPTION",
+    "RESPONSE_CHILD_WELFARE",
+    "RESPONSE_EVAC",
+    "RESPONSE_FIRST_AID",
+    "RESPONSE_INFECTION_PREVENTION_PROTOCOL",
+    "RESPONSE_MENTAL_ASSESSMENT",
+    "RESPONSE_NALOXONE",
+    "RESPONSE_PERSON_BARRED",
+    "RESPONSE_SAFETY_ASSESSMENT",
+    "RESPONSE_SAFETY_PLANNING",
+    "RESPONSE_OTHER",
+    "RESPONSE_OTHER_DESC",
+    "DATETIME_WRITTEN",
+]
 
 descriptions = report_data["DESCRIPTION"]
 
 scrubbed_descriptions = []
 # loop to clean
 for description in descriptions:
-    scrubbed_descriptions.append(scrubber.clean(
-        description, replace_with="identifier"))
+    scrubbed_descriptions.append(scrubber.clean(description, replace_with="identifier"))
 
 # update pandas column
 report_data["DESCRIPTION"] = scrubbed_descriptions
