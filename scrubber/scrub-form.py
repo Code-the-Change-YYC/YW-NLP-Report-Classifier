@@ -4,11 +4,14 @@
 
 import scrubadub
 import pandas as pd
+import re
+from scrubadub.detectors.base import RegexDetector
+from scrubadub.filth import RegexFilth
+
 
 # Custom scrubadub logic
 # List of words that should remain unscrubbed
 # Note: These are converted to lower case anyways
-from initials_detector import InitialsDetector
 
 whitelisted_words = [
     "Staff",
@@ -26,13 +29,49 @@ whitelisted_words = [
     "Hospital",
     "Fentanyl",
     "Writer",
+    "Crystal",
+    "Meth",
+    "Overdose",
+    "Police",
+    "Client",
+    "First",
+    "Aid",
+    "Providence",
 ]
 
 
 class CustomNameDetector(scrubadub.detectors.NameDetector):
+    """Detector that will run through descriptions and detect sensitive data such as names. 
+    
+    
+    Upon initialization loops through whitelisted words to append to disallowed nouns, so non-sensitive data 
+    isn't unnecesarily scrubbed.
+    """
+
     def __init__(self):
         for word in whitelisted_words:
             self.disallowed_nouns.add(word)
+
+
+class InitialsFilth(RegexFilth):
+    """Classifies filth for InitialsDetector using regex.
+    
+    Will classify sequence of 2 capital letters as filth, excluding AM and PM.
+    """
+
+    regex = re.compile(
+        r"\b(?!AM|PM)([A-Z]{2})"
+    )  # Excluding AM or PM, sequence that starts with 2 capital letters.
+    type = "Initials"
+
+
+class InitialsDetector(RegexDetector):
+    """Utilizes InitialsFilth to detect filth.
+    
+    Additional detector added to scrubber to scrub initials.
+    """
+
+    filth_cls = InitialsFilth
 
 
 # replace default name detector with new name detector that doesn't delete keywords
