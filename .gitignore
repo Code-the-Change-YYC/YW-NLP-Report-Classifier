@@ -1,3 +1,4 @@
 scrubber/data_scrubbed.csv
 scrubber/data-sensitive.csv
 scrubber/__pycache__
+.DS_Store
