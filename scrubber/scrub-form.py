@@ -5,6 +5,7 @@
 import scrubadub
 import pandas as pd
 import re
+import math
 from scrubadub.detectors.base import RegexDetector
 from scrubadub.filth import RegexFilth
 
@@ -42,8 +43,8 @@ whitelisted_words = [
 
 class CustomNameDetector(scrubadub.detectors.NameDetector):
     """Detector that will run through descriptions and detect sensitive data such as names. 
-    
-    
+
+
     Upon initialization loops through whitelisted words to append to disallowed nouns, so non-sensitive data 
     isn't unnecesarily scrubbed.
     """
@@ -55,19 +56,19 @@ class CustomNameDetector(scrubadub.detectors.NameDetector):
 
 class InitialsFilth(RegexFilth):
     """Classifies filth for InitialsDetector using regex.
-    
+
     Will classify sequence of 2 capital letters as filth, excluding AM and PM.
     """
 
     regex = re.compile(
-        r"\b(?!AM|PM)([A-Z]{2})"
+        r"\b(?!AM|PM|EMS|CPS)[A-Z]\.?[A-Z]'?[A-Z]?\.?( ?\d+?[a-z]?)?\b"
     )  # Excluding AM or PM, sequence that starts with 2 capital letters.
     type = "Initials"
 
 
 class InitialsDetector(RegexDetector):
     """Utilizes InitialsFilth to detect filth.
-    
+
     Additional detector added to scrubber to scrub initials.
     """
 
@@ -121,14 +122,33 @@ report_data.columns = [
 ]
 
 descriptions = report_data["DESCRIPTION"]
+client_1 = report_data["CLIENT_PRIMARY"]
+client_2 = report_data["CLIENT_SECONDARY"]
 
 scrubbed_descriptions = []
+scrubbed_client_1 = []
+scrubbed_client_2 = []
 # loop to clean
 for description in descriptions:
-    scrubbed_descriptions.append(scrubber.clean(description, replace_with="identifier"))
+    scrubbed_descriptions.append(scrubber.clean(
+        description, replace_with="identifier"))
+
+# some names still remain in the client columns, so we still run both name and initial detectors
+
+for client in client_1:
+    updated_text = scrubber.clean(
+        client, replace_with="identifier") if client and isinstance(client, str) else ""
+    scrubbed_client_1.append(updated_text)
+
+for client in client_2:
+    updated_text = scrubber.clean(
+        client, replace_with="identifier") if client and isinstance(client, str) else ""
+    scrubbed_client_2.append(updated_text)
 
 # update pandas column
 report_data["DESCRIPTION"] = scrubbed_descriptions
+report_data["CLIENT_PRIMARY"] = scrubbed_client_1
+report_data["CLIENT_SECONDARY"] = scrubbed_client_2
 
 # create new .csv file with scrubbed data
 report_data.to_csv("data_scrubbed.csv", index=False)
