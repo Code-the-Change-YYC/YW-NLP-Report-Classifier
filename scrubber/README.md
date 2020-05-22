@@ -11,3 +11,9 @@ USAGE:
 2. Use `pyenv` or another python library to change your Python version to `3.6.10` or older.
 3. Install the requirements using `pip install -r requirements.txt`.
 4. Run the script using `python scrub-form.py`.
+
+## Tests
+
+- Using python's built-in
+[unittest](https://docs.python.org/3/library/unittest.html) module
+- Run tests with `python -m unittest` or through your IDE
