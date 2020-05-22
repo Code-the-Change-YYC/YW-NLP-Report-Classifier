@@ -1,4 +1,4 @@
-from typing import List
+from typing import Iterable
 
 import pandas as pd
 
@@ -77,18 +77,19 @@ _t_replace_dict = {
     # "Suspicion/allegation of child abuse - child is a not a client"
 }
 
-inc_type_col_names: List[str] = ["INCIDENT_1_OLD", "INCIDENT_TYPE_OTHER", "INCIDENT_TYPE_1", "INCIDENT_TYPE_2"]
+inc_type_col_names = ("INCIDENT_1_OLD", "INCIDENT_TYPE_OTHER", "INCIDENT_TYPE_1", "INCIDENT_TYPE_2")
 
 
 def normalize_inc_type(col: pd.Series) -> pd.Series:
     return col.str.strip().str.capitalize()
 
 
-def preprocess(report_data: pd.DataFrame):
+def preprocess(report_data: pd.DataFrame, col_names: Iterable = inc_type_col_names):
     """Normalize and apply corrections to the incident type columns.
 
     :param report_data: Report data read from CSV. Modifies this value.
+    :param col_names: The names of the incident type columns to preprocess
     """
-    for col_name in inc_type_col_names:
+    for col_name in col_names:
         report_data[col_name] = normalize_inc_type(report_data[col_name])
         report_data[col_name].replace(_t_replace_dict, inplace=True)
