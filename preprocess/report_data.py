@@ -8,25 +8,38 @@ from report_data_d import ColName
 from scrub.description_scrub import DescriptionScrubber
 
 
-def get_raw_report_data() -> pd.DataFrame:
-    # use pandas to get csv description column
-    report_df = pd.read_csv("data/data-sensitive.csv")
-    # Use enum for column access. This works because enum's are iterable and
-    # ordered.
-    report_df.columns = ColName
-    return report_df
+class ReportData:
+    pipeline: List[Type[Preprocessor]] = [
+        DescriptionScrubber,
+        IncidentTypesProcessor
+    ]
+    file_name_sensitive = "data/data-sensitive.csv"
+    file_name_scrubbed = "data/data-scrubbed.csv"
 
+    def get_raw_report_data(self) -> pd.DataFrame:
+        """
+        :return: Unprocessed report data.
+        """
+        # use pandas to get csv description column
+        report_df = pd.read_csv(self.file_name_sensitive)
+        # Use enum for column access. This works because enum's are iterable and
+        # ordered.
+        report_df.columns = ColName
+        return report_df
 
-pipeline: List[Type[Preprocessor]] = [
-    DescriptionScrubber,
-    IncidentTypesProcessor
-]
+    def get_report_data(self) -> pd.DataFrame:
+        """
+        :return: Processed report data.
+        """
+        report_df = self.get_raw_report_data()
+        for processor in self.pipeline:
+            report_df = processor().process(report_df)
+        return report_df
+
+    def create_scrubbed_csv(self):
+        """Create new .csv file with scrubbed data."""
+        self.get_report_data().to_csv("data/data-scrubbed.csv", index=False)
+
 
 if __name__ == '__main__':
-    report_data = get_raw_report_data()
-
-    for processor in pipeline:
-        report_data = processor().process(report_data)
-
-    # create new .csv file with scrubbed data
-    report_data.to_csv("data/data-scrubbed.csv", index=False)
+    ReportData().create_scrubbed_csv()
