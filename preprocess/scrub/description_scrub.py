@@ -2,78 +2,13 @@
 # to Python 3.6 before using this script. This is noted in the .python-version
 # file if you are using pyenv.
 
-import re
-
 import pandas as pd
 import scrubadub
-from scrubadub.detectors.base import RegexDetector
-from scrubadub.filth import RegexFilth
 
 from preprocessor import Preprocessor
 from report_data_d import ColNames
-
-# Custom scrubadub logic
-# List of words that should remain unscrubbed
-# Note: These are converted to lower case anyways
-whitelisted_words = [
-    "Staff",
-    "EMS",
-    "Fire",
-    "CPS",
-    "Rockyview",
-    "Rocky",
-    "View",
-    "Health",
-    "Link",
-    "Sheldon",
-    "Gabapentin",
-    "Chumir",
-    "Hospital",
-    "Fentanyl",
-    "Writer",
-    "Crystal",
-    "Meth",
-    "Overdose",
-    "Police",
-    "Client",
-    "First",
-    "Aid",
-    "Providence",
-]
-
-
-class CustomNameDetector(scrubadub.detectors.NameDetector):
-    """Detector that will run through descriptions and detect sensitive data such as names.
-
-
-    Upon initialization loops through whitelisted words to append to disallowed nouns, so non-sensitive data
-    isn't unnecessarily scrubbed.
-    """
-
-    def __init__(self):
-        for word in whitelisted_words:
-            self.disallowed_nouns.add(word)
-
-
-class InitialsFilth(RegexFilth):
-    """Classifies filth for InitialsDetector using regex.
-
-    Will classify sequence of 2 capital letters as filth, excluding AM and PM.
-    """
-
-    regex = re.compile(
-        r"\b(?!AM|PM)([A-Z]{2})"
-    )  # Excluding AM or PM, sequence that starts with 2 capital letters.
-    type = "Initials"
-
-
-class InitialsDetector(RegexDetector):
-    """Utilizes InitialsFilth to detect filth.
-
-    Additional detector added to scrubber to scrub initials.
-    """
-
-    filth_cls = InitialsFilth
+from scrub.initials_detect import InitialsDetector
+from scrub.name_detect import CustomNameDetector
 
 
 class DescriptionScrubber(Preprocessor):
