@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 
 @unique
-class ColNames(Enum):
+class ColName(Enum):
     """Column names of the processed data. To be used for indexing into the
     dataframe."""
     DT_INC = "DATETIME_INCIDENT"
@@ -25,7 +25,7 @@ class ColNames(Enum):
     """Inaccessible after pre-processing"""
     INC_T1_OLD = "INCIDENT_1_OLD"
     """Inaccessible after pre-processing"""
-    INC_OTHER = "INCIDENT_TYPE_OTHER"
+    INC_T2_OLD = "INCIDENT_TYPE_OTHER"
     DESC = "DESCRIPTION"
     RES_CHI_WF = "RESPONSE_CHILD_WELFARE"
     RES_EV = "RESPONSE_EVAC"
