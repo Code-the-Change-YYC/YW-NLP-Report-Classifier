@@ -8,11 +8,11 @@ import re
 from scrubadub.detectors.base import RegexDetector
 from scrubadub.filth import RegexFilth
 
+from scrubber import incident_types
 
 # Custom scrubadub logic
 # List of words that should remain unscrubbed
 # Note: These are converted to lower case anyways
-
 whitelisted_words = [
     "Staff",
     "EMS",
@@ -41,10 +41,10 @@ whitelisted_words = [
 
 
 class CustomNameDetector(scrubadub.detectors.NameDetector):
-    """Detector that will run through descriptions and detect sensitive data such as names. 
-    
-    
-    Upon initialization loops through whitelisted words to append to disallowed nouns, so non-sensitive data 
+    """Detector that will run through descriptions and detect sensitive data such as names.
+
+
+    Upon initialization loops through whitelisted words to append to disallowed nouns, so non-sensitive data
     isn't unnecesarily scrubbed.
     """
 
@@ -55,7 +55,7 @@ class CustomNameDetector(scrubadub.detectors.NameDetector):
 
 class InitialsFilth(RegexFilth):
     """Classifies filth for InitialsDetector using regex.
-    
+
     Will classify sequence of 2 capital letters as filth, excluding AM and PM.
     """
 
@@ -67,7 +67,7 @@ class InitialsFilth(RegexFilth):
 
 class InitialsDetector(RegexDetector):
     """Utilizes InitialsFilth to detect filth.
-    
+
     Additional detector added to scrubber to scrub initials.
     """
 
@@ -129,6 +129,8 @@ for description in descriptions:
 
 # update pandas column
 report_data["DESCRIPTION"] = scrubbed_descriptions
+
+incident_types.preprocess(report_data)
 
 # create new .csv file with scrubbed data
 report_data.to_csv("data_scrubbed.csv", index=False)
