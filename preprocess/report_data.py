@@ -1,3 +1,4 @@
+import sys
 from typing import List, Type
 
 import pandas as pd
@@ -13,15 +14,24 @@ class ReportData:
         DescriptionScrubber,
         IncidentTypesProcessor
     ]
-    file_name_sensitive = "data/data-sensitive.csv"
-    file_name_processed = "data/data-processed.csv"
+    in_file_path: str
+    out_file_path: str
+
+    def __init__(self, in_file_path: str = "data/data-sensitive.csv",
+                 out_file_path: str = "data/data-processed.csv"):
+        """
+        :param in_file_path:
+        :param out_file_path:
+        """
+        self.in_file_path = in_file_path
+        self.out_file_path = out_file_path
 
     def get_raw_report_data(self) -> pd.DataFrame:
         """
         :return: Unprocessed report data.
         """
         # use pandas to get csv description column
-        report_df = pd.read_csv(self.file_name_sensitive)
+        report_df = pd.read_csv(self.in_file_path)
         # Use enum for column access. This works because enum's are iterable and
         # ordered.
         report_df.columns = ColName
@@ -38,8 +48,11 @@ class ReportData:
 
     def create_preprocessed_csv(self):
         """Create new .csv file with scrubbed data."""
-        self.get_report_data().to_csv(self.file_name_processed, index=False)
+        self.get_report_data().to_csv(self.out_file_path, index=False)
 
 
+# Expects 0-2 arguments. First argument specifies input file path, second
+# specifies output file path
 if __name__ == '__main__':
-    ReportData().create_preprocessed_csv()
+    file_names = sys.argv[1:]
+    ReportData(*file_names).create_preprocessed_csv()
