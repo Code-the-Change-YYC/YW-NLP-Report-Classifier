@@ -2,9 +2,9 @@ from typing import List, Type
 
 import pandas as pd
 
-from incident_types import IncidentTypesProcessor
+from incident_types.processor import IncidentTypesProcessor
 from preprocessor import Preprocessor
-from scrub import DescriptionScrubber
+from scrub.description_scrub import DescriptionScrubber
 
 # rename columns by index
 columns = [
