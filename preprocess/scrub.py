@@ -2,13 +2,14 @@
 # to Python 3.6 before using this script. This is noted in the .python-version
 # file if you are using pyenv.
 
-import scrubadub
-import pandas as pd
 import re
+
+import pandas as pd
+import scrubadub
 from scrubadub.detectors.base import RegexDetector
 from scrubadub.filth import RegexFilth
 
-from scrubber import incident_types
+from preprocessor import Preprocessor
 
 # Custom scrubadub logic
 # List of words that should remain unscrubbed
@@ -74,63 +75,27 @@ class InitialsDetector(RegexDetector):
     filth_cls = InitialsFilth
 
 
-# replace default name detector with new name detector that doesn't delete keywords
-scrubber = scrubadub.Scrubber()
-scrubber.remove_detector("name")
-scrubber.add_detector(CustomNameDetector)
-scrubber.add_detector(InitialsDetector)
+class DescriptionScrubber(Preprocessor):
+    """Scrubs out sensitive data from the report's descriptions."""
 
+    scrubber: scrubadub.Scrubber
 
-# use pandas to get csv description column
-report_data = pd.read_csv("data-sensitive.csv")
+    def __init__(self):
+        self.scrubber = scrubadub.Scrubber()
+        # replace default name detector with new name detector that doesn't delete keywords
+        self.scrubber.remove_detector("name")
+        self.scrubber.add_detector(CustomNameDetector)
+        self.scrubber.add_detector(InitialsDetector)
 
-# rename columns by index
-report_data.columns = [
-    "DATETIME_INCIDENT",
-    "LOCATION",
-    "LOCATION_DETAIL",
-    "CLIENT_PRIMARY",
-    "CLIENT_SECONDARY",
-    "CHILD_INVOLVED",
-    "NON_CLIENT_INVOLVED",
-    "PROGRAM",
-    "CFS",
-    "EMS",
-    "FIRE",
-    "MISC_SERVICE_FLAG",
-    "DOAP_PACT",
-    "POLICE",
-    "MISC_SERVICE",
-    "INCIDENT_TYPE_1",
-    "INCIDENT_TYPE_2",
-    "INCIDENT_1_OLD",
-    "INCIDENT_TYPE_OTHER",
-    "DESCRIPTION",
-    "RESPONSE_CHILD_WELFARE",
-    "RESPONSE_EVAC",
-    "RESPONSE_FIRST_AID",
-    "RESPONSE_INFECTION_PREVENTION_PROTOCOL",
-    "RESPONSE_MENTAL_ASSESSMENT",
-    "RESPONSE_NALOXONE",
-    "RESPONSE_PERSON_BARRED",
-    "RESPONSE_SAFETY_ASSESSMENT",
-    "RESPONSE_SAFETY_PLANNING",
-    "RESPONSE_OTHER",
-    "RESPONSE_OTHER_DESC",
-    "DATETIME_WRITTEN",
-]
+    def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
+        descriptions = report_data["DESCRIPTION"]
 
-descriptions = report_data["DESCRIPTION"]
+        scrubbed_descriptions = []
+        # loop to clean
+        for description in descriptions:
+            scrubbed_descriptions.append(self.scrubber.clean(description, replace_with="identifier"))
 
-scrubbed_descriptions = []
-# loop to clean
-for description in descriptions:
-    scrubbed_descriptions.append(scrubber.clean(description, replace_with="identifier"))
+        # update pandas column
+        report_data["DESCRIPTION"] = scrubbed_descriptions
 
-# update pandas column
-report_data["DESCRIPTION"] = scrubbed_descriptions
-
-incident_types.preprocess(report_data)
-
-# create new .csv file with scrubbed data
-report_data.to_csv("data_scrubbed.csv", index=False)
+        return report_data

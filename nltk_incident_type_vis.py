@@ -16,7 +16,7 @@ columns = ["DATETIME_INCIDENT", "LOCATION", "LOCATION_DETAIL",
            "RESPONSE_SAFETY_PLANNING", "RESPONSE_OTHER", "RESPONSE_OTHER_DESC",
            "DATETIME_WRITTEN"]
 
-report_data = pd.read_csv("data-sensitive.csv", na_filter=False)
+report_data = pd.read_csv("preprocess/data/data-sensitive.csv", na_filter=False)
 report_data.columns = columns
 descriptions = report_data["DESCRIPTION"]
 it1: pd.Series = report_data["INCIDENT_TYPE_1"]
