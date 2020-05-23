@@ -1,7 +1,8 @@
-preprocess/data/data-processed.csv
-preprocess/data/data-sensitive.csv
-scrubber/__pycache__
+__pycache__
 
 # Pycharm files
 .idea
 *.iml
+
+*.csv
+*.xls*
