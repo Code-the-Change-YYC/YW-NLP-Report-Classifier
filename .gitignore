@@ -1,5 +1,5 @@
-scrubber/data_scrubbed.csv
-scrubber/data-sensitive.csv
+preprocess/data/data_scrubbed.csv
+preprocess/data/data-sensitive.csv
 scrubber/__pycache__
 
 # Pycharm files

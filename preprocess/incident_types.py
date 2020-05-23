@@ -4,6 +4,7 @@ import pandas as pd
 
 # clean up the incident type column to restore the proper drop-down options
 # set variables for each drop down options
+from preprocessor import Preprocessor
 
 client_p = "Client aggression towards another person"
 client_pt = "Client aggression towards property"
@@ -77,19 +78,50 @@ _t_replace_dict = {
     # "Suspicion/allegation of child abuse - child is a not a client"
 }
 
-inc_type_col_names = ("INCIDENT_1_OLD", "INCIDENT_TYPE_OTHER", "INCIDENT_TYPE_1", "INCIDENT_TYPE_2")
-
 
 def normalize_inc_type(col: pd.Series) -> pd.Series:
     return col.str.strip().str.capitalize()
 
 
-def preprocess(report_data: pd.DataFrame, col_names: Iterable = inc_type_col_names):
-    """Normalize and apply corrections to the incident type columns.
+def merge_columns(report_data: pd.DataFrame) -> pd.DataFrame:
+    pd.set_option('display.max_columns', None)
+    # create new column and add to end of DataFrame
+    report_data['INCIDENT_TYPE'] = report_data['INCIDENT_1_OLD'].fillna(
+        '') + report_data['INCIDENT_TYPE_1'].fillna('')
+    # preprocess, replace nan with empty string
+    report_data['INCIDENT_TYPE_2'] = report_data['INCIDENT_TYPE_2'].fillna('')
+    # for "Other" 2nd types, set to description instead of "Other"
+    report_data['INCIDENT_TYPE_2ND'] = report_data.apply(
+        lambda r: (r['INCIDENT_TYPE_OTHER'] if r['INCIDENT_TYPE_2'].lower() == 'other'
+                   else r['INCIDENT_TYPE_2']),
+        axis=1)
 
-    :param report_data: Report data read from CSV. Modifies this value.
-    :param col_names: The names of the incident type columns to preprocess
-    """
-    for col_name in col_names:
-        report_data[col_name] = normalize_inc_type(report_data[col_name])
-        report_data[col_name].replace(_t_replace_dict, inplace=True)
+    # make blank if matching first incident type
+    report_data['INCIDENT_TYPE_2ND'] = report_data.apply(
+        lambda r: (r['INCIDENT_TYPE_2ND'] if r['INCIDENT_TYPE'] != r['INCIDENT_TYPE_2ND'] else ''),
+        axis=1)
+
+    # remove old columns, add new ones
+    return report_data[[col for col in report_data if col not in ['INCIDENT_TYPE_1',
+                                                                  'INCIDENT_TYPE_2', 'INCIDENT_1_OLD',
+                                                                  'INCIDENT_TYPE_OTHER']]]
+
+
+class IncidentTypesProcessor(Preprocessor):
+    """Normalize and apply corrections to the incident type columns."""
+
+    col_names: Iterable[str] = ("INCIDENT_1_OLD", "INCIDENT_TYPE_OTHER", "INCIDENT_TYPE_1", "INCIDENT_TYPE_2")
+
+    def __init__(self, col_names: Iterable[str] = None):
+        """
+        :param col_names: The names of the incident type columns to process
+        """
+        if col_names is not None:
+            self.col_names = col_names
+
+    def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
+        for col_name in self.col_names:
+            report_data[col_name] = normalize_inc_type(report_data[col_name])
+            report_data[col_name].replace(_t_replace_dict, inplace=True)
+
+        return merge_columns(report_data)
