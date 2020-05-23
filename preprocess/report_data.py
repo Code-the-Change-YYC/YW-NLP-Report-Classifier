@@ -36,10 +36,10 @@ class ReportData:
             report_df = processor().process(report_df)
         return report_df
 
-    def create_scrubbed_csv(self):
+    def create_preprocessed_csv(self):
         """Create new .csv file with scrubbed data."""
         self.get_report_data().to_csv(self.file_name_processed, index=False)
 
 
 if __name__ == '__main__':
-    ReportData().create_scrubbed_csv()
+    ReportData().create_preprocessed_csv()
