@@ -1,4 +1,4 @@
-preprocess/data/data-scrubbed.csv
+preprocess/data/data-processed.csv
 preprocess/data/data-sensitive.csv
 scrubber/__pycache__
 

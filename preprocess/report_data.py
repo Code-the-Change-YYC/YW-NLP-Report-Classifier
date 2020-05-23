@@ -14,7 +14,7 @@ class ReportData:
         IncidentTypesProcessor
     ]
     file_name_sensitive = "data/data-sensitive.csv"
-    file_name_scrubbed = "data/data-scrubbed.csv"
+    file_name_processed = "data/data-processed.csv"
 
     def get_raw_report_data(self) -> pd.DataFrame:
         """
@@ -38,7 +38,7 @@ class ReportData:
 
     def create_scrubbed_csv(self):
         """Create new .csv file with scrubbed data."""
-        self.get_report_data().to_csv("data/data-scrubbed.csv", index=False)
+        self.get_report_data().to_csv(self.file_name_processed, index=False)
 
 
 if __name__ == '__main__':
