@@ -29,4 +29,4 @@ if __name__ == '__main__':
         report_data = processor().process(report_data)
 
     # create new .csv file with scrubbed data
-    report_data.to_csv("data/data_scrubbed.csv", index=False)
+    report_data.to_csv("data/data-scrubbed.csv", index=False)
