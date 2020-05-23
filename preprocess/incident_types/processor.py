@@ -5,6 +5,7 @@ import pandas as pd
 # clean up the incident type column to restore the proper drop-down options
 # set variables for each drop down options
 from preprocessor import Preprocessor
+from report_data_d import ColNames
 
 client_p = "Client aggression towards another person"
 client_pt = "Client aggression towards property"
@@ -86,31 +87,34 @@ def normalize_inc_type(col: pd.Series) -> pd.Series:
 def merge_columns(report_data: pd.DataFrame) -> pd.DataFrame:
     pd.set_option('display.max_columns', None)
     # create new column and add to end of DataFrame
-    report_data['INCIDENT_TYPE'] = report_data['INCIDENT_1_OLD'].fillna(
-        '') + report_data['INCIDENT_TYPE_1'].fillna('')
+    report_data[ColNames.INC_T1] = report_data[ColNames.INC_T1_OLD].fillna(
+        '') + report_data[ColNames.INC_T1].fillna('')
     # preprocess, replace nan with empty string
-    report_data['INCIDENT_TYPE_2'] = report_data['INCIDENT_TYPE_2'].fillna('')
+    report_data[ColNames.INC_T2] = report_data[ColNames.INC_T2].fillna('')
     # for "Other" 2nd types, set to description instead of "Other"
-    report_data['INCIDENT_TYPE_2ND'] = report_data.apply(
-        lambda r: (r['INCIDENT_TYPE_OTHER'] if r['INCIDENT_TYPE_2'].lower() == 'other'
-                   else r['INCIDENT_TYPE_2']),
+    report_data[ColNames.INC_T2] = report_data.apply(
+        lambda r: (r[ColNames.INC_OTHER] if r[ColNames.INC_T2].lower() == 'other'
+                   else r[ColNames.INC_T2]),
         axis=1)
 
     # make blank if matching first incident type
-    report_data['INCIDENT_TYPE_2ND'] = report_data.apply(
-        lambda r: (r['INCIDENT_TYPE_2ND'] if r['INCIDENT_TYPE'] != r['INCIDENT_TYPE_2ND'] else ''),
+    report_data[ColNames.INC_T2] = report_data.apply(
+        lambda r: (r[ColNames.INC_T2] if r[ColNames.INC_T1] != r[ColNames.INC_T2] else ''),
         axis=1)
 
-    # remove old columns, add new ones
-    return report_data[[col for col in report_data if col not in ['INCIDENT_TYPE_1',
-                                                                  'INCIDENT_TYPE_2', 'INCIDENT_1_OLD',
-                                                                  'INCIDENT_TYPE_OTHER']]]
+    # remove old columns
+    return report_data[[col for col in report_data if col not in [ColNames.INC_T1_OLD, ColNames.INC_OTHER]]]
 
 
 class IncidentTypesProcessor(Preprocessor):
     """Normalize and apply corrections to the incident type columns."""
 
-    col_names: Iterable[str] = ("INCIDENT_1_OLD", "INCIDENT_TYPE_OTHER", "INCIDENT_TYPE_1", "INCIDENT_TYPE_2")
+    col_names: Iterable[str] = {
+        ColNames.INC_T1,
+        ColNames.INC_T1_OLD,
+        ColNames.INC_T2,
+        ColNames.INC_OTHER,
+    }
 
     def __init__(self, col_names: Iterable[str] = None):
         """

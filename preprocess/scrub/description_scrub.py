@@ -10,6 +10,7 @@ from scrubadub.detectors.base import RegexDetector
 from scrubadub.filth import RegexFilth
 
 from preprocessor import Preprocessor
+from report_data_d import ColNames
 
 # Custom scrubadub logic
 # List of words that should remain unscrubbed
@@ -46,7 +47,7 @@ class CustomNameDetector(scrubadub.detectors.NameDetector):
 
 
     Upon initialization loops through whitelisted words to append to disallowed nouns, so non-sensitive data
-    isn't unnecesarily scrubbed.
+    isn't unnecessarily scrubbed.
     """
 
     def __init__(self):
@@ -88,7 +89,7 @@ class DescriptionScrubber(Preprocessor):
         self.scrubber.add_detector(InitialsDetector)
 
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
-        descriptions = report_data["DESCRIPTION"]
+        descriptions = report_data[ColNames.DESC]
 
         scrubbed_descriptions = []
         # loop to clean
@@ -96,6 +97,6 @@ class DescriptionScrubber(Preprocessor):
             scrubbed_descriptions.append(self.scrubber.clean(description, replace_with="identifier"))
 
         # update pandas column
-        report_data["DESCRIPTION"] = scrubbed_descriptions
+        report_data[ColNames.DESC] = scrubbed_descriptions
 
         return report_data
