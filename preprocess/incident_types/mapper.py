@@ -11,7 +11,7 @@ def normalize_inc_type(col: pd.Series) -> pd.Series:
     return col.str.strip().str.capitalize()
 
 
-class Mapper(Preprocessor):
+class IncTypeMapper(Preprocessor):
     """Maps old incident types to their current dropdown counterparts."""
     col_names: Iterable[str] = {
         ColName.INC_T1,
