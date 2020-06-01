@@ -4,7 +4,7 @@ import pandas as pd
 
 from incident_types.incident_types_d import replacements
 from preprocessor import Preprocessor
-from report_data_d import ColName
+from report_data_d import _ColName
 
 
 def normalize_inc_type(col: pd.Series) -> pd.Series:
@@ -14,10 +14,10 @@ def normalize_inc_type(col: pd.Series) -> pd.Series:
 class IncTypeMapper(Preprocessor):
     """Maps old incident types to their current dropdown counterparts."""
     col_names: Iterable[str] = {
-        ColName.INC_T1,
-        ColName.INC_T1_OLD,
-        ColName.INC_T2,
-        ColName.INC_T2_OLD,
+        _ColName.INC_T1,
+        _ColName.INC_T1_OLD,
+        _ColName.INC_T2,
+        _ColName.INC_T2_OLD,
     }
 
     def __init__(self, col_names: Iterable[str] = None):

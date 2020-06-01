@@ -5,7 +5,7 @@ import pandas as pd
 
 from incident_types.processor import IncidentTypesProcessor
 from preprocessor import Preprocessor
-from report_data_d import ColName
+from report_data_d import _ColName, ColName
 from scrub.description_scrub import DescriptionScrubber
 
 
@@ -34,10 +34,10 @@ class ReportData:
         report_df = pd.read_csv(self.in_file_path)
         # Use enum for column access. This works because enum's are iterable and
         # ordered.
-        report_df.columns = ColName
+        report_df.columns = _ColName
         return report_df
 
-    def get_report_data(self) -> pd.DataFrame:
+    def process_report_data(self) -> pd.DataFrame:
         """
         :return: Processed report data.
         """
@@ -48,7 +48,16 @@ class ReportData:
 
     def create_preprocessed_csv(self):
         """Create new .csv file with scrubbed data."""
-        self.get_report_data().to_csv(self.out_file_path, index=False)
+        self.process_report_data().to_csv(self.out_file_path, index=False)
+
+    def get_processed_data(self) -> pd.DataFrame:
+        """Reads processed data directly from out_file_path into a DataFrame.
+
+        :return: Processed data, indexed by the updated ColName enum.
+        """
+        report_df = pd.read_csv(self.out_file_path)
+        report_df.columns = ColName
+        return report_df
 
 
 # Expects 0-2 arguments. First argument specifies input file path, second
