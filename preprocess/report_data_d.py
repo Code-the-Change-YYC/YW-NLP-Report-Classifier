@@ -1,10 +1,11 @@
 from enum import Enum, unique
+from typing import Set
 
 
 @unique
-class ColName(Enum):
-    """Column names of the processed data. To be used for indexing into the
-    dataframe."""
+class _ColName(Enum):
+    """Column names of the unprocessed data. To be used for indexing into the
+    dataframe during preprocessing."""
     DT_INC = "DATETIME_INCIDENT"
     LOC = "LOCATION"
     LOC_DET = "LOCATION_DETAIL"
@@ -47,4 +48,7 @@ class ColName(Enum):
         return self._value_
 
 
+old_col_names: Set[_ColName] = {_ColName.INC_T1_OLD, _ColName.INC_T2_OLD}
 
+"""Column names of processed data"""
+ColName: _ColName = Enum("ColName", [(m.name, m.value) for m in _ColName if m not in old_col_names])
