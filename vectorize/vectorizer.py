@@ -5,7 +5,7 @@ import pandas as pd
 
 class Vectorizer(ABC):
     @abstractmethod
-    def vectorize(self, strings: pd.Series[str]) -> pd.Series[pd.Series[int]]:
+    def vectorize(self, strings: pd.Series) -> pd.Series:
         """Transforms strings into their vectorized representation suitable for
         use as a feature vector.
 
