@@ -1,36 +1,44 @@
-# NOTE: The scrubadub library is broken as of Python 3.7, so please downgrade
-# to Python 3.6 before using this script. This is noted in the .python-version
-# file if you are using pyenv.
-
+import re
 import pandas as pd
-import scrubadub
 
 from preprocessor import Preprocessor
 from report_data_d import _ColName
-from scrub.initials_detect import InitialsDetector
-from scrub.name_detect import CustomNameDetector
+from scrub.name_detect import NameDetector
 
 
 class DescriptionScrubber(Preprocessor):
     """Scrubs out sensitive data from the report's descriptions."""
 
-    scrubber: scrubadub.Scrubber
-
     def __init__(self):
-        self.scrubber = scrubadub.Scrubber()
-        # replace default name detector with new name detector that doesn't delete keywords
-        self.scrubber.remove_detector("name")
-        self.scrubber.add_detector(CustomNameDetector)
-        self.scrubber.add_detector(InitialsDetector)
+        self.client_filth = set()
+    
+    def get_client_filth(self, client_primary, client_secondary):
+        # iterate over client columns and add the names to be scrubbed
+        for series in (client_primary, client_secondary):
+            for name in series:
+                # if typeof name is float, then ignore (empty cells in excel are converted to NaN)
+                if isinstance(name, float):
+                    continue
+                # remove spaces
+                no_spaces_name = name.replace(" ", "")
+                self.client_filth.add(no_spaces_name)
+                # remove brackets
+                no_brackets_name = re.compile("(.*)").sub("", no_spaces_name)
+                # remove numbers and spaces
+                no_nums_name = re.compile("[ 0-9]").sub("", no_brackets_name)
+                self.client_filth.add(no_nums_name)
+                # remove periods
+                no_periods_name = no_nums_name.replace(".", "")
+                self.client_filth.add(no_periods_name)
 
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
+        self.get_client_filth(report_data[_ColName.CLI_PRI], report_data[_ColName.CLI_SEC])
+        name_detector = NameDetector(self.client_filth)
         descriptions = report_data[_ColName.DESC]
 
-        scrubbed_descriptions = []
         # loop to clean
-        for description in descriptions:
-            scrubbed_descriptions.append(self.scrubber.clean(description, replace_with="identifier"))
-
+        scrubbed_descriptions = [name_detector.scrub(d) for d in descriptions]
+        
         # update pandas column
         report_data[_ColName.DESC] = scrubbed_descriptions
 
