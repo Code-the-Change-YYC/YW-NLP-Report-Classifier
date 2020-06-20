@@ -1,6 +1,5 @@
 scrubadub==1.2.0
 pandas==1.0.1
-sklearn~=0.0
 scikit-learn~=0.20.3
 matplotlib~=3.2.1
 nltk~=3.5
