@@ -40,6 +40,13 @@ class _ColName(Enum):
     RES_O = "RESPONSE_OTHER"
     RES_OD = "RESPONSE_OTHER_DESC"
     DT_WRIT = "DATETIME_WRITTEN"
+    """Contains the hour of the day during which the incident occurred."""
+    HOUR_OF_DAY = "HOUR_OF_DAY"
+    """Contains a string representing the time of the day (morning, evening,
+    etc.) during which the incident occurred."""
+    TIME_OF_DAY = "TIME_OF_DAY"
+    """Contains a boolean indicating whether the incident occurred on a weekday."""
+    WEEKDAY = "WEEKDAY"
 
     def __str__(self):
         """Overridden so that we can use this enum as the value of the
