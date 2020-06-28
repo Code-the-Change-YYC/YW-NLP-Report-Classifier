@@ -7,6 +7,7 @@ from incident_types.processor import IncidentTypesProcessor
 from clean.word_character_filter import WordCharacterFilter
 from clean.lowercaser import Lowercaser
 from preprocessor import Preprocessor
+from lemmatize.ntlk_lemmatize import NLTKLemmatizer
 from report_data_d import _ColName, ColName
 from scrub.description_scrub import DescriptionScrubber
 
@@ -16,7 +17,8 @@ class ReportData:
         DescriptionScrubber,
         IncidentTypesProcessor,
         WordCharacterFilter,
-        Lowercaser
+        Lowercaser,
+        NLTKLemmatizer
     ]
     in_file_path: str
     out_file_path: str
