@@ -5,6 +5,8 @@ import pandas as pd
 
 from datetime_map.mapper import DatetimeMapper
 from incident_types.processor import IncidentTypesProcessor
+from clean.word_character_filter import WordCharacterFilter
+from clean.lowercaser import Lowercaser
 from preprocessor import Preprocessor
 from report_data_d import _ColName, ColName
 from scrub.description_scrub import DescriptionScrubber
@@ -14,7 +16,9 @@ class ReportData:
     pipeline: List[Type[Preprocessor]] = [
         DescriptionScrubber,
         IncidentTypesProcessor,
-        DatetimeMapper
+        DatetimeMapper,
+        WordCharacterFilter,
+        Lowercaser
     ]
     in_file_path: str
     out_file_path: str
