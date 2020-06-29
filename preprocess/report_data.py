@@ -3,6 +3,7 @@ from typing import List, Type
 
 import pandas as pd
 
+from datetime_map.mapper import DatetimeMapper
 from incident_types.processor import IncidentTypesProcessor
 from clean.word_character_filter import WordCharacterFilter
 from clean.lowercaser import Lowercaser
@@ -16,6 +17,7 @@ class ReportData:
     pipeline: List[Type[Preprocessor]] = [
         DescriptionScrubber,
         IncidentTypesProcessor,
+        DatetimeMapper,
         WordCharacterFilter,
         Lowercaser,
         NLTKLemmatizer
@@ -38,6 +40,9 @@ class ReportData:
         """
         # use pandas to get csv description column
         report_df = pd.read_csv(self.in_file_path)
+        # Add all additional columns not included in the original csv
+        for processor in self.pipeline:
+            report_df = processor().add_columns(report_df)
         # Use enum for column access. This works because enum's are iterable and
         # ordered.
         report_df.columns = _ColName
