@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import Enum
 
 import pandas as pd
 from dateutil.parser import parser
@@ -8,38 +7,36 @@ from preprocessor import Preprocessor
 from report_data_d import _ColName
 
 
-class TimeOfDay(Enum):
-    MORNING = 'morning'
-    AFTERNOON = 'afternoon'
-    EVENING = 'evening'
-    NIGHT = 'night'
-
-
 class DatetimeMapper(Preprocessor):
-    additional_columns = {_ColName.HOUR_OF_DAY, _ColName.TIME_OF_DAY, _ColName.WEEKDAY}
+    additional_columns = {_ColName.HOUR_OF_DAY,
+                          _ColName.MORNING,
+                          _ColName.AFTERNOON,
+                          _ColName.EVENING,
+                          _ColName.NIGHT,
+                          _ColName.WEEKDAY}
 
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
         """Fill `self.additional_columns` using the value of the incident
         datetime column.
 
         - The hour column is given the hour of the day specified within the incident datetime column
-        - The weekday column is given a boolean indicating whether the datetime is a weekday
-        - The time of day column is given a value from `TimeOfDay` based on the time of day in the datetime
+        - The weekday column is given 1/0 indicating whether the datetime is a weekday
+        - The time of day columns are given 1/0s
         """
         incident_datetimes: pd.Series = report_data[_ColName.DT_INC]
         for i, dt_str in enumerate(incident_datetimes):
             dt = self._parse_datetime(dt_str)
             report_data.at[i, _ColName.HOUR_OF_DAY] = dt.hour
-            report_data.at[i, _ColName.WEEKDAY] = 0 <= dt.weekday() <= 4
-            report_data.at[i, _ColName.TIME_OF_DAY] = self._time_of_day(dt).value
+            report_data.at[i, _ColName.WEEKDAY] = int(0 <= dt.weekday() <= 4)
+            report_data.at[i, self._time_of_day(dt)] = 1
 
         return report_data
 
     def add_columns(self, report_data: pd.DataFrame) -> pd.DataFrame:
-        """Adds `self.additional_columns` to the dataframe."""
+        """Adds `self.additional_columns` to the dataframe, initializing them to 0."""
         column_index: int = len(report_data.columns)
         for col in self.additional_columns:
-            report_data.insert(column_index, col, None)
+            report_data.insert(column_index, col, 0)
             column_index += 1
         return report_data
 
@@ -52,7 +49,7 @@ class DatetimeMapper(Preprocessor):
         return parser().parse(dt_str)
 
     @staticmethod
-    def _time_of_day(dt: datetime) -> TimeOfDay:
+    def _time_of_day(dt: datetime) -> _ColName:
         """
         :param dt:
         :return: Morning between 5am and noon, afternoon between noon and 5pm,
@@ -60,10 +57,10 @@ class DatetimeMapper(Preprocessor):
         """
         hour = dt.hour
         if 5 <= hour <= 11:
-            return TimeOfDay.MORNING
+            return _ColName.MORNING
         elif 12 <= hour <= 16:
-            return TimeOfDay.AFTERNOON
+            return _ColName.AFTERNOON
         elif 17 <= hour <= 20:
-            return TimeOfDay.EVENING
+            return _ColName.EVENING
         else:
-            return TimeOfDay.NIGHT
+            return _ColName.NIGHT

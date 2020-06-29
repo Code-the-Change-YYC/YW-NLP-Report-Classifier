@@ -42,10 +42,14 @@ class _ColName(Enum):
     DT_WRIT = "DATETIME_WRITTEN"
     """Contains the hour of the day during which the incident occurred."""
     HOUR_OF_DAY = "HOUR_OF_DAY"
-    """Contains a string representing the time of the day (morning, evening,
-    etc.) during which the incident occurred."""
-    TIME_OF_DAY = "TIME_OF_DAY"
-    """Contains a boolean indicating whether the incident occurred on a weekday."""
+    """1/0 representing the time of the day (morning, evening, etc.) during
+    which the incident occurred."""
+    MORNING = "MORNING"
+    AFTERNOON = "AFTERNOON"
+    EVENING = "EVENING"
+    NIGHT = "NIGHT"
+    """Contains 1/0 indicating whether the incident occurred on a
+    weekday."""
     WEEKDAY = "WEEKDAY"
 
     def __str__(self):
