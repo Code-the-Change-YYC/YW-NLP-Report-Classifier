@@ -66,8 +66,7 @@ class ReportData:
 
         :return: Processed data, indexed by the updated ColName enum.
         """
-        report_df = pd.read_csv(self.out_file_path)
-        report_df.columns = ColName
+        report_df = pd.read_csv(self.out_file_path, header=0, names=ColName)
         return report_df
 
 
