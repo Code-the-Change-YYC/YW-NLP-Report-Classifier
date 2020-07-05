@@ -1,3 +1,4 @@
+from os import path
 import sys
 from typing import List, Type
 
@@ -20,11 +21,12 @@ class ReportData:
         WordCharacterFilter,
         Lowercaser
     ]
-    in_file_path: str
-    out_file_path: str
+    dir_path = path.dirname(path.realpath(__file__))
+    in_file_path: str = path.join(dir_path, "data/data-sensitive.csv")
+    out_file_path: str = path.join(dir_path, "data/data-processed.csv")
 
-    def __init__(self, in_file_path: str = "data/data-sensitive.csv",
-                 out_file_path: str = "data/data-processed.csv"):
+    def __init__(self, in_file_path: str = in_file_path,
+                 out_file_path: str = out_file_path):
         """
         :param in_file_path:
         :param out_file_path:
