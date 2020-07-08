@@ -9,8 +9,7 @@ from clean.word_character_filter import WordCharacterFilter
 from clean.lowercaser import Lowercaser
 from preprocessor import Preprocessor
 from report_data_d import _ColName, ColName
-from scrub.description_scrub import DescriptionScrubber
-
+from spacy_scrubber.description_scrub import DescriptionScrubber
 
 class ReportData:
     pipeline: List[Type[Preprocessor]] = [

@@ -14,6 +14,8 @@ USAGE:
 arguments. First argument specifies input file path, second specifies output
 file path.
 
+**Note:** If you are using the scrubadub preprocessor you would need to run the files using an older version of Python than 3.7
+
 ## Tests
 
 - Using python's built-in

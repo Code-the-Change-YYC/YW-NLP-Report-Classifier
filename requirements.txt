@@ -1,3 +1,4 @@
+scrubadub==1.2.0
 spacy==2.1.8
 pandas==1.0.1
 scikit-learn~=0.20.3
