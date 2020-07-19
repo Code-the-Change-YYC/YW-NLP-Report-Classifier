@@ -4,17 +4,17 @@ This package provides pre-processing functionality for the initial data sent to 
 
 The `report_data.py` can be run as a script (see below).
 
-The script requires a Python version before 3.7, as 3.7 introduced breaking changes to the used scrubadub library. 
-
 **NOTE:** If the original data is needed, please reach out to the Code the Change YYC organization at [codethechangeyyc@gmail.com](mailto:codethechangeyyc@gmail.com)
 
 USAGE: 
 1. Save the downloaded YW data as `data-sensitive.csv` into the `data` folder.
-2. Use `pyenv` or another python library to change your Python version to `3.6.10` or older.
-3. Install the requirements using `pip install -r requirements.txt`.
+2. Install the requirements using `pip install -r requirements.txt`.
+3. Download the Spacy.io's pretrained model using `python -m spacy download en_core_web_lg`
 4. Run the script using `python report_data.py`. The script expects 0-2
 arguments. First argument specifies input file path, second specifies output
 file path.
+
+**Note:** If you are using the scrubadub preprocessor you would need to run the files using an older version of Python than 3.7
 
 ## Tests
 

@@ -7,8 +7,8 @@ import scrubadub
 
 from preprocessor import Preprocessor
 from report_data_d import _ColName
-from scrub.initials_detect import InitialsDetector
-from scrub.name_detect import CustomNameDetector
+from scrubadub_scrubber.initials_detect import InitialsDetector
+from scrubadub_scrubber.name_detect import CustomNameDetector
 
 
 class DescriptionScrubber(Preprocessor):
@@ -29,7 +29,8 @@ class DescriptionScrubber(Preprocessor):
         scrubbed_descriptions = []
         # loop to clean
         for description in descriptions:
-            scrubbed_descriptions.append(self.scrubber.clean(description, replace_with="identifier"))
+            scrubbed_descriptions.append(self.scrubber.clean(
+                description, replace_with="identifier"))
 
         # update pandas column
         report_data[_ColName.DESC] = scrubbed_descriptions
