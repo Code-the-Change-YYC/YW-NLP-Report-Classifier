@@ -9,9 +9,12 @@ from incident_types.processor import IncidentTypesProcessor
 from clean.word_character_filter import WordCharacterFilter
 from clean.lowercaser import Lowercaser
 from preprocessor import Preprocessor
+from lemmatize.ntlk_lemmatize import NLTKLemmatizer
 from report_data_d import _ColName, ColName
-from scrub.description_scrub import DescriptionScrubber
+from spacy_scrubber.description_scrub import DescriptionScrubber
 
+# use for filepath relative from this file
+dir_path = path.dirname(path.realpath(__file__))
 
 class ReportData:
     pipeline: List[Type[Preprocessor]] = [
@@ -19,9 +22,9 @@ class ReportData:
         IncidentTypesProcessor,
         DatetimeMapper,
         WordCharacterFilter,
-        Lowercaser
+        Lowercaser,
+        NLTKLemmatizer
     ]
-    dir_path = path.dirname(path.realpath(__file__))
     in_file_path: str = path.join(dir_path, "data/data-sensitive.csv")
     out_file_path: str = path.join(dir_path, "data/data-processed.csv")
 

@@ -1,4 +1,4 @@
-from preprocess.preprocessor import Preprocessor
+from preprocessor import Preprocessor
 
 import pandas as pd
 import re
