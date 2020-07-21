@@ -1,5 +1,6 @@
 import sys
 from typing import List, Type
+import os
 
 import pandas as pd
 
@@ -8,8 +9,12 @@ from incident_types.processor import IncidentTypesProcessor
 from clean.word_character_filter import WordCharacterFilter
 from clean.lowercaser import Lowercaser
 from preprocessor import Preprocessor
+from lemmatize.ntlk_lemmatize import NLTKLemmatizer
 from report_data_d import _ColName, ColName
 from spacy_scrubber.description_scrub import DescriptionScrubber
+
+# use for filepath relative from this file
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 class ReportData:
     pipeline: List[Type[Preprocessor]] = [
@@ -17,13 +22,14 @@ class ReportData:
         IncidentTypesProcessor,
         DatetimeMapper,
         WordCharacterFilter,
-        Lowercaser
+        Lowercaser,
+        NLTKLemmatizer
     ]
     in_file_path: str
     out_file_path: str
 
-    def __init__(self, in_file_path: str = "data/data-sensitive.csv",
-                 out_file_path: str = "data/data-processed.csv"):
+    def __init__(self, in_file_path: str = os.path.join(dir_path, "data/data-sensitive.csv"),
+                 out_file_path: str = os.path.join(dir_path, "data/data-processed.csv")):
         """
         :param in_file_path:
         :param out_file_path:
