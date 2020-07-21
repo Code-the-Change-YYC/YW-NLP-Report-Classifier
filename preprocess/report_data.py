@@ -11,7 +11,7 @@ from clean.lowercaser import Lowercaser
 from preprocessor import Preprocessor
 from lemmatize.ntlk_lemmatize import NLTKLemmatizer
 from report_data_d import _ColName, ColName
-from scrub.description_scrub import DescriptionScrubber
+from spacy_scrubber.description_scrub import DescriptionScrubber
 
 # use for filepath relative from this file
 dir_path = os.path.dirname(os.path.realpath(__file__))
