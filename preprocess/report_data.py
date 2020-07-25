@@ -11,10 +11,12 @@ from clean.lowercaser import Lowercaser
 from preprocessor import Preprocessor
 from lemmatize.ntlk_lemmatize import NLTKLemmatizer
 from report_data_d import _ColName, ColName
-from spacy_scrubber.description_scrub import DescriptionScrubber
 
 # use for filepath relative from this file
+from scrubadub_scrubber.description_scrub import DescriptionScrubber
+
 dir_path = path.dirname(path.realpath(__file__))
+
 
 class ReportData:
     pipeline: List[Type[Preprocessor]] = [
@@ -29,19 +31,20 @@ class ReportData:
     out_file_path: str = path.join(dir_path, "data/data-processed.csv")
 
     def __init__(self, in_file_path: str = in_file_path,
-                 out_file_path: str = out_file_path):
+                 out_file_path: str = out_file_path, **processor_args):
         """
         :param in_file_path:
         :param out_file_path:
+        :param processor_args: Arguments to be passed to the constructors of each preprocessor.
         """
         self.in_file_path = in_file_path
         self.out_file_path = out_file_path
+        self._processor_args = processor_args
 
     def get_raw_report_data(self) -> pd.DataFrame:
         """
         :return: Unprocessed report data.
         """
-        # use pandas to get csv description column
         report_df = pd.read_csv(self.in_file_path)
         # Add all additional columns not included in the original csv
         for processor in self.pipeline:
@@ -57,7 +60,7 @@ class ReportData:
         """
         report_df = self.get_raw_report_data()
         for processor in self.pipeline:
-            report_df = processor().process(report_df)
+            report_df = processor(**self._processor_args).process(report_df)
         return report_df
 
     def create_preprocessed_csv(self):
@@ -77,4 +80,4 @@ class ReportData:
 # specifies output file path
 if __name__ == '__main__':
     file_names = sys.argv[1:]
-    ReportData(*file_names).create_preprocessed_csv()
+    ReportData(*file_names, uids_for_initials=True, initials_placeholder='someone').create_preprocessed_csv()

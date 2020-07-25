@@ -10,6 +10,7 @@ class DescriptionScrubber(Preprocessor):
     """Scrubs out sensitive data from the report's descriptions."""
 
     def __init__(self):
+        super().__init__()
         self.client_tokens = set()
 
     def get_client_tokens(self, client_primary, client_secondary):
