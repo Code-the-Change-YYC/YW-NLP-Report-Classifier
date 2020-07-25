@@ -1,20 +1,19 @@
-from os import path
 import sys
+from os import path
 from typing import List, Type
 
 import pandas as pd
 
+from clean.lowercaser import Lowercaser
+from clean.word_character_filter import WordCharacterFilter
 from datetime_map.mapper import DatetimeMapper
 from incident_types.processor import IncidentTypesProcessor
-from clean.word_character_filter import WordCharacterFilter
-from clean.lowercaser import Lowercaser
-from preprocessor import Preprocessor
 from lemmatize.ntlk_lemmatize import NLTKLemmatizer
+from preprocessor import Preprocessor
 from report_data_d import _ColName, ColName
+from spacy_scrubber.description_scrub import DescriptionScrubber
 
 # use for filepath relative from this file
-from scrubadub_scrubber.description_scrub import DescriptionScrubber
-
 dir_path = path.dirname(path.realpath(__file__))
 
 
@@ -80,4 +79,5 @@ class ReportData:
 # specifies output file path
 if __name__ == '__main__':
     file_names = sys.argv[1:]
-    ReportData(*file_names, uids_for_initials=True, initials_placeholder='someone').create_preprocessed_csv()
+    ReportData(*file_names, ent_replacement='someone', uids_for_initials=True,
+               initials_placeholder='someone').create_preprocessed_csv()
