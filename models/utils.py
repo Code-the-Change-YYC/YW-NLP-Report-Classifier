@@ -1,9 +1,11 @@
 import re
 
+import nltk
 import pandas as pd
+from nltk.corpus import stopwords
 
 
-def _clean_scrubadub_entities(df: pd.DataFrame, replace_word: str = "someone"):
+def _clean_scrubadub_entities(series: pd.Series, replace_word: str = "someone"):
     """Replace one or more characters excluding curly braces that is/are contained
     within 2 pairs of curly braces, followed by zero or one alpha-numeric
     character.
@@ -15,4 +17,16 @@ def _clean_scrubadub_entities(df: pd.DataFrame, replace_word: str = "someone"):
     have been ignored in preprocessing but instead have their first two letters
     replaced with a scrubadub entity.
     """
-    return [re.sub(r"\{\{[^{}]+\}\}\w?", replace_word, str1) for str1 in df]
+    return [re.sub(r"\{\{[^{}]+\}\}\w?", replace_word, s) for s in series]
+
+
+def nltk_tokenizer(df_sent):
+    lemmatizer = nltk.WordNetLemmatizer()
+    stop_words = set(stopwords.words("english"))
+
+    tokens = nltk.word_tokenize(df_sent)
+    words = [word.lower() for word in tokens if word.isalpha()]
+    words = [word for word in words if word not in stop_words]
+    words = [lemmatizer.lemmatize(word) for word in words]
+
+    return words
