@@ -1,14 +1,19 @@
 import unittest
+import os
 from datetime import datetime
 
 from datetime_map.mapper import DatetimeMapper
 from report_data import ReportData
 from report_data_d import _ColName
 
+# use for filepath relative from this file
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
 
 class TestDatetimeMapper(unittest.TestCase):
     dt_mapper = DatetimeMapper()
-    report_data = ReportData(in_file_path='../data/data-sensitive.csv').get_raw_report_data()
+    in_file_path = os.path.join(dir_path, '../../../preprocess/data/data-sensitive.csv')
+    report_data = ReportData(in_file_path=in_file_path).get_raw_report_data()
 
     def test_process_hour_of_day(self):
         report_data = self.dt_mapper.process(self.report_data)
