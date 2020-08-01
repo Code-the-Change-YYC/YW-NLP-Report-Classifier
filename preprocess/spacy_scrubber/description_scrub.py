@@ -3,7 +3,7 @@ import pandas as pd
 
 from preprocessor import Preprocessor
 from report_data_d import _ColName
-from spacy_scrubber.name_detect import NameDetector
+from spacy_scrubber.scrubber import Scrubber
 
 
 class DescriptionScrubber(Preprocessor):
@@ -34,11 +34,11 @@ class DescriptionScrubber(Preprocessor):
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
         self.get_client_tokens(
             report_data[_ColName.CLI_PRI], report_data[_ColName.CLI_SEC])
-        name_detector = NameDetector(self.client_tokens)
+        scrubber = Scrubber(self.client_tokens)
         descriptions = report_data[_ColName.DESC]
 
         # loop to clean
-        scrubbed_descriptions = [name_detector.scrub(d) for d in descriptions]
+        scrubbed_descriptions = [scrubber.scrub(d) for d in descriptions]
 
         # update pandas column
         report_data[_ColName.DESC] = scrubbed_descriptions
