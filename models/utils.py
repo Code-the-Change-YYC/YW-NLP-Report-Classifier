@@ -5,7 +5,7 @@ import pandas as pd
 from nltk.corpus import stopwords
 
 
-def _clean_scrubadub_entities(series: pd.Series, replace_word: str = "someone"):
+def clean_scrubadub_entities(series: pd.Series, replace_word: str = "someone"):
     """Replace one or more characters excluding curly braces that is/are contained
     within 2 pairs of curly braces, followed by zero or one alpha-numeric
     character.

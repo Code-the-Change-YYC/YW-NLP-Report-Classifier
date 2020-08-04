@@ -8,15 +8,10 @@ ArrayLike = NewType('ArrayLike', Union[np.ndarray, Iterable, int, float])
 
 
 class Model(ABC):
-    @abstractmethod
-    def train(self, X: ArrayLike, y: ArrayLike) -> object:
-        """Train the model according to `X`, `y`.
+    weights_file: str
 
-        :param X: array_like training vectors of shape (n_samples, n_features)
-        :param y: array_like target values of shape (n_samples,)
-        :return: self
-        """
-        ...
+    def __init__(self, weights_file: str):
+        self.weights_file = weights_file
 
     @abstractmethod
     def predict(self, X: ArrayLike) -> np.ndarray:
