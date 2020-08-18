@@ -1,4 +1,5 @@
 from typing import Optional
+import re
 
 import spacy
 
@@ -51,13 +52,14 @@ class NameDetector:
         # load the model
         self.nlp = spacy.load("en_core_web_lg")
 
-    def scrub(self, text):
+    def scrub(self, text: str):
         # run model over description
         doc = self.nlp(text)
         for ent in doc.ents:
             whitelisted = ent.text.lower() in NameDetector.whitelisted_words
             if (ent.label_ in NameDetector.name_labels or ent.text in self.client_tokens) and not whitelisted:
-                text = text[:ent.start_char] + self._get_placeholder(ent.text) + text[ent.end_char:]
+                text = text[:ent.start_char] + ('*' * len(ent.text)) + text[ent.end_char:]
+
         # run model again to ignore asterisks
         doc = self.nlp(text)
         # iterate over tokens to catch rest of initials
@@ -65,11 +67,9 @@ class NameDetector:
             if token.text in self.client_tokens and token.text.lower() not in NameDetector.whitelisted_words:
                 # convert to span to get start_char and end_char attributes
                 span = doc[i:i + 1]
-                text = text[:span.start_char] + self._get_placeholder(token.text) + text[span.end_char:]
-        return text
+                text = text[:span.start_char] + ('*' * len(token.text)) + text[span.end_char:]
 
-    def _get_placeholder(self, text: str) -> str:
-        if self.replacement_method is None:
-            return '*' * len(text)
-        else:
-            return self.replacement_method
+        if self.replacement_method:
+            text = re.sub(r'[*]+', self.replacement_method, text)
+
+        return text
