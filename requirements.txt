@@ -1,7 +1,9 @@
-scrubadub==1.2.0
-spacy==2.1.8
-pandas==1.0.1
-scikit-learn~=0.20.3
-matplotlib~=3.2.1
-nltk~=3.5
-numpy~=1.18.3
+spacy
+pandas
+scikit-learn
+matplotlib
+nltk
+numpy
+jupyter
+https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-2.3.1/en_core_web_lg-2.3.1.tar.gz
+black

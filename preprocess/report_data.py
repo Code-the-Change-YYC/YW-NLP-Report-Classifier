@@ -59,7 +59,9 @@ class ReportData:
         """
         report_df = self.get_raw_report_data()
         for processor in self.pipeline:
+            print(f'Starting {processor.__name__}')
             report_df = processor(**self._processor_args).process(report_df)
+            print(f'Finished {processor.__name__}')
         return report_df
 
     def create_preprocessed_csv(self):
