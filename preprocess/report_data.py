@@ -27,7 +27,7 @@ class ReportData:
         NLTKLemmatizer
     ]
     in_file_path: str = path.join(dir_path, 'data', 'data-sensitive.csv')
-    out_file_path: str = path.join(dir_path, "data', 'data-processed.csv")
+    out_file_path: str = path.join(dir_path, 'data', 'data-processed.csv')
 
     def __init__(self, in_file_path: str = in_file_path,
                  out_file_path: str = out_file_path, **processor_args):
