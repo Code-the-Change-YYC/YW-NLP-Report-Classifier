@@ -11,3 +11,4 @@ __pycache__
 *.xls*
 **/.ipynb_checkpoints/
 .env/
+.virtual_documents/
