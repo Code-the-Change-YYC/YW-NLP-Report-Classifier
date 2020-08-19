@@ -20,17 +20,27 @@ const FormRow = styled.div`
 `;
 
 function App() {
+  // State variables
   const [location, setLocation] = useState("");
-  const [locationTouched, setLocationTouched] = useState(false);
   const [clientInitials, setClientInitials] = useState("");
-  const [clientInitialsTouched, setClientInitialsTouched] = useState(false);
-  const [services, setServices] = useState("");
-  const [servicesTouched, setServicesTouched] = useState(false);
+  const [services, setServices] = useState([]);
   const [incidentType, setIncidentType] = useState("");
-  const [incidentTypeTouched, setIncidentTypeTouched] = useState(false);
   const [date, setDate] = useState("");
-  const [dateTouched, setDateTouched] = useState(false);
+
+  // description does not need a touched variable - only the autocompleted fields
   const [description, setDescription] = useState("");
+
+  // the "Touched" variables keep track of whether or not that form field was edited by the client.
+  // If so, then we stop overwriting the client's manual input
+  const [locationTouched, setLocationTouched] = useState(false);
+  const [clientInitialsTouched, setClientInitialsTouched] = useState(false);
+  const [servicesTouched, setServicesTouched] = useState(false);
+  const [incidentTypeTouched, setIncidentTypeTouched] = useState(false);
+  const [dateTouched, setDateTouched] = useState(false);
+
+  // Checking functions
+  // These functions are run when the description updates and contain the logic
+  // for autocompleting the form fields.
 
   const checkDate = () => {
     const results = chrono.parse(description);
@@ -42,26 +52,33 @@ function App() {
 
   const checkServices = () => {
     const lowercasedDescription = description.toLowerCase();
+    const newServices = [];
     if (
       lowercasedDescription.includes("cps") ||
       lowercasedDescription.includes("child welfare")
     ) {
-      setServices("Child Welfare (CFS)");
-    } else if (lowercasedDescription.includes("ems")) {
-      setServices("EMS");
-    } else if (lowercasedDescription.includes("police")) {
-      setServices("police");
-    } else if (
+      newServices.append("Child Welfare (CPS)");
+    }
+    if (lowercasedDescription.includes("ems")) {
+      newServices.append("EMS");
+    }
+    if (lowercasedDescription.includes("police")) {
+      newServices.append("Police");
+    }
+    if (
       lowercasedDescription.includes("fire services") ||
       lowercasedDescription.includes("fire department")
     ) {
-      setServices("Fire");
-    } else if (
+      newServices.append("Fire");
+    }
+    if (
       lowercasedDescription.includes("doap") ||
       lowercasedDescription.includes("pact")
     ) {
-      setServices("Outreach (DOAP/PACT)");
+      newServices.append("Outreach (DOAP/PACT)");
     }
+
+    setServices(newServices);
   };
 
   const checkLocation = () => {
@@ -93,6 +110,7 @@ function App() {
     }
   };
 
+  // run this 1000 seconds when the description is updated
   const onDescriptionUpdate = useCallback(
     _.throttle(() => {
       if (!locationTouched) {
