@@ -5,28 +5,42 @@ import _ from "lodash";
 import chrono from "chrono-node";
 import Select from "react-select";
 import styled from "styled-components";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const FormRow = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: flex-start;
 
-  & > input,
   textarea {
     align-self: stretch;
-    margin-top: 5px;
+    font-size: 12pt;
+  }
+
+  & > label {
+    margin-bottom: 5px;
   }
 
   margin: 5px 0px;
 `;
 
+const Input = styled.input`
+  padding: 8px 5px;
+  font-size: 12pt;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+`;
+
 function App() {
   // State variables
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState(null);
   const [clientInitials, setClientInitials] = useState("");
   const [services, setServices] = useState([]);
   const [incidentType, setIncidentType] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(new Date());
 
   // description does not need a touched variable - only the autocompleted fields
   const [description, setDescription] = useState("");
@@ -38,6 +52,45 @@ function App() {
   const [servicesTouched, setServicesTouched] = useState(false);
   const [incidentTypeTouched, setIncidentTypeTouched] = useState(false);
   const [dateTouched, setDateTouched] = useState(false);
+
+  const locationOptions = [
+    {
+      value: "community",
+      label: "In community",
+    },
+    {
+      value: "croydon",
+      label: "YW Croydon",
+    },
+    {
+      value: "downtown",
+      label: "YW Downtown",
+    },
+    {
+      value: "hub",
+      label: "YW Hub",
+    },
+    {
+      value: "maple",
+      label: "YW Maple",
+    },
+    {
+      value: "providence",
+      label: "YW Croydon",
+    },
+    {
+      value: "sheriff king",
+      label: "YW Sheriff King",
+    },
+  ];
+
+  const serviceOptions = [
+    { value: "cps", label: "Child Welfare (CPS)" },
+    { value: "ems", label: "EMS" },
+    { value: "police", label: "Police" },
+    { value: "fire", label: "Fire" },
+    { value: "doap/pact", label: "Outreach (DOAP/PACT)" },
+  ];
 
   // Checking functions
   // These functions are run when the description updates and contain the logic
@@ -87,21 +140,21 @@ function App() {
     const lowercasedDescription = description.toLowerCase();
 
     if (lowercasedDescription.includes("community")) {
-      setLocation("In community");
+      setLocation({ value: "community", label: "In community" });
     } else if (lowercasedDescription.includes("Croydon".toLowerCase())) {
-      setLocation("YW Croydon");
+      setLocation({ value: "croydon", label: "YW Croydon" });
     } else if (lowercasedDescription.includes("Downtown".toLowerCase())) {
-      setLocation("YW Downtown");
+      setLocation({ value: "downtown", label: "YW Downtown" });
     } else if (lowercasedDescription.includes("Hub".toLowerCase())) {
-      setLocation("YW Hub");
+      setLocation({ value: "hub", label: "YW Hub" });
     } else if (lowercasedDescription.includes("Maple".toLowerCase())) {
-      setLocation("YW Maple");
+      setLocation({ value: "maple", label: "YW Maple" });
     } else if (lowercasedDescription.includes("Providence".toLowerCase())) {
-      setLocation("YW Providence");
+      setLocation({ value: "providence", label: "YW Providence" });
     } else if (
       lowercasedDescription.includes("YW Sheriff King".toLowerCase())
     ) {
-      setLocation("YW Sheriff King");
+      setLocation({ value: "sheriff king", label: "YW Sheriff King" });
     }
   };
 
@@ -142,51 +195,57 @@ function App() {
       <form>
         <FormRow>
           <label>Client Involved</label>
-          <input
+          <Input
             value={clientInitials}
             onChange={(e) => {
               setClientInitials(e.target.value);
               setClientInitialsTouched(true);
             }}
-          ></input>
+          ></Input>
         </FormRow>
         <FormRow>
           <label>Services Involved</label>
           <Select
+            styles={{
+              container: (provided) => ({ ...provided, width: "100%" }),
+            }}
             value={services}
             isMulti
             onChange={(newSelection) => {
               setServices(newSelection);
               setServicesTouched(true);
             }}
-            options={[
-              { value: "cps", label: "Child Welfare (CPS)" },
-              { value: "ems", label: "EMS" },
-              { value: "police", label: "Police" },
-              { value: "fire", label: "Fire" },
-              { value: "doap/pact", label: "Outreach (DOAP/PACT)" },
-            ]}
+            options={serviceOptions}
           ></Select>
         </FormRow>
         <FormRow>
           <label>Location</label>
-          <input
+          <Select
+            styles={{
+              container: (provided) => ({ ...provided, width: "100%" }),
+            }}
             value={location}
-            onChange={(e) => {
-              setLocation(e.target.value);
+            onChange={(newLocation) => {
+              setLocation(newLocation);
               setLocationTouched(true);
             }}
-          ></input>
+            options={locationOptions}
+          ></Select>
         </FormRow>
         <FormRow>
           <label>Date</label>
-          <input
-            value={date}
-            onChange={(e) => {
-              setDate(e.target.value);
+          <DatePicker
+            selected={date}
+            onChange={(date) => {
+              setDate(date);
               setDateTouched(true);
             }}
-          ></input>
+            showTimeSelect
+            timeIntervals={15}
+            style={{ padding: "5px" }}
+            customInput={<Input></Input>}
+            dateFormat="MMMM d, yyyy h:mm aa"
+          ></DatePicker>
         </FormRow>
         <FormRow>
           <label>Description</label>

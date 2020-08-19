@@ -38,3 +38,11 @@
     transform: rotate(360deg);
   }
 }
+
+.react-datepicker-wrapper,
+.react-datepicker__input-container,
+.react-datepicker__input-container input {
+  display: block !important;
+  width: 100%;
+  box-sizing: border-box;
+}
