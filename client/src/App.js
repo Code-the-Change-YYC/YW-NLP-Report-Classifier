@@ -3,12 +3,13 @@ import logo from "./logo.jpg";
 import "./App.css";
 import _ from "lodash";
 import chrono from "chrono-node";
+import Select from "react-select";
 import styled from "styled-components";
 
 const FormRow = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
 
   & > input,
   textarea {
@@ -57,25 +58,26 @@ function App() {
       lowercasedDescription.includes("cps") ||
       lowercasedDescription.includes("child welfare")
     ) {
-      newServices.append("Child Welfare (CPS)");
+      newServices.push({ value: "cps", label: "Child Welfare (CPS)" });
     }
     if (lowercasedDescription.includes("ems")) {
-      newServices.append("EMS");
+      newServices.push({ value: "ems", label: "EMS" });
     }
     if (lowercasedDescription.includes("police")) {
-      newServices.append("Police");
+      newServices.push({ value: "police", label: "Police" });
     }
     if (
       lowercasedDescription.includes("fire services") ||
-      lowercasedDescription.includes("fire department")
+      lowercasedDescription.includes("fire department") ||
+      lowercasedDescription.includes("fire station")
     ) {
-      newServices.append("Fire");
+      newServices.push({ value: "fire", label: "Fire" });
     }
     if (
       lowercasedDescription.includes("doap") ||
       lowercasedDescription.includes("pact")
     ) {
-      newServices.append("Outreach (DOAP/PACT)");
+      newServices.push({ value: "doap/pact", label: "Outreach (DOAP/PACT)" });
     }
 
     setServices(newServices);
@@ -126,7 +128,7 @@ function App() {
         checkDate();
       }
     }, 1000),
-    [checkLocation, checkInitials, checkServices, _]
+    [checkLocation, checkInitials, checkServices, checkDate, _]
   );
 
   useEffect(onDescriptionUpdate, [description]);
@@ -150,13 +152,21 @@ function App() {
         </FormRow>
         <FormRow>
           <label>Services Involved</label>
-          <input
+          <Select
             value={services}
-            onChange={(e) => {
-              setServices(e.target.value);
+            isMulti
+            onChange={(newSelection) => {
+              setServices(newSelection);
               setServicesTouched(true);
             }}
-          ></input>
+            options={[
+              { value: "cps", label: "Child Welfare (CPS)" },
+              { value: "ems", label: "EMS" },
+              { value: "police", label: "Police" },
+              { value: "fire", label: "Fire" },
+              { value: "doap/pact", label: "Outreach (DOAP/PACT)" },
+            ]}
+          ></Select>
         </FormRow>
         <FormRow>
           <label>Location</label>
