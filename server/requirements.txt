@@ -1,0 +1,2 @@
+tf-nightly==2.4.0.dev20200721
+fastapi==0.60.00
