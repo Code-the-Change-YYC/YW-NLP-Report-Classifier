@@ -7,6 +7,7 @@ import Select from "react-select";
 import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { getPrediction } from "./actions/predict";
 
 const FormRow = styled.div`
   display: flex;
@@ -165,6 +166,11 @@ function App() {
     }
   };
 
+  const checkIncidentType = async () => {
+    const prediction = await getPrediction(description);
+    setIncidentType(prediction);
+  };
+
   // run this 1000 seconds when the description is updated
   const onDescriptionUpdate = useCallback(
     _.throttle(() => {
@@ -179,6 +185,9 @@ function App() {
       }
       if (!dateTouched) {
         checkDate();
+      }
+      if (!incidentTypeTouched) {
+        checkIncidentType();
       }
     }, 1000),
     [checkLocation, checkInitials, checkServices, checkDate, _]
@@ -246,6 +255,16 @@ function App() {
             customInput={<Input></Input>}
             dateFormat="MMMM d, yyyy h:mm aa"
           ></DatePicker>
+        </FormRow>
+        <FormRow>
+          <label>Incident Type</label>
+          <Input
+            value={incidentType}
+            onChange={(e) => {
+              setIncidentType(e.target.value);
+              setIncidentTypeTouched(true);
+            }}
+          ></Input>
         </FormRow>
         <FormRow>
           <label>Description</label>
