@@ -1,8 +1,6 @@
 import re
 
-import nltk
 import pandas as pd
-from nltk.corpus import stopwords
 
 
 def clean_scrubadub_entities(series: pd.Series, replace_word: str = "someone"):
@@ -18,15 +16,3 @@ def clean_scrubadub_entities(series: pd.Series, replace_word: str = "someone"):
     replaced with a scrubadub entity.
     """
     return [re.sub(r"\{\{[^{}]+\}\}\w?", replace_word, s) for s in series]
-
-
-def nltk_tokenizer(df_sent):
-    lemmatizer = nltk.WordNetLemmatizer()
-    stop_words = set(stopwords.words("english"))
-
-    tokens = nltk.word_tokenize(df_sent)
-    words = [word.lower() for word in tokens if word.isalpha()]
-    words = [word for word in words if word not in stop_words]
-    words = [lemmatizer.lemmatize(word) for word in words]
-
-    return words
