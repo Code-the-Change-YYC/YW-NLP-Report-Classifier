@@ -1,0 +1,4 @@
+-r ../requirements.txt
+jupyterlab~=2.2.4
+jupyter-lsp~=0.9.1
+python-language-server[all]~=0.34.1

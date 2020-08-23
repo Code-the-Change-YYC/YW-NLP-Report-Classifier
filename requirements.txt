@@ -1,9 +1,9 @@
-spacy
-pandas
-scikit-learn
-matplotlib
-nltk
-numpy
-jupyter
+spacy~=2.3.2
+pandas~=1.1.0
+scikit-learn~=0.23.2
+matplotlib~=3.3.1
+nltk~=3.5
+numpy~=1.19.1
+black~=19.10b0
+
 https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-2.3.1/en_core_web_lg-2.3.1.tar.gz
-black
