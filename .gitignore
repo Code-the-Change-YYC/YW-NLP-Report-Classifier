@@ -148,3 +148,6 @@ cython_debug/
 *.csv
 *.xls*
 node_modules
+**/.ipynb_checkpoints/
+.env/
+.virtual_documents/

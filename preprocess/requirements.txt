@@ -1,4 +1,2 @@
-scrubadub==1.2.0
-spacy==2.1.8
-pandas==1.0.1
-matplotlib
+-r ../requirements.txt
+scrubadub==1.2.1 ; python_version ~= '3.6'
