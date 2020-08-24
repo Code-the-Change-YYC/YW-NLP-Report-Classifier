@@ -20,9 +20,9 @@ dir_path = path.dirname(path.realpath(__file__))
 
 class ReportData:
     pipeline: List[Type[Preprocessor]] = [
+        DatetimeMapper,
         DescriptionScrubber,
         IncidentTypesProcessor,
-        DatetimeMapper,
         WordCharacterFilter,
         Lowercaser,
         NLTKLemmatizer
