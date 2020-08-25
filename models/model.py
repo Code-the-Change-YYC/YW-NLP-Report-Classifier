@@ -1,17 +1,16 @@
 from abc import ABC, abstractmethod
-from typing import NewType, Union, Iterable
+from typing import NewType, Union, Iterable, TypeVar, Generic
 
 import numpy as np
 
 """Numpy array_like type"""
 ArrayLike = NewType('ArrayLike', Union[np.ndarray, Iterable, int, float])
 
+T = TypeVar('T')
 
-class Model(ABC):
-    weights_file: str
 
-    def __init__(self, weights_file: str):
-        self.weights_file = weights_file
+class Model(ABC, Generic[T]):
+    _model: T
 
     @abstractmethod
     def predict(self, X: ArrayLike) -> np.ndarray:

@@ -1,6 +1,24 @@
 # Training
 
-Model training is performed beforehand within IPython notebooks. The trained models are stored within `../model_output`.
+Model training is performed beforehand within IPython notebooks.
+
+## Model Saving
+
+The trained models are stored within `../model_output`.
+
+When pickling models all dependencies should be imported from the root of the project. This is so that the models can be unpickled regardless of the location of the start script. For example, a ComplementNB pipeline might require the function `spacy_tokenizer`. If this is imported relative to the current notebook's directory with something like
+
+```python
+from utils import spacy_tokenizer
+```
+
+any module which wants to unpickle the pipeline must have a `utils` package (with a `spacy_tokenizer`) as a sibling due to the way that pickling works. So instead it should be imported as
+
+```python
+from training.description_classification.utils import spacy_tokenizer
+```
+
+and this way the pipeline can be unpickled from anywhere as long as a function called `spacy_tokenizer` with a `__module__` of `training.description_classification.utils` (which is easy to accomplish, just import it in the same way. Or even better an unpickler utility can be made within `utils`).
 
 ## Development
 
@@ -15,6 +33,14 @@ Development of this package can occur within the root virtual environment. See t
 To install the package's dependencies, ensure your virtual environment is activated and run
 ```shell script
 pip install -r training/requirements.txt
+```
+
+Additionally, ensure the NLTK resources are installed using
+```python
+import nltk
+nltk.download("punkt")
+nltk.download("stopwords")
+nltk.download("wordnet")
 ```
 
 ### Notebooks
