@@ -6,10 +6,10 @@ from models.model import Model, ArrayLike
 from report_data import ReportData
 from report_data_d import ColName
 
-from training.description_classification.utils import load_svm
+from training.description_classification.utils import load_svm, SVMPipeline
 
 
-class SVMDescriptionClf(Model[Pipeline]):
+class SVMDescriptionClf(Model[SVMPipeline]):
     """Complement Naive Bayes model for description classification."""
     _model: Pipeline
 

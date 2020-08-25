@@ -1,4 +1,5 @@
 import pickle
+from typing import NewType
 
 import en_core_web_lg
 import nltk
@@ -44,7 +45,11 @@ def nltk_tokenizer(df_sent):
     return words
 
 
-def load_cnb() -> Pipeline:
+CNBPipeline = NewType('CNBPipeline', Pipeline)
+"""Same as `sklearn.naive_bayes.ComplementNB` but accepts strings as inputs."""
+
+
+def load_cnb() -> CNBPipeline:
     """Unpickles the trained ComplementNB description classifier, ensuring its
     dependencies are met.
 
@@ -54,7 +59,11 @@ def load_cnb() -> Pipeline:
         return pickle.load(f)
 
 
-def load_svm() -> Pipeline:
+SVMPipeline = NewType('SVMPipeline', Pipeline)
+"""Same as `sklearn.svm.SVC` but accepts strings as inputs."""
+
+
+def load_svm() -> SVMPipeline:
     """Unpickles the trained SVM-C description classifier, ensuring its
     dependencies are met.
 

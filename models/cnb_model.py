@@ -6,10 +6,10 @@ from models.model import Model, ArrayLike
 from report_data import ReportData
 from report_data_d import ColName
 
-from training.description_classification.utils import load_cnb
+from training.description_classification.utils import load_cnb, CNBPipeline
 
 
-class CNBDescriptionClf(Model[Pipeline]):
+class CNBDescriptionClf(Model[CNBPipeline]):
     """Complement Naive Bayes model for description classification."""
     _model: Pipeline
 
