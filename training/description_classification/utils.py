@@ -1,5 +1,5 @@
 import pickle
-from typing import NewType
+from typing import NewType, Iterable
 
 import en_core_web_lg
 import nltk
@@ -71,3 +71,17 @@ def load_svm() -> SVMPipeline:
     """
     with open(model_paths.svm, 'rb') as f:
         return pickle.load(f)
+
+
+def count_weight(labels: Iterable):
+    """Assigns each label class a weight according to it's frequency of appearance in the dataset.
+
+    :param labels:
+    :return: Dictionary with labels as keys and count weights as values.
+    """
+    weight_dict = {lb: 0 for lb in set(labels)}
+
+    for label in labels:
+        weight_dict[label] += 1
+
+    return weight_dict
