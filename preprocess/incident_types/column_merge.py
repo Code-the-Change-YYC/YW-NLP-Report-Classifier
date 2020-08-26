@@ -12,8 +12,6 @@ class ColumnMerger(Preprocessor):
         :param report_data:
         :return: The updated data.
         """
-        pd.set_option('display.max_columns', None)
-
         report_data[_ColName.INC_T1] = self.merge(report_data[_ColName.INC_T1], report_data[_ColName.INC_T1_OLD])
         report_data[_ColName.INC_T2] = self.merge(report_data[_ColName.INC_T2], report_data[_ColName.INC_T2_OLD])
 

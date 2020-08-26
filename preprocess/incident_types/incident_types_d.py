@@ -21,6 +21,7 @@ class IncidentType(Enum):
     ILLEGAL = "Illegal activity on premises"
     EXPOSURE = "Exposure"
     COVID = "COVID-19 Confirmed"
+    REF_ISO_COVID = "Refusal to isolate for covid-19"
     MISSING = "Client missing"
     DEATH_ONSITE = "Client death (onsite)"
     DEATH_OFFSITE = "Client death (offsite)"

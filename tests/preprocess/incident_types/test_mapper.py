@@ -1,24 +1,23 @@
 import unittest
-import os
 
-from incident_types import processor
 from incident_types.incident_types_d import IncidentType, replacements
+from incident_types.mapper import IncTypeMapper
+from incident_types.processor import IncidentTypesProcessor
 from report_data import ReportData
 
-# use for filepath relative from this file
-dir_path = os.path.dirname(os.path.realpath(__file__))
 
 class TestIncTypeMapper(unittest.TestCase):
     def test_maps(self):
         """Ensure replacements are made as expected."""
 
-        in_file_path = os.path.join(dir_path, '../../../preprocess/data/data-sensitive.csv')
-        report_df = ReportData(in_file_path=in_file_path).get_raw_report_data()
-        processor.IncidentTypesProcessor().process(report_df)
-        for col_name in processor.IncTypeMapper.col_names:
+        report_df = ReportData().get_raw_report_data()
+        IncidentTypesProcessor().process(report_df)
+        replacements_keys = [IncTypeMapper.normalize_inc_type(key) for key in replacements.keys()]
+        incident_type_values = [v.value for v in IncidentType] + ['']
+        for col_name in IncTypeMapper.col_names:
             for inc_type in report_df[col_name].fillna(''):
-                self.assertNotIn(inc_type, replacements.keys())
-                self.assertIn(inc_type, [v.value for v in IncidentType.__members__.values()] + [''])
+                self.assertNotIn(inc_type, replacements_keys)
+                self.assertIn(inc_type, incident_type_values)
 
 
 if __name__ == '__main__':
