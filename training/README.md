@@ -59,6 +59,8 @@ Ensure the dependencies have been installed and run `jupyter lab` to begin noteb
     - [System clipboard support](https://github.com/ianhi/jupyterlab_vim-system-clipboard-support)
 - [Language Server Protocol](https://github.com/krassowski/jupyterlab-lsp)
     - Note that some packages mentioned in the setup for this plugin are likely already installed from `requirements.txt`.
+- [Git](https://github.com/jupyterlab/jupyterlab-git)
+    - Provides really nice notebook differ
 - Themes can also be installed
 
 #### Google Colab
