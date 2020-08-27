@@ -2,11 +2,14 @@ import pickle
 from typing import NewType, Iterable
 
 import en_core_web_lg
+import matplotlib.pyplot as plt
 import nltk
 from nltk import word_tokenize
 from nltk.corpus import stopwords
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, classification_report, plot_confusion_matrix
 from sklearn.pipeline import Pipeline
 
+from incident_types.incident_types_d import IncidentType
 from training.description_classification import model_paths
 
 _nlp = None
@@ -85,3 +88,43 @@ def count_weight(labels: Iterable):
         weight_dict[label] += 1
 
     return weight_dict
+
+
+def show_classification_report(clf: Pipeline, X, y, sample_weight=None):
+    predicted = clf.predict(X)
+    accuracy = accuracy_score(y, predicted, sample_weight=sample_weight)
+    balanced = balanced_accuracy_score(
+        y, predicted, sample_weight=sample_weight
+    )
+
+    print("Accuracy: {:.2%}".format(accuracy))
+    print("Balanced accuracy: {:.2%}".format(balanced))
+    print()
+
+    labels = [e.value for e in IncidentType]
+    print("Classification report:\n")
+    print(
+        classification_report(
+            y,
+            predicted,
+            sample_weight=sample_weight,
+            labels=labels,
+            target_names=labels,
+            zero_division=0
+        )
+    )
+    
+    true = set(y)
+    pred = set(predicted)
+    display = plot_confusion_matrix(
+        clf,
+        X,
+        y,
+        sample_weight=sample_weight,
+        normalize="true",
+        display_labels=true | pred,
+        cmap=plt.cm.Blues,
+        xticks_rotation="vertical",
+    )
+    title = "Confusion matrix with normalization"
+    display.ax_.set_title(title)
