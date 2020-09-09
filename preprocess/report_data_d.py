@@ -1,5 +1,5 @@
 from enum import Enum, unique
-from typing import Set
+from typing import Set, Type
 
 
 @unique
@@ -62,4 +62,4 @@ class _ColName(Enum):
 old_col_names: Set[_ColName] = {_ColName.INC_T1_OLD, _ColName.INC_T2_OLD}
 
 """Column names of processed data"""
-ColName: _ColName = Enum("ColName", [(m.name, m.value) for m in _ColName if m not in old_col_names])
+ColName: Type[_ColName] = Enum("ColName", [(m.name, m.value) for m in _ColName if m not in old_col_names])

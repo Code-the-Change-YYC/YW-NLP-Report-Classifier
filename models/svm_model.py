@@ -6,15 +6,15 @@ from models.model import Model, ArrayLike
 from report_data import ReportData
 from report_data_d import ColName
 
-from training.description_classification.utils import load_cnb, CNBPipeline
+from training.description_classification.utils import load_svm, SVMPipeline
 
 
-class CNBDescriptionClf(Model[CNBPipeline]):
+class SVMDescriptionClf(Model[SVMPipeline]):
     """Complement Naive Bayes model for description classification."""
     _model: Pipeline
 
     def __init__(self):
-        self._model = load_cnb()
+        self._model = load_svm()
 
     def predict(self, X: ArrayLike) -> np.ndarray:
         """Predict the primary incident type of the given descriptions.
@@ -30,6 +30,6 @@ class CNBDescriptionClf(Model[CNBPipeline]):
 
 
 if __name__ == '__main__':
-    clf = CNBDescriptionClf()
+    clf = SVMDescriptionClf()
     df = ReportData().get_processed_data()
     print(clf.predict([df[ColName.DESC][0]]))

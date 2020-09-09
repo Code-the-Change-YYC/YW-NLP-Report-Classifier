@@ -12,15 +12,8 @@ class ColumnMerger(Preprocessor):
         :param report_data:
         :return: The updated data.
         """
-        pd.set_option('display.max_columns', None)
-
         report_data[_ColName.INC_T1] = self.merge(report_data[_ColName.INC_T1], report_data[_ColName.INC_T1_OLD])
         report_data[_ColName.INC_T2] = self.merge(report_data[_ColName.INC_T2], report_data[_ColName.INC_T2_OLD])
-
-        # make blank if matching first incident type
-        report_data[_ColName.INC_T2] = report_data.apply(
-            lambda r: (r[_ColName.INC_T2] if r[_ColName.INC_T1] != r[_ColName.INC_T2] else ''),
-            axis=1)
 
         # remove old columns
         return report_data[[col for col in report_data if col not in [_ColName.INC_T1_OLD, _ColName.INC_T2_OLD]]]
