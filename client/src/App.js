@@ -22,7 +22,13 @@ const FormRow = styled.div`
     margin-bottom: 5px;
   }
 
+  & > div > label {
+    display: flex;
+    margin-bottom: 5px;
+  }
+
   margin: 5px 0px;
+  text-align: left;
 `;
 
 const Input = styled.input`
@@ -39,8 +45,20 @@ function App() {
   const [location, setLocation] = useState(null);
   const [clientInitials, setClientInitials] = useState("");
   const [services, setServices] = useState([]);
-  const [incidentType, setIncidentType] = useState("");
+  const [incidentTypePri, setIncidentTypePri] = useState(null);
+  const [incidentTypeSec, setIncidentTypeSec] = useState(null);
   const [date, setDate] = useState(new Date());
+  //
+  const [clientSecInitials, setClientSecInitials] = useState("");
+  const [locationDetail, setLocationDetail] = useState("");
+  const [staffInvolvedFirst, setStaffInvolvedFirst] = useState("");
+  const [staffInvolvedLast, setStaffInvolvedLast] = useState("");
+  const [program, setProgram] = useState(null);
+  const [otherServices, setOtherServices] = useState("");
+  const [immediateResponse, setImmediateResponse] = useState(null);
+  const [staffCompleting, setStaffCompleting] = useState("");
+  const [supervisorReviewer, setSupervisorReviewer] = useState("");
+  const [dateCompleted, setDateCompleted] = useState("");
 
   // description does not need a touched variable - only the autocompleted fields
   const [description, setDescription] = useState("");
@@ -81,6 +99,103 @@ function App() {
     {
       value: "sheriff king",
       label: "YW Sheriff King",
+    },
+  ];
+
+  const programOptions = [
+    {
+      label: "Child Care (Hub)",
+      value: "child care hub",
+    },
+    {
+      label: "Child Support",
+      value: "child support",
+    },
+    {
+      label: "Compass",
+      value: "compass",
+    },
+    {
+      label: "Counselling and Personal Development",
+      value: "counselling",
+    },
+    {
+      label: "Croydon (Community Housing)",
+      value: "croydon",
+    },
+    {
+      label: "DCRT",
+      value: "DCRT",
+    },
+    {
+      label: "Drop-In Child Care",
+      value: "croydon",
+    },
+    {
+      label: "Employment Resource Center",
+      value: "employment resource center",
+    },
+  ];
+
+  const incidentTypes = [
+    {
+      label: "Child abandonment",
+      value: "child abandonment",
+    },
+    {
+      label: "Client aggression towards another person",
+      value: "client aggression towards another person",
+    },
+    {
+      label: "Client aggression towards property",
+      value: "client aggression towards property",
+    },
+    {
+      label: "Client death (offsite)",
+      value: "client death (offsite)",
+    },
+    {
+      label: "Client death (onsite)",
+      value: "client death (onsite)",
+    },
+    {
+      label: "Client missing",
+      value: "client missing",
+    },
+    {
+      label: "Concern for welfare of a child",
+      value: "concern for welfare of a child",
+    },
+    {
+      label: "COVID-19 Confirmed",
+      value: "COVID-19 confirmed",
+    },
+    {
+      label: "Exposure",
+      value: "exposure",
+    },
+  ];
+
+  const immediateResponses = [
+    {
+      label: "Called Child Welfare",
+      value: "called child welfare",
+    },
+    {
+      label: "Evacution",
+      value: "evacution",
+    },
+    {
+      label: "First-aid provided",
+      value: "first-aid provided",
+    },
+    {
+      label: "Mental health assessment",
+      value: "mental health assessment",
+    },
+    {
+      label: "Naloxone administered",
+      value: "naloxone administered",
     },
   ];
 
@@ -193,45 +308,123 @@ function App() {
       <h2>Prototype - June 30, 2020 </h2>
 
       <form>
-        <FormRow>
-          <label>Client Involved</label>
-          <Input
-            value={clientInitials}
-            onChange={(e) => {
-              setClientInitials(e.target.value);
-              setClientInitialsTouched(true);
-            }}
-          ></Input>
+        <FormRow style={{ flexDirection: "row" }}>
+          <div style={{ width: "100%" }}>
+            <label>Client Involved - Primary (Initials)</label>
+            <Input
+              value={clientInitials}
+              onChange={(e) => {
+                setClientInitials(e.target.value);
+                setClientInitialsTouched(true);
+              }}
+              style={{ width: "95%" }}
+            ></Input>
+          </div>
+          <div style={{ width: "100%" }}>
+            <label>Client Involved - Secondary (Initials)</label>
+            <Input
+              value={clientSecInitials}
+              onChange={(e) => setClientSecInitials(e.target.value)}
+            ></Input>
+          </div>
         </FormRow>
-        <FormRow>
-          <label>Services Involved</label>
-          <Select
-            styles={{
-              container: (provided) => ({ ...provided, width: "100%" }),
-            }}
-            value={services}
-            isMulti
-            onChange={(newSelection) => {
-              setServices(newSelection);
-              setServicesTouched(true);
-            }}
-            options={serviceOptions}
-          ></Select>
+        <FormRow style={{ flexDirection: "row" }}>
+          <div style={{ width: "100%" }}>
+            <label>Services Involved</label>
+            <Select
+              styles={{
+                container: (provided) => ({ ...provided, width: "95%" }),
+              }}
+              value={services}
+              isMulti
+              onChange={(newSelection) => {
+                setServices(newSelection);
+                setServicesTouched(true);
+              }}
+              options={serviceOptions}
+            ></Select>
+          </div>
+          <div style={{ width: "100%" }}>
+            <label>Other Services Involved (if other)</label>
+            <Input
+              value={otherServices}
+              onChange={(e) => setOtherServices(e.target.value)}
+            ></Input>
+          </div>
         </FormRow>
-        <FormRow>
-          <label>Location</label>
-          <Select
-            styles={{
-              container: (provided) => ({ ...provided, width: "100%" }),
-            }}
-            value={location}
-            onChange={(newLocation) => {
-              setLocation(newLocation);
-              setLocationTouched(true);
-            }}
-            options={locationOptions}
-          ></Select>
+
+        <FormRow style={{ flexDirection: "row" }}>
+          <div style={{ width: "100%" }}>
+            <label>Location</label>
+            <Select
+              styles={{
+                container: (provided) => ({ ...provided, width: "95%" }),
+              }}
+              value={location}
+              onChange={(newLocation) => {
+                setLocation(newLocation);
+                setLocationTouched(true);
+              }}
+              options={locationOptions}
+            ></Select>
+          </div>
+          <div style={{ width: "100%" }}>
+            <label>Location Detail</label>
+            <Input
+              value={locationDetail}
+              onChange={(e) => setLocationDetail(e.target.value)}
+            ></Input>
+          </div>
         </FormRow>
+
+        <FormRow style={{ flexDirection: "row" }}>
+          <div style={{ width: "100%" }}>
+            <label>Incident Type (Primary)</label>
+            <Select
+              styles={{
+                container: (provided) => ({ ...provided, width: "95%" }),
+              }}
+              value={incidentTypePri}
+              onChange={(incidentType) => {
+                setIncidentTypePri(incidentType);
+                setIncidentTypeTouched(true);
+              }}
+              options={incidentTypes}
+            ></Select>
+          </div>
+          <div style={{ width: "100%" }}>
+            <label>Incidept Type (Secondary)</label>
+            <Select
+              styles={{
+                container: (provided) => ({ ...provided, width: "95%" }),
+              }}
+              value={incidentTypeSec}
+              onChange={(incidentType) => {
+                setIncidentTypeSec(incidentType);
+              }}
+              options={incidentTypes}
+            ></Select>
+          </div>
+        </FormRow>
+
+        <FormRow style={{ flexDirection: "row" }}>
+          <div style={{ width: "100%" }}>
+            <label>Primary Staff Involved First Name</label>
+            <Input
+              value={staffInvolvedFirst}
+              onChange={(e) => setStaffInvolvedFirst(e.target.value)}
+              style={{ width: "95%" }}
+            ></Input>
+          </div>
+          <div style={{ width: "100%" }}>
+            <label>Primary Staff Involved Last Name</label>
+            <Input
+              value={staffInvolvedLast}
+              onChange={(e) => setStaffInvolvedLast(e.target.value)}
+            ></Input>
+          </div>
+        </FormRow>
+
         <FormRow>
           <label>Date</label>
           <DatePicker
@@ -254,6 +447,63 @@ function App() {
             onChange={(e) => setDescription(e.target.value)}
             rows={7}
           ></textarea>
+        </FormRow>
+        <FormRow>
+          <label>Program</label>
+          <Select
+            styles={{
+              container: (provided) => ({ ...provided, width: "100%" }),
+            }}
+            value={program}
+            onChange={(program) => {
+              setProgram(program);
+            }}
+            options={programOptions}
+          ></Select>
+        </FormRow>
+        <FormRow>
+          <label>Immediate Response</label>
+          <Select
+            styles={{
+              container: (provided) => ({ ...provided, width: "100%" }),
+            }}
+            value={immediateResponse}
+            isMulti
+            onChange={(newSelection) => setImmediateResponse(newSelection)}
+            options={immediateResponses}
+          ></Select>
+        </FormRow>
+        <FormRow style={{ flexDirection: "row" }}>
+          <div style={{ width: "100%" }}>
+            <label>Name of Staff Completing this Report</label>
+            <Input
+              value={staffCompleting}
+              onChange={(e) => setStaffCompleting(e.target.value)}
+              style={{ width: "95%" }}
+            ></Input>
+          </div>
+          <div style={{ width: "100%" }}>
+            <label>Name of Program Supervisor Reviewer</label>
+            <Input
+              value={supervisorReviewer}
+              onChange={(e) => setSupervisorReviewer(e.target.value)}
+            ></Input>
+          </div>
+        </FormRow>
+        <FormRow>
+          <label>Completed On</label>
+          <DatePicker
+            selected={date}
+            showTimeSelect
+            timeIntervals={15}
+            style={{ padding: "5px" }}
+            customInput={<Input></Input>}
+            dateFormat="MMMM d, yyyy h:mm aa"
+            value={Date.now()}
+            onChange={(date) => {
+              setDateCompleted(date);
+            }}
+          ></DatePicker>
         </FormRow>
       </form>
     </div>
