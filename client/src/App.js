@@ -7,6 +7,13 @@ import Select from "react-select";
 import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import {
+  locationOptions,
+  programOptions,
+  incidentTypes,
+  immediateResponseOptions,
+  serviceOptions,
+} from "./formOptions";
 
 const FormRow = styled.div`
   display: flex;
@@ -44,24 +51,24 @@ function App() {
   // State variables
   const [location, setLocation] = useState(null);
   const [clientInitials, setClientInitials] = useState("");
-  const [services, setServices] = useState([]);
+  const [servicesInvolved, setservicesInvolved] = useState([]);
   const [incidentTypePri, setIncidentTypePri] = useState(null);
-  const [incidentTypeSec, setIncidentTypeSec] = useState(null);
-  const [date, setDate] = useState(new Date());
-  //
+  const [incidentTypeSec, setIncidentTypeSec] = useState({});
+  const [dateOccurred, setDateOccurred] = useState(new Date());
   const [clientSecInitials, setClientSecInitials] = useState("");
   const [locationDetail, setLocationDetail] = useState("");
   const [staffInvolvedFirst, setStaffInvolvedFirst] = useState("");
   const [staffInvolvedLast, setStaffInvolvedLast] = useState("");
+  const [involvesChild, setInvolvesChild] = useState(null);
+  const [involvesNonClient, setInvolvesNonClient] = useState(null);
   const [program, setProgram] = useState(null);
   const [otherServices, setOtherServices] = useState("");
   const [immediateResponse, setImmediateResponse] = useState(null);
   const [staffCompleting, setStaffCompleting] = useState("");
   const [supervisorReviewer, setSupervisorReviewer] = useState("");
-  const [dateCompleted, setDateCompleted] = useState("");
-
-  // description does not need a touched variable - only the autocompleted fields
+  const [dateCompleted, setDateCompleted] = useState(new Date());
   const [description, setDescription] = useState("");
+  const [otherSecIncidentType, setOtherSecIncidentType] = useState("");
 
   // the "Touched" variables keep track of whether or not that form field was edited by the client.
   // If so, then we stop overwriting the client's manual input
@@ -69,207 +76,52 @@ function App() {
   const [clientInitialsTouched, setClientInitialsTouched] = useState(false);
   const [servicesTouched, setServicesTouched] = useState(false);
   const [incidentTypeTouched, setIncidentTypeTouched] = useState(false);
+  const [programTouched, setProgramTouched] = useState(false);
+  const [immediateResponseTouched, setImmediateResponseTouched] = useState(
+    false
+  );
   const [dateTouched, setDateTouched] = useState(false);
-
-  const locationOptions = [
-    {
-      value: "community",
-      label: "In community",
-    },
-    {
-      value: "croydon",
-      label: "YW Croydon",
-    },
-    {
-      value: "downtown",
-      label: "YW Downtown",
-    },
-    {
-      value: "hub",
-      label: "YW Hub",
-    },
-    {
-      value: "maple",
-      label: "YW Maple",
-    },
-    {
-      value: "providence",
-      label: "YW Croydon",
-    },
-    {
-      value: "sheriff king",
-      label: "YW Sheriff King",
-    },
-  ];
-
-  const programOptions = [
-    {
-      label: "Child Care (Hub)",
-      value: "child care hub",
-    },
-    {
-      label: "Child Support",
-      value: "child support",
-    },
-    {
-      label: "Compass",
-      value: "compass",
-    },
-    {
-      label: "Counselling and Personal Development",
-      value: "counselling",
-    },
-    {
-      label: "Croydon (Community Housing)",
-      value: "croydon",
-    },
-    {
-      label: "DCRT",
-      value: "DCRT",
-    },
-    {
-      label: "Drop-In Child Care",
-      value: "croydon",
-    },
-    {
-      label: "Employment Resource Center",
-      value: "employment resource center",
-    },
-  ];
-
-  const incidentTypes = [
-    {
-      label: "Child abandonment",
-      value: "child abandonment",
-    },
-    {
-      label: "Client aggression towards another person",
-      value: "client aggression towards another person",
-    },
-    {
-      label: "Client aggression towards property",
-      value: "client aggression towards property",
-    },
-    {
-      label: "Client death (offsite)",
-      value: "client death (offsite)",
-    },
-    {
-      label: "Client death (onsite)",
-      value: "client death (onsite)",
-    },
-    {
-      label: "Client missing",
-      value: "client missing",
-    },
-    {
-      label: "Concern for welfare of a child",
-      value: "concern for welfare of a child",
-    },
-    {
-      label: "COVID-19 Confirmed",
-      value: "COVID-19 confirmed",
-    },
-    {
-      label: "Exposure",
-      value: "exposure",
-    },
-  ];
-
-  const immediateResponses = [
-    {
-      label: "Called Child Welfare",
-      value: "called child welfare",
-    },
-    {
-      label: "Evacution",
-      value: "evacution",
-    },
-    {
-      label: "First-aid provided",
-      value: "first-aid provided",
-    },
-    {
-      label: "Mental health assessment",
-      value: "mental health assessment",
-    },
-    {
-      label: "Naloxone administered",
-      value: "naloxone administered",
-    },
-  ];
-
-  const serviceOptions = [
-    { value: "cps", label: "Child Welfare (CPS)" },
-    { value: "ems", label: "EMS" },
-    { value: "police", label: "Police" },
-    { value: "fire", label: "Fire" },
-    { value: "doap/pact", label: "Outreach (DOAP/PACT)" },
-  ];
 
   // Checking functions
   // These functions are run when the description updates and contain the logic
   // for autocompleting the form fields.
 
+  const autocompleteSingleOption = (options) => {
+    const lowercasedDescription = description.toLowerCase();
+    return options.find((option) =>
+      (option.keywords || []).some((keyword) =>
+        lowercasedDescription.includes(keyword.toLowerCase())
+      )
+    );
+  };
+
+  const autocompleteMultipleOptions = (options) => {
+    const lowercasedDescription = description.toLowerCase();
+    const newOptions = options.filter((option) =>
+      (option.keywords || []).some((keyword) =>
+        lowercasedDescription.includes(keyword.toLowerCase())
+      )
+    );
+    return newOptions;
+  };
+
+  const checkServices = () =>
+    setservicesInvolved(autocompleteMultipleOptions(serviceOptions));
+
+  const checkLocation = () =>
+    setLocation(autocompleteSingleOption(locationOptions));
+
+  const checkProgram = () =>
+    setProgram(autocompleteSingleOption(programOptions));
+
+  const checkImmediateResponse = () =>
+    setImmediateResponse(autocompleteMultipleOptions(immediateResponseOptions));
+
   const checkDate = () => {
     const results = chrono.parse(description);
 
     if (results && results.length) {
-      setDate(results[0].start.date());
-    }
-  };
-
-  const checkServices = () => {
-    const lowercasedDescription = description.toLowerCase();
-    const newServices = [];
-    if (
-      lowercasedDescription.includes("cps") ||
-      lowercasedDescription.includes("child welfare")
-    ) {
-      newServices.push({ value: "cps", label: "Child Welfare (CPS)" });
-    }
-    if (lowercasedDescription.includes("ems")) {
-      newServices.push({ value: "ems", label: "EMS" });
-    }
-    if (lowercasedDescription.includes("police")) {
-      newServices.push({ value: "police", label: "Police" });
-    }
-    if (
-      lowercasedDescription.includes("fire services") ||
-      lowercasedDescription.includes("fire department") ||
-      lowercasedDescription.includes("fire station")
-    ) {
-      newServices.push({ value: "fire", label: "Fire" });
-    }
-    if (
-      lowercasedDescription.includes("doap") ||
-      lowercasedDescription.includes("pact")
-    ) {
-      newServices.push({ value: "doap/pact", label: "Outreach (DOAP/PACT)" });
-    }
-
-    setServices(newServices);
-  };
-
-  const checkLocation = () => {
-    const lowercasedDescription = description.toLowerCase();
-
-    if (lowercasedDescription.includes("community")) {
-      setLocation({ value: "community", label: "In community" });
-    } else if (lowercasedDescription.includes("Croydon".toLowerCase())) {
-      setLocation({ value: "croydon", label: "YW Croydon" });
-    } else if (lowercasedDescription.includes("Downtown".toLowerCase())) {
-      setLocation({ value: "downtown", label: "YW Downtown" });
-    } else if (lowercasedDescription.includes("Hub".toLowerCase())) {
-      setLocation({ value: "hub", label: "YW Hub" });
-    } else if (lowercasedDescription.includes("Maple".toLowerCase())) {
-      setLocation({ value: "maple", label: "YW Maple" });
-    } else if (lowercasedDescription.includes("Providence".toLowerCase())) {
-      setLocation({ value: "providence", label: "YW Providence" });
-    } else if (
-      lowercasedDescription.includes("YW Sheriff King".toLowerCase())
-    ) {
-      setLocation({ value: "sheriff king", label: "YW Sheriff King" });
+      setDateOccurred(results[0].start.date());
     }
   };
 
@@ -280,7 +132,7 @@ function App() {
     }
   };
 
-  // run this 1000 seconds when the description is updated
+  // run this every 1 second when the description is updated
   const onDescriptionUpdate = useCallback(
     _.throttle(() => {
       if (!locationTouched) {
@@ -295,6 +147,12 @@ function App() {
       if (!dateTouched) {
         checkDate();
       }
+      if (!programTouched) {
+        checkProgram();
+      }
+      if (!immediateResponseTouched) {
+        checkImmediateResponse();
+      }
     }, 1000),
     [checkLocation, checkInitials, checkServices, checkDate, _]
   );
@@ -306,7 +164,6 @@ function App() {
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
       <h2>Prototype - June 30, 2020 </h2>
-
       <form>
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
@@ -325,30 +182,6 @@ function App() {
             <Input
               value={clientSecInitials}
               onChange={(e) => setClientSecInitials(e.target.value)}
-            ></Input>
-          </div>
-        </FormRow>
-        <FormRow style={{ flexDirection: "row" }}>
-          <div style={{ width: "100%" }}>
-            <label>Services Involved</label>
-            <Select
-              styles={{
-                container: (provided) => ({ ...provided, width: "95%" }),
-              }}
-              value={services}
-              isMulti
-              onChange={(newSelection) => {
-                setServices(newSelection);
-                setServicesTouched(true);
-              }}
-              options={serviceOptions}
-            ></Select>
-          </div>
-          <div style={{ width: "100%" }}>
-            <label>Other Services Involved (if other)</label>
-            <Input
-              value={otherServices}
-              onChange={(e) => setOtherServices(e.target.value)}
             ></Input>
           </div>
         </FormRow>
@@ -379,31 +212,35 @@ function App() {
 
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
-            <label>Incident Type (Primary)</label>
+            <label>Services Involved</label>
             <Select
               styles={{
                 container: (provided) => ({ ...provided, width: "95%" }),
               }}
-              value={incidentTypePri}
-              onChange={(incidentType) => {
-                setIncidentTypePri(incidentType);
-                setIncidentTypeTouched(true);
+              value={servicesInvolved}
+              isMulti
+              onChange={(newSelection) => {
+                setservicesInvolved(newSelection);
+                setServicesTouched(true);
+                console.log(servicesInvolved);
               }}
-              options={incidentTypes}
+              options={serviceOptions}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
-            <label>Incidept Type (Secondary)</label>
-            <Select
-              styles={{
-                container: (provided) => ({ ...provided, width: "95%" }),
-              }}
-              value={incidentTypeSec}
-              onChange={(incidentType) => {
-                setIncidentTypeSec(incidentType);
-              }}
-              options={incidentTypes}
-            ></Select>
+            <label
+              style={
+                (servicesInvolved || []).some((s) => s.value === "other")
+                  ? { fontWeight: "bold" }
+                  : {}
+              }
+            >
+              Other Services Involved (if other)
+            </label>
+            <Input
+              value={otherServices}
+              onChange={(e) => setOtherServices(e.target.value)}
+            ></Input>
           </div>
         </FormRow>
 
@@ -426,11 +263,11 @@ function App() {
         </FormRow>
 
         <FormRow>
-          <label>Date</label>
+          <label>Date and Time of Occurrence</label>
           <DatePicker
-            selected={date}
+            selected={dateOccurred}
             onChange={(date) => {
-              setDate(date);
+              setDateOccurred(date);
               setDateTouched(true);
             }}
             showTimeSelect
@@ -441,13 +278,90 @@ function App() {
           ></DatePicker>
         </FormRow>
         <FormRow>
-          <label>Description</label>
+          <label>Description of Incident</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={7}
           ></textarea>
         </FormRow>
+
+        <FormRow style={{ flexDirection: "row" }}>
+          <div style={{ width: "100%" }}>
+            <label>Incident Type (Primary)</label>
+            <Select
+              styles={{
+                container: (provided) => ({ ...provided, width: "95%" }),
+              }}
+              value={incidentTypePri}
+              onChange={(incidentType) => {
+                setIncidentTypePri(incidentType);
+                setIncidentTypeTouched(true);
+              }}
+              options={incidentTypes}
+            ></Select>
+          </div>
+          <div style={{ width: "100%" }}>
+            <label>Incidept Type (Secondary)</label>
+            <Select
+              value={incidentTypeSec}
+              onChange={(incidentType) => {
+                setIncidentTypeSec(incidentType);
+              }}
+              options={incidentTypes}
+            ></Select>
+          </div>
+        </FormRow>
+        <FormRow
+          style={{
+            display:
+              incidentTypeSec && incidentTypeSec.value === "other"
+                ? "flex"
+                : "none",
+            flexDirection: "row",
+          }}
+        >
+          <div style={{ width: "100%" }}></div>
+          <div style={{ width: "100%" }}>
+            <label>Secondary Incident Type</label>
+            <Input
+              value={otherSecIncidentType}
+              onChange={(e) => setOtherSecIncidentType(e.target.value)}
+            ></Input>
+          </div>
+        </FormRow>
+        <FormRow style={{ flexDirection: "row" }}>
+          <div style={{ width: "100%" }}>
+            <label>Did this incident involve a child?</label>
+            <Select
+              styles={{
+                container: (provided) => ({ ...provided, width: "95%" }),
+              }}
+              value={involvesChild}
+              onChange={(option) => {
+                setInvolvesChild(option);
+              }}
+              options={[
+                { value: "no", label: "No" },
+                { value: "yes", label: "Yes" },
+              ]}
+            ></Select>
+          </div>
+          <div style={{ width: "100%" }}>
+            <label>Did this incident involve a non-client guest?</label>
+            <Select
+              value={involvesNonClient}
+              onChange={(option) => {
+                setInvolvesNonClient(option);
+              }}
+              options={[
+                { value: "no", label: "No" },
+                { value: "yes", label: "Yes" },
+              ]}
+            ></Select>
+          </div>
+        </FormRow>
+
         <FormRow>
           <label>Program</label>
           <Select
@@ -457,20 +371,24 @@ function App() {
             value={program}
             onChange={(program) => {
               setProgram(program);
+              setProgramTouched(true);
             }}
             options={programOptions}
           ></Select>
         </FormRow>
         <FormRow>
-          <label>Immediate Response</label>
+          <label>Immediate Response to the Incident</label>
           <Select
             styles={{
               container: (provided) => ({ ...provided, width: "100%" }),
             }}
             value={immediateResponse}
             isMulti
-            onChange={(newSelection) => setImmediateResponse(newSelection)}
-            options={immediateResponses}
+            onChange={(newSelection) => {
+              setImmediateResponse(newSelection);
+              setImmediateResponseTouched(true);
+            }}
+            options={immediateResponseOptions}
           ></Select>
         </FormRow>
         <FormRow style={{ flexDirection: "row" }}>
@@ -493,7 +411,7 @@ function App() {
         <FormRow>
           <label>Completed On</label>
           <DatePicker
-            selected={date}
+            selected={dateCompleted}
             showTimeSelect
             timeIntervals={15}
             style={{ padding: "5px" }}
@@ -505,6 +423,8 @@ function App() {
             }}
           ></DatePicker>
         </FormRow>
+        <input type="submit" value="Next"></input>
+        <button>Download</button>
       </form>
     </div>
   );
