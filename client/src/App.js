@@ -159,6 +159,27 @@ function App() {
 
   useEffect(onDescriptionUpdate, [description]);
 
+  const handleSubmit = async function (e) {
+    e.preventDefault();
+    const formData = {
+      location,
+      clientInitials,
+      // ...
+    };
+    await fetch("http://localhost:3002/submitForm", {
+      mode: "no-cors", // no-cors, *cors, same-origin
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => response.json())
+      .then((body) => {
+        console.log(body);
+      });
+  };
+
   return (
     <div className="App">
       <img src={logo} alt="YW logo"></img>
@@ -423,7 +444,11 @@ function App() {
             }}
           ></DatePicker>
         </FormRow>
-        <input type="submit" value="Next"></input>
+        <input
+          type="submit"
+          value="Next"
+          onClick={(e) => handleSubmit(e)}
+        ></input>
         <button>Download</button>
       </form>
     </div>
