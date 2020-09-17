@@ -135,7 +135,7 @@ function App() {
 
   const checkIncidentType = async () => {
     const prediction = await getPrediction(description);
-    setIncidentType(prediction);
+    setIncidentTypePri(prediction);
   };
 
   // run this 1000 seconds when the description is updated
@@ -456,9 +456,9 @@ function App() {
         <FormRow>
           <label>Incident Type</label>
           <Input
-            value={incidentType}
+            value={incidentTypePri}
             onChange={(e) => {
-              setIncidentType(e.target.value);
+              setIncidentTypePri(e.target.value);
               setIncidentTypeTouched(true);
             }}
           ></Input>
