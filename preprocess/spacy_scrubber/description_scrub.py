@@ -1,15 +1,24 @@
 import re
+from typing import Optional
+
 import pandas as pd
 
 from preprocessor import Preprocessor
 from report_data_d import _ColName
-from spacy_scrubber.name_detect import NameDetector
+from spacy_scrubber.scrubber import Scrubber
 
 
 class DescriptionScrubber(Preprocessor):
     """Scrubs out sensitive data from the report's descriptions."""
+    ent_replacement: Optional[str]
 
-    def __init__(self):
+    def __init__(self, ent_replacement: str = None, **kwargs):
+        """
+        :param ent_replacement: Optional string to replace entities with. Will
+        be replaced with an entity placeholder if not specified.
+        """
+        super().__init__()
+        self.ent_replacement = ent_replacement
         self.client_tokens = set()
 
     def get_client_tokens(self, client_primary, client_secondary):
@@ -34,11 +43,12 @@ class DescriptionScrubber(Preprocessor):
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
         self.get_client_tokens(
             report_data[_ColName.CLI_PRI], report_data[_ColName.CLI_SEC])
-        name_detector = NameDetector(self.client_tokens)
+        scrubber = Scrubber(self.client_tokens,
+                            ent_replacement=self.ent_replacement)
         descriptions = report_data[_ColName.DESC]
 
         # loop to clean
-        scrubbed_descriptions = [name_detector.scrub(d) for d in descriptions]
+        scrubbed_descriptions = [scrubber.scrub(d) for d in descriptions]
 
         # update pandas column
         report_data[_ColName.DESC] = scrubbed_descriptions

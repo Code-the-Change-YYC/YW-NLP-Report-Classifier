@@ -4,6 +4,9 @@ import pandas as pd
 
 
 class Preprocessor(ABC):
+    def __init__(self, **kwargs):
+        pass
+
     @abstractmethod
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
         """Apply a pre-processing step to report_data.
