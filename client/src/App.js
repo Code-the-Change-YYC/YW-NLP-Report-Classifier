@@ -135,7 +135,11 @@ function App() {
 
   const checkIncidentType = async () => {
     const prediction = await getPrediction(description);
-    setIncidentTypePri(prediction);
+    setIncidentTypePri(
+      incidentTypes.filter(
+        (type) => type.value.toLowerCase() === prediction.toLowerCase()
+      )[0]
+    );
   };
 
   // run this 1000 seconds when the description is updated
@@ -452,24 +456,6 @@ function App() {
               setDateCompleted(date);
             }}
           ></DatePicker>
-        </FormRow>
-        <FormRow>
-          <label>Incident Type</label>
-          <Input
-            value={incidentTypePri}
-            onChange={(e) => {
-              setIncidentTypePri(e.target.value);
-              setIncidentTypeTouched(true);
-            }}
-          ></Input>
-        </FormRow>
-        <FormRow>
-          <label>Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={7}
-          ></textarea>
         </FormRow>
         <input
           type="submit"

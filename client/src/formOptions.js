@@ -160,7 +160,7 @@ export const incidentTypes = [
   },
   {
     label: "COVID-19 Confirmed",
-    value: "COVID-19 confirmed",
+    value: "covid-19 confirmed",
   },
   {
     label: "Exposure",
