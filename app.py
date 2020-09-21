@@ -1,11 +1,11 @@
 from fastapi import FastAPI, File, UploadFile
 
-from ml.ml_model import MLModel
-from schemas.prediction import PredictIn, PredictOut
-from validators import validate_input_string
+from models.cnb_model import CNBDescriptionClf
+from server.schemas.prediction import PredictIn, PredictOut
+from server.validators import validate_input_string
 
 app = FastAPI()
-ml_model = MLModel()
+clf = CNBDescriptionClf()
 
 
 @app.get("/")
@@ -25,10 +25,9 @@ async def predict(predict_in: PredictIn) -> PredictOut:
     """
     input_string = predict_in.text
     validate_input_string(input_string)
-    prediction = ml_model.predict(input_string)
-    sentiment = "good" if prediction >= 0.5 else "bad"
+    [prediction] = clf.predict([input_string])
     return PredictOut(
-        input_text=input_string, prediction=prediction, sentiment=sentiment
+        input_text=input_string, prediction=prediction.value
     )
 
 
