@@ -1,8 +1,8 @@
 import pandas as pd
 
-from incident_types.incident_types_d import IncidentType
-from preprocessor import Preprocessor
-from report_data_d import _ColName
+from preprocess.incident_types.incident_types_d import IncidentType
+from preprocess.preprocessor import Preprocessor
+from preprocess.report_data_d import _ColName
 
 
 class ColumnMerger(Preprocessor):

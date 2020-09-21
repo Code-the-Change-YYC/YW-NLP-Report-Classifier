@@ -3,8 +3,8 @@ from datetime import datetime
 import pandas as pd
 from dateutil.parser import parser
 
-from preprocessor import Preprocessor
-from report_data_d import _ColName
+from preprocess.preprocessor import Preprocessor
+from preprocess.report_data_d import _ColName
 
 
 class DatetimeMapper(Preprocessor):

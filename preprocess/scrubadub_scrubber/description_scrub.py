@@ -5,10 +5,10 @@
 import pandas as pd
 import scrubadub
 
-from preprocessor import Preprocessor
-from report_data_d import _ColName
-from scrubadub_scrubber.initials_detect import InitialsDetector
-from scrubadub_scrubber.name_detect import CustomNameDetector
+from preprocess.preprocessor import Preprocessor
+from preprocess.report_data_d import _ColName
+from preprocess.scrubadub_scrubber.initials_detect import InitialsDetector
+from preprocess.scrubadub_scrubber.name_detect import CustomNameDetector
 
 
 class DescriptionScrubber(Preprocessor):

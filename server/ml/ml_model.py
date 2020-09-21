@@ -7,7 +7,7 @@ from .custom_objects.custom_objects import TextVectorization, custom_standardiza
 
 
 class MLModel:
-    weights_path = Path("ml/weights/")
+    weights_path = Path("server/ml/weights/")
     _model: Functional = None
 
     def __init__(self, weights_path: str = None):

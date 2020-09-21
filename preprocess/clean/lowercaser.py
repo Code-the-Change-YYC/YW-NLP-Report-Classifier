@@ -1,8 +1,8 @@
-from preprocessor import Preprocessor
+from preprocess.preprocessor import Preprocessor
 
 import pandas as pd
 import re
-from report_data_d import _ColName
+from preprocess.report_data_d import _ColName
 
 
 class Lowercaser(Preprocessor):
