@@ -1,7 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 
 from models.cnb_model import CNBDescriptionClf
-from server.schemas.prediction import PredictIn, PredictOut
+from server.schemas.prediction import PredictIn, PredictOut, PredictMultiIn, PredictMultiOut
 from server.validators import validate_input_string
 
 app = FastAPI()
@@ -28,6 +28,27 @@ async def predict(predict_in: PredictIn) -> PredictOut:
     [prediction] = clf.predict([input_string])
     return PredictOut(
         input_text=input_string, prediction=prediction.value
+    )
+
+
+@app.post("/api/predict_multiple/", response_model=PredictMultiOut)
+async def predict_multiple(predict_in: PredictMultiIn) -> PredictMultiOut:
+    """Predict most probable incident types from input string.
+
+    Args:
+        predict_in (PredictIn): Input text and number of predictions to return.
+
+    Returns:
+        PredictMultiOut: JSON containing input text and predictions with their
+        probabilities.
+    """
+    input_string = predict_in.text
+    num_predictions = predict_in.num_predictions
+    validate_input_string(input_string)
+    [predictions] = clf.predict_multiple([input_string], num_predictions)
+    predictions = [(pred[0].value, pred[1]) for pred in predictions]
+    return PredictMultiOut(
+        input_text=input_string, predictions=predictions
     )
 
 
