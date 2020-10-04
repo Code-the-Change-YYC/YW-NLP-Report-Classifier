@@ -4,7 +4,7 @@ from typing import NewType, Union, Iterable, TypeVar, Generic
 import numpy as np
 
 """Numpy array_like type"""
-ArrayLike = NewType('ArrayLike', Union[np.ndarray, Iterable, int, float])
+ArrayLike = Union[np.ndarray, Iterable, int, float]
 
 T = TypeVar('T')
 
