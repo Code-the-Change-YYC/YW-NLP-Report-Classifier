@@ -48,6 +48,19 @@ const Input = styled.input`
   box-sizing: border-box;
 `;
 
+const Textarea = styled.textarea`
+  padding: 8px 5px;
+  font-size: 12pt;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+`;
+
+const HR = styled.hr`
+  margin: 20px 30px 20px;
+`
+
 function App() {
   // State variables
   const [location, setLocation] = useState(null);
@@ -198,6 +211,15 @@ function App() {
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
       <h2>Prototype - June 30, 2020 </h2>
+      <FormRow>
+        <label>Description of Incident</label>
+        <Textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={7}
+        ></Textarea>
+      </FormRow>
+      <HR></HR>
       <form>
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
@@ -310,14 +332,6 @@ function App() {
             customInput={<Input></Input>}
             dateFormat="MMMM d, yyyy h:mm aa"
           ></DatePicker>
-        </FormRow>
-        <FormRow>
-          <label>Description of Incident</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={7}
-          ></textarea>
         </FormRow>
 
         <FormRow style={{ flexDirection: "row" }}>
