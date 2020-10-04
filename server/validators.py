@@ -12,4 +12,4 @@ def validate_input_string(input_string: str):
     """
     letters = [char for char in input_string if char.isalpha()]
     if len(letters) <= 1:
-        raise HTTPException(status_code=400, detail="tf are u tryna predict??")
+        raise HTTPException(status_code=400, detail="Not enough info for prediction")
