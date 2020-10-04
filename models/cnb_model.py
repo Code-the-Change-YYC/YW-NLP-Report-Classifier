@@ -3,10 +3,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import ComplementNB
 from sklearn.pipeline import Pipeline
 
-from incident_types.incident_types_d import IncidentType
+from preprocess.incident_types.incident_types_d import IncidentType
 from models.model import Model, ArrayLike
-from report_data import ReportData
-from report_data_d import ColName
+from preprocess.report_data import ReportData
+from preprocess.report_data_d import ColName
+
 from training.description_classification.utils import load_cnb, CNBPipeline
 
 

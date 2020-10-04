@@ -1,8 +1,8 @@
 import pandas as pd
 
-from incident_types.column_merge import ColumnMerger
-from incident_types.mapper import IncTypeMapper
-from preprocessor import Preprocessor
+from preprocess.incident_types.column_merge import ColumnMerger
+from preprocess.incident_types.mapper import IncTypeMapper
+from preprocess.preprocessor import Preprocessor
 
 
 class IncidentTypesProcessor(Preprocessor):

@@ -9,7 +9,7 @@ from nltk.corpus import stopwords
 from sklearn.metrics import accuracy_score, balanced_accuracy_score, classification_report, plot_confusion_matrix
 from sklearn.pipeline import Pipeline
 
-from incident_types.incident_types_d import IncidentType
+from preprocess.incident_types.incident_types_d import IncidentType
 from training.description_classification import model_paths
 
 _nlp = None

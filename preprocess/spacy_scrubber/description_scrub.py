@@ -3,9 +3,9 @@ from typing import Optional
 
 import pandas as pd
 
-from preprocessor import Preprocessor
-from report_data_d import _ColName
-from spacy_scrubber.scrubber import Scrubber
+from preprocess.preprocessor import Preprocessor
+from preprocess.report_data_d import _ColName
+from preprocess.spacy_scrubber.scrubber import Scrubber
 
 
 class DescriptionScrubber(Preprocessor):

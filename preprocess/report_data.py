@@ -4,14 +4,14 @@ from typing import List, Type
 
 import pandas as pd
 
-from clean.lowercaser import Lowercaser
-from clean.word_character_filter import WordCharacterFilter
-from datetime_map.mapper import DatetimeMapper
-from incident_types.processor import IncidentTypesProcessor
-from lemmatize.ntlk_lemmatize import NLTKLemmatizer
-from preprocessor import Preprocessor
-from report_data_d import _ColName, ColName
-from spacy_scrubber.description_scrub import DescriptionScrubber
+from preprocess.clean.lowercaser import Lowercaser
+from preprocess.clean.word_character_filter import WordCharacterFilter
+from preprocess.datetime_map.mapper import DatetimeMapper
+from preprocess.incident_types.processor import IncidentTypesProcessor
+from preprocess.lemmatize.ntlk_lemmatize import NLTKLemmatizer
+from preprocess.preprocessor import Preprocessor
+from preprocess.report_data_d import _ColName, ColName
+from preprocess.spacy_scrubber.description_scrub import DescriptionScrubber
 # from scrubadub_scrubber.description_scrub import DescriptionScrubber
 
 # use for filepath relative from this file

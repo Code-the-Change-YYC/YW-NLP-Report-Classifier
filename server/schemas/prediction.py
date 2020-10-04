@@ -7,5 +7,4 @@ class PredictIn(BaseModel):
 
 class PredictOut(BaseModel):
     input_text: str
-    prediction: float
-    sentiment: str
+    prediction: str
