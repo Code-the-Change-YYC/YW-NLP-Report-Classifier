@@ -3,7 +3,7 @@ import logo from './logo.jpg'
 import './App.css'
 import _ from 'lodash'
 import chrono from 'chrono-node'
-import Select from 'react-select'
+import Select, {createFilter} from 'react-select'
 import styled from 'styled-components'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -95,6 +95,7 @@ function App() {
         false
     )
     const [dateTouched, setDateTouched] = useState(false)
+    const [incTypesOptions, setIncTypesOptions] = useState(incidentTypes)
 
     // Checking functions
     // These functions are run when the description updates and contain the logic
@@ -148,9 +149,35 @@ function App() {
         }
     }
 
+    const confidenceKey = "confidence"
     const checkIncidentType = async () => {
         const predictions = await getMultiPrediction(description)
         const prediction = predictions[0][0]
+        console.log(predictions)
+        setIncTypesOptions((prev) => {
+            return prev.map((incidentType) => {
+                const predMatch = predictions.findIndex(
+                    (pred) => pred[0] === incidentType.value
+                )
+                if (predMatch === -1) {
+                    return incidentType
+                } else {
+                    return {
+                        ...incidentType,
+                        [confidenceKey]: predictions[predMatch][1] * 10000,
+                    }
+                }
+            }).sort((i1, i2) => {
+                if (!(confidenceKey in i1 && confidenceKey in i2)) {
+                    return 0
+                } else {
+                    console.log(i1, i2);
+                    const r = i2[confidenceKey] - i1[confidenceKey]
+                    console.log(r);
+                    return r
+                }
+            })
+        })
         setIncidentTypePri(
             incidentTypes.filter(
                 (type) => type.value.toLowerCase() === prediction.toLowerCase()
@@ -209,6 +236,7 @@ function App() {
             })
     }
 
+    console.log(incTypesOptions)
     return (
         <div className='App'>
             <img src={logo} alt='YW logo'></img>
@@ -366,7 +394,7 @@ function App() {
                                 setIncidentTypePri(incidentType)
                                 setIncidentTypeTouched(true)
                             }}
-                            options={incidentTypes}
+                            options={incTypesOptions}
                         ></Select>
                     </div>
                     <div style={{ width: '100%' }}>

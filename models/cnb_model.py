@@ -14,10 +14,10 @@ from training.description_classification.utils import load_cnb, CNBPipeline
 class CNBDescriptionClf(Model[CNBPipeline]):
     """Complement Naive Bayes model for description classification."""
 
-    model_: Pipeline
+    _model: Pipeline
 
     def __init__(self):
-        self.model_ = load_cnb()
+        self._model = load_cnb()
 
     def predict(self, X: ArrayLike) -> np.ndarray:
         """Predict the primary incident type of the given descriptions.
@@ -25,14 +25,14 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         :param X: 1D array-like of descriptions to classify
         :return: 1D array of `IncidentType` predictions for the given descriptions.
         """
-        predictions = self.model_.predict(X)
+        predictions = self._model.predict(X)
         return np.array([IncidentType(prediction) for prediction in predictions])
 
     def partial_fit(
         self, X: ArrayLike, y: ArrayLike, classes: ArrayLike = None
     ) -> object:
-        est: ComplementNB = self.model_.steps[-1][1]
-        word_vec: TfidfVectorizer = self.model_.steps[0][1]
+        est: ComplementNB = self._model.steps[-1][1]
+        word_vec: TfidfVectorizer = self._model.steps[0][1]
         vectors = word_vec.transform(X)
         est.partial_fit(vectors, y)
         return self
@@ -51,13 +51,13 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         `IncidentType` prediction as the first element and the confidence as the
         second.
         """
-        classes = self.model_.classes_
+        classes = self._model.classes_
         num_classes = len(classes)
         if num_predictions > num_classes:
             num_predictions = num_classes
 
         return self._predictions_with_proba(
-            self.model_.predict_proba(X), num_predictions
+            self._model.predict_proba(X), num_predictions
         )
 
     def _predictions_with_proba(
@@ -75,12 +75,12 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         array with the `IncidentType` prediction as the first element and the
         confidence as the second.
         """
-        top_indices: np.ndarray = proba.argsort()[:, -1 : -(num_predictions + 1) : -1]
+        top_indices: np.ndarray = proba.argsort(
+        )[:, -1:-(num_predictions + 1):-1]
         top_proba: np.ndarray = np.take_along_axis(proba, top_indices, axis=1)
-        predictions: np.ndarray = self.model_.classes_[top_indices]
-        incident_types = np.array([IncidentType(p) for p in predictions.flat]).reshape(
-            predictions.shape
-        )
+        predictions: np.ndarray = self._model.classes_[top_indices]
+        incident_types = np.array(
+            [IncidentType(p) for p in predictions.flat]).reshape(predictions.shape)
         return np.dstack((incident_types, top_proba))
 
 
@@ -97,5 +97,4 @@ if __name__ == "__main__":
         print(X[i])
         for prediction_with_proba in prediction_set:
             print(
-                f"We predict {prediction_with_proba[0].value} with {prediction_with_proba[1]:.2f}% confidence"
-            )
+                f'We predict {prediction_with_proba[0].value} with {prediction_with_proba[1]:.2f}% confidence')
