@@ -1,8 +1,12 @@
 from fastapi import FastAPI, File, UploadFile
 
 from models.cnb_model import CNBDescriptionClf
-from server.schemas.prediction import PredictIn, PredictOut, PredictMultiIn, PredictMultiOut
-from server.validators import validate_input_string
+from server.schemas.prediction import (
+    PredictIn,
+    PredictOut,
+    PredictMultiIn,
+    PredictMultiOut,
+)
 
 app = FastAPI()
 clf = CNBDescriptionClf()
@@ -24,11 +28,8 @@ async def predict(predict_in: PredictIn) -> PredictOut:
         PredictOut: JSON containing input text, prediction, and sentiment.
     """
     input_string = predict_in.text
-    validate_input_string(input_string)
     [prediction] = clf.predict([input_string])
-    return PredictOut(
-        input_text=input_string, prediction=prediction.value
-    )
+    return PredictOut(input_text=input_string, prediction=prediction.value)
 
 
 @app.post("/api/predict_multiple/", response_model=PredictMultiOut)
@@ -44,12 +45,9 @@ async def predict_multiple(predict_in: PredictMultiIn) -> PredictMultiOut:
     """
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
-    validate_input_string(input_string)
     [predictions] = clf.predict_multiple([input_string], num_predictions)
     predictions = [(pred[0].value, pred[1]) for pred in predictions]
-    return PredictMultiOut(
-        input_text=input_string, predictions=predictions
-    )
+    return PredictMultiOut(input_text=input_string, predictions=predictions)
 
 
 @app.post("/api/submit/")

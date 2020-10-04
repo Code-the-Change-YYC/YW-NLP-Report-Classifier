@@ -1,9 +1,10 @@
 from pydantic import BaseModel
+from fastapi import Query
 from typing import List, Tuple
 
 
 class PredictIn(BaseModel):
-    text: str
+    text: str = Query(..., min_length=3)
 
 
 class PredictOut(BaseModel):
@@ -12,8 +13,8 @@ class PredictOut(BaseModel):
 
 
 class PredictMultiIn(BaseModel):
-    text: str
-    num_predictions: int
+    text: str = Query(..., min_length=3)
+    num_predictions: int = Query(..., ge=2)
 
 
 class PredictMultiOut(BaseModel):
