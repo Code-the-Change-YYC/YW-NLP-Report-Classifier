@@ -129,92 +129,92 @@ export const programOptions = [
   },
 ];
 
-export const incidentTypes = [
-  {
+export const incidentTypes = {
+  "child abandonment": {
     label: "Child abandonment",
     value: "child abandonment",
   },
-  {
+  "client aggression towards another person": {
     label: "Client aggression towards another person",
     value: "client aggression towards another person",
   },
-  {
+  "client aggression towards property": {
     label: "Client aggression towards property",
     value: "client aggression towards property",
   },
-  {
+  "client death (offsite)": {
     label: "Client death (offsite)",
     value: "client death (offsite)",
   },
-  {
+  "client death (onsite)": {
     label: "Client death (onsite)",
     value: "client death (onsite)",
   },
-  {
+  "client missing": {
     label: "Client missing",
     value: "client missing",
   },
-  {
+  "concern for welfare of a child": {
     label: "Concern for welfare of a child",
     value: "concern for welfare of a child",
   },
-  {
+  "covid-19 confirmed": {
     label: "COVID-19 Confirmed",
     value: "covid-19 confirmed",
   },
-  {
+  exposure: {
     label: "Exposure",
     value: "exposure",
   },
-  {
+  "homicide (threat or attempt)": {
     label: "Homicide (Threat or attempt)",
     value: "homicide (Threat or attempt)",
   },
-  {
+  "illegal activity on premises": {
     label: "Illegal activity on premises",
     value: "illegal activity on premises",
   },
-  {
+  injury: {
     label: "Injury",
     value: "injury",
   },
-  {
+  "media/3rd party contact": {
     label: "Media/3rd party contact",
     value: "media/3rd party contact",
   },
-  {
+  "medical emergency": {
     label: "Medical emergency",
     value: "medical emergency",
   },
-  {
+  "mental health emergency": {
     label: "Mental health emergency",
     value: "mental health emergency",
   },
-  {
+  "security concern": {
     label: "Security concern",
     value: "security concern",
   },
-  {
+  "suicide attempt": {
     label: "Suicide attempt",
     value: "suicide attempt",
   },
-  {
+  "suspected or actual breach of privacy": {
     label: "Suspected or actual breach of privacy",
     value: "suspected or actual breach of privacy",
   },
-  {
+  "suspicion/allegation of abuse towards or against client": {
     label: "Suspicion/allegation of abuse towards or against client",
     value: "suspicion/allegation of abuse towards or against client",
   },
-  {
+  "suspicion/allegation of child abuse - child is not a client": {
     label: "Suspicion/allegation of child abuse - child is not a client",
     value: "suspicion/allegation of child abuse - child is not a client",
   },
-  {
+  other: {
     label: "Other",
     value: "other",
   },
-];
+};
 
 export const immediateResponseOptions = [
   {
