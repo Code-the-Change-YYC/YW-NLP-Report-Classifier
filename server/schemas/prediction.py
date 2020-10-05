@@ -1,22 +1,16 @@
-from pydantic import BaseModel
-from fastapi import Query
-from typing import List, Tuple
+from pydantic import BaseModel, Field
+from typing import List, Tuple, Optional
 
 
 class PredictIn(BaseModel):
-    text: str = Query(..., min_length=3)
+    text: str
+    num_predictions: Optional[int] = Field(
+        None,
+        title="Number of predictions",
+        description="The number of classes to request predictions for, default/0 will return all classes.",
+    )
 
 
 class PredictOut(BaseModel):
-    input_text: str
-    prediction: str
-
-
-class PredictMultiIn(BaseModel):
-    text: str = Query(..., min_length=3)
-    num_predictions: int = Query(..., ge=2)
-
-
-class PredictMultiOut(BaseModel):
     input_text: str
     predictions: List[Tuple[str, float]]

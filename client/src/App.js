@@ -65,7 +65,7 @@ const IncTypeOption = ({ confidenceVal, value, label }) => {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
       <div>{label}</div>
-      <div>{confidenceVal}</div>
+      <div style={{ marginLeft: "15px", color: "#999999" }}>{confidenceVal}</div>
     </div>
   );
 };
@@ -215,7 +215,6 @@ function App() {
       });
   };
 
-  console.log(incTypesOptions);
   return (
     <div className="App">
       <img src={logo} alt="YW logo"></img>
@@ -352,7 +351,9 @@ function App() {
 
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
-            <label>Incident Type (Primary)</label>
+            <div>
+              <label>Incident Type (Primary)</label>
+            </div>
             <Select
               formatOptionLabel={IncTypeOption}
               styles={{
@@ -370,7 +371,7 @@ function App() {
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
-            <label>Incidept Type (Secondary)</label>
+            <label>Incident Type (Secondary)</label>
             <Select
               value={incidentTypeSec}
               onChange={(incidentType) => {

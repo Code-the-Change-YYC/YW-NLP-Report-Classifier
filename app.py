@@ -4,8 +4,6 @@ from models.cnb_model import CNBDescriptionClf
 from server.schemas.prediction import (
     PredictIn,
     PredictOut,
-    PredictMultiIn,
-    PredictMultiOut,
 )
 
 app = FastAPI()
@@ -19,21 +17,6 @@ async def index():
 
 @app.post("/api/predict/", response_model=PredictOut)
 async def predict(predict_in: PredictIn) -> PredictOut:
-    """Predict sentiment from input string.
-
-    Args:
-        predict_in (PredictIn): String containing input text.
-
-    Returns:
-        PredictOut: JSON containing input text, prediction, and sentiment.
-    """
-    input_string = predict_in.text
-    [prediction] = clf.predict([input_string])
-    return PredictOut(input_text=input_string, prediction=prediction.value)
-
-
-@app.post("/api/predict_multiple/", response_model=PredictMultiOut)
-async def predict_multiple(predict_in: PredictMultiIn) -> PredictMultiOut:
     """Predict most probable incident types from input string.
 
     Args:
@@ -47,7 +30,7 @@ async def predict_multiple(predict_in: PredictMultiIn) -> PredictMultiOut:
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)
     predictions = [(pred[0].value, pred[1]) for pred in predictions]
-    return PredictMultiOut(input_text=input_string, predictions=predictions)
+    return PredictOut(input_text=input_string, predictions=predictions)
 
 
 @app.post("/api/submit/")

@@ -37,7 +37,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         est.partial_fit(vectors, y)
         return self
 
-    def predict_multiple(self, X: ArrayLike, num_predictions: int) -> np.ndarray:
+    def predict_multiple(self, X: ArrayLike, num_predictions: int = None) -> np.ndarray:
         """Give the top `num_predictions` predictions for each sample with their
         confidences, ordered by confidence.
 
@@ -51,10 +51,11 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         `IncidentType` prediction as the first element and the confidence as the
         second.
         """
-        classes = self._model.classes_
-        num_classes = len(classes)
-        if num_predictions > num_classes:
+        num_classes = len(self._model.classes_)
+        if not num_predictions or num_predictions > num_classes:
             num_predictions = num_classes
+        # elif num_predictions > num_classes:
+        #     num_predictions = num_classes
 
         return self._predictions_with_proba(
             self._model.predict_proba(X), num_predictions
@@ -75,12 +76,12 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         array with the `IncidentType` prediction as the first element and the
         confidence as the second.
         """
-        top_indices: np.ndarray = proba.argsort(
-        )[:, -1:-(num_predictions + 1):-1]
+        top_indices: np.ndarray = proba.argsort()[:, -1 : -(num_predictions + 1) : -1]
         top_proba: np.ndarray = np.take_along_axis(proba, top_indices, axis=1)
         predictions: np.ndarray = self._model.classes_[top_indices]
-        incident_types = np.array(
-            [IncidentType(p) for p in predictions.flat]).reshape(predictions.shape)
+        incident_types = np.array([IncidentType(p) for p in predictions.flat]).reshape(
+            predictions.shape
+        )
         return np.dstack((incident_types, top_proba))
 
 
@@ -97,4 +98,5 @@ if __name__ == "__main__":
         print(X[i])
         for prediction_with_proba in prediction_set:
             print(
-                f'We predict {prediction_with_proba[0].value} with {prediction_with_proba[1]:.2f}% confidence')
+                f"We predict {prediction_with_proba[0].value} with {prediction_with_proba[1]:.2f}% confidence"
+            )
