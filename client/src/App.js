@@ -97,6 +97,9 @@ function App() {
   // If so, then we stop overwriting the client's manual input
   const [locationTouched, setLocationTouched] = useState(false);
   const [clientInitialsTouched, setClientInitialsTouched] = useState(false);
+  const [clientSecInitialsTouched, setClientSecInitialsTouched] = useState(
+    false
+  );
   const [servicesTouched, setServicesTouched] = useState(false);
   const [incidentTypeTouched, setIncidentTypeTouched] = useState(false);
   const [programTouched, setProgramTouched] = useState(false);
@@ -152,9 +155,22 @@ function App() {
   };
 
   const checkInitials = () => {
-    const found = description.match(/[A-Z]{2}/g);
+    const found = description.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
     if (found && found.length) {
       setClientInitials(found[0]);
+    }
+  };
+
+  const checkSecondInitials = () => {
+    const found = description.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
+    if (found && found.length) {
+      for (const match of found) {
+        if (match !== clientInitials) {
+          console.log(match, clientInitials);
+          setClientSecInitials(match);
+          break;
+        }
+      }
     }
   };
 
@@ -172,6 +188,9 @@ function App() {
       }
       if (!clientInitialsTouched) {
         checkInitials();
+      }
+      if (!clientSecInitialsTouched) {
+        checkSecondInitials();
       }
       if (!servicesTouched) {
         checkServices();
