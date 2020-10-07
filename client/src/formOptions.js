@@ -40,7 +40,7 @@ export const programOptions = [
   {
     label: "Child Care (Hub)",
     value: "child care hub",
-    keywords: ["child care hub"],
+    keywords: ["child care"],
   },
   {
     label: "Child Support",
@@ -70,7 +70,7 @@ export const programOptions = [
   {
     label: "Drop-In Child Care",
     value: "dropin child care",
-    keywords: ["Drop-In Child Care", "drop in child care"],
+    keywords: ["Drop-In Child Care", "drop in child care", "drop in"],
   },
   {
     label: "Employment Resource Center",
@@ -220,17 +220,17 @@ export const immediateResponseOptions = [
   {
     label: "Called Child Welfare",
     value: "called child welfare",
-    keywords: ["called child welfare"],
+    keywords: ["child welfare"],
   },
   {
     label: "Evacuation",
     value: "evacuation",
-    keywords: ["evacuation"],
+    keywords: ["evacuation", "evacuate", "evacuated"],
   },
   {
     label: "First-aid provided",
     value: "first-aid provided",
-    keywords: ["first-aid provided"],
+    keywords: ["first-aid", "first aid"],
   },
   {
     label: "Infection prevention protocol",
@@ -240,17 +240,17 @@ export const immediateResponseOptions = [
   {
     label: "Mental health assessment",
     value: "mental health assessment",
-    keywords: ["mental health assessment"],
+    keywords: ["mental health assessment", "mental assessment"],
   },
   {
     label: "Naloxone administered",
     value: "naloxone administered",
-    keywords: ["naloxone administered"],
+    keywords: ["naloxone"],
   },
   {
     label: "Person barred/access restricted",
     value: "person barred/access restricted",
-    keywords: ["person barred", "access restricted"],
+    keywords: ["barred", "access restricted"],
   },
   {
     label: "Safety assessment",
@@ -277,7 +277,7 @@ export const serviceOptions = [
   {
     value: "ems",
     label: "EMS",
-    keywords: ["ems"],
+    keywords: ["ems", "ambulance"],
   },
   {
     value: "police",
@@ -287,7 +287,7 @@ export const serviceOptions = [
   {
     value: "fire",
     label: "Fire",
-    keywords: ["fire service", "fire station", "fire department"],
+    keywords: ["fire service", "fire station", "fire department", "fire services"],
   },
   {
     value: "doap/pact",
