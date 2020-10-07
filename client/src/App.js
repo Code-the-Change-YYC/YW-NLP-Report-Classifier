@@ -3,7 +3,7 @@ import logo from "./logo.jpg";
 import "./App.css";
 import _ from "lodash";
 import chrono from "chrono-node";
-import Select, { createFilter } from "react-select";
+import Select from "react-select";
 import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -61,7 +61,7 @@ const HR = styled.hr`
   margin: 20px 30px 20px;
 `;
 
-const IncTypeOption = ({ confidenceVal, value, label }) => {
+const IncTypeOption = ({ confidenceVal, label }) => {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
       <div>{label}</div>
