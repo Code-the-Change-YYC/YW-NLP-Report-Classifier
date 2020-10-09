@@ -7,7 +7,7 @@ import Select from "react-select";
 import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { getPrediction } from "./actions/predict";
+import { getMultiPrediction } from "./actions/predict";
 import {
   locationOptions,
   programOptions,
@@ -61,6 +61,15 @@ const HR = styled.hr`
   margin: 20px 30px 20px;
 `;
 
+const IncTypeOption = ({ confidenceVal, label }) => {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+      <div>{label}</div>
+      <div style={{ marginLeft: "15px", color: "#999999" }}>{confidenceVal}</div>
+    </div>
+  );
+};
+
 function App() {
   // State variables
   const [location, setLocation] = useState(null);
@@ -98,6 +107,9 @@ function App() {
     false
   );
   const [dateTouched, setDateTouched] = useState(false);
+  const [incTypesOptions, setIncTypesOptions] = useState(
+    Object.values(incidentTypes)
+  );
 
   // Checking functions
   // These functions are run when the description updates and contain the logic
@@ -163,12 +175,9 @@ function App() {
   };
 
   const checkIncidentType = async () => {
-    const prediction = await getPrediction(description);
-    setIncidentTypePri(
-      incidentTypes.filter(
-        (type) => type.value.toLowerCase() === prediction.toLowerCase()
-      )[0]
-    );
+    const predictions = await getMultiPrediction(description);
+    setIncTypesOptions(predictions);
+    setIncidentTypePri(predictions[0]);
   };
 
   // run this 1000 seconds when the description is updated
@@ -266,7 +275,10 @@ function App() {
             <label>Location</label>
             <Select
               styles={{
-                container: (provided) => ({ ...provided, width: "95%" }),
+                container: (provided) => ({
+                  ...provided,
+                  width: "95%",
+                }),
               }}
               value={location}
               onChange={(newLocation) => {
@@ -290,7 +302,10 @@ function App() {
             <label>Services Involved</label>
             <Select
               styles={{
-                container: (provided) => ({ ...provided, width: "95%" }),
+                container: (provided) => ({
+                  ...provided,
+                  width: "95%",
+                }),
               }}
               value={servicesInvolved}
               isMulti
@@ -355,21 +370,27 @@ function App() {
 
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
-            <label>Incident Type (Primary)</label>
+            <div>
+              <label>Incident Type (Primary)</label>
+            </div>
             <Select
+              formatOptionLabel={IncTypeOption}
               styles={{
-                container: (provided) => ({ ...provided, width: "95%" }),
+                container: (provided) => ({
+                  ...provided,
+                  width: "95%",
+                }),
               }}
               value={incidentTypePri}
               onChange={(incidentType) => {
                 setIncidentTypePri(incidentType);
                 setIncidentTypeTouched(true);
               }}
-              options={incidentTypes}
+              options={incTypesOptions}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
-            <label>Incidept Type (Secondary)</label>
+            <label>Incident Type (Secondary)</label>
             <Select
               value={incidentTypeSec}
               onChange={(incidentType) => {
@@ -402,7 +423,10 @@ function App() {
             <label>Did this incident involve a child?</label>
             <Select
               styles={{
-                container: (provided) => ({ ...provided, width: "95%" }),
+                container: (provided) => ({
+                  ...provided,
+                  width: "95%",
+                }),
               }}
               value={involvesChild}
               onChange={(option) => {
@@ -433,7 +457,10 @@ function App() {
           <label>Program</label>
           <Select
             styles={{
-              container: (provided) => ({ ...provided, width: "100%" }),
+              container: (provided) => ({
+                ...provided,
+                width: "100%",
+              }),
             }}
             value={program}
             onChange={(program) => {
@@ -447,7 +474,10 @@ function App() {
           <label>Immediate Response to the Incident</label>
           <Select
             styles={{
-              container: (provided) => ({ ...provided, width: "100%" }),
+              container: (provided) => ({
+                ...provided,
+                width: "100%",
+              }),
             }}
             value={immediateResponse}
             isMulti

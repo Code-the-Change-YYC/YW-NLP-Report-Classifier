@@ -13,6 +13,7 @@ from training.description_classification.utils import load_cnb, CNBPipeline
 
 class CNBDescriptionClf(Model[CNBPipeline]):
     """Complement Naive Bayes model for description classification."""
+
     _model: Pipeline
 
     def __init__(self):
@@ -27,14 +28,16 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         predictions = self._model.predict(X)
         return np.array([IncidentType(prediction) for prediction in predictions])
 
-    def partial_fit(self, X: ArrayLike, y: ArrayLike, classes: ArrayLike = None) -> object:
+    def partial_fit(
+        self, X: ArrayLike, y: ArrayLike, classes: ArrayLike = None
+    ) -> object:
         est: ComplementNB = self._model.steps[-1][1]
         word_vec: TfidfVectorizer = self._model.steps[0][1]
         vectors = word_vec.transform(X)
         est.partial_fit(vectors, y)
         return self
 
-    def predict_multiple(self, X: ArrayLike, num_predictions: int) -> np.ndarray:
+    def predict_multiple(self, X: ArrayLike, num_predictions: int = None) -> np.ndarray:
         """Give the top `num_predictions` predictions for each sample with their
         confidences, ordered by confidence.
 
@@ -48,14 +51,19 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         `IncidentType` prediction as the first element and the confidence as the
         second.
         """
-        classes = self._model.classes_
-        num_classes = len(classes)
-        if num_predictions > num_classes:
+        num_classes = len(self._model.classes_)
+        if not num_predictions or num_predictions > num_classes:
             num_predictions = num_classes
+        # elif num_predictions > num_classes:
+        #     num_predictions = num_classes
 
-        return self._predictions_with_proba(self._model.predict_proba(X), num_predictions)
+        return self._predictions_with_proba(
+            self._model.predict_proba(X), num_predictions
+        )
 
-    def _predictions_with_proba(self, proba: ArrayLike, num_predictions: int) -> np.ndarray:
+    def _predictions_with_proba(
+        self, proba: ArrayLike, num_predictions: int
+    ) -> np.ndarray:
         """Utility for joining probabilities with their incident type
         predictions and ordering them.
 
@@ -68,14 +76,16 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         array with the `IncidentType` prediction as the first element and the
         confidence as the second.
         """
-        top_indices: np.ndarray = proba.argsort()[:, -1:-(num_predictions + 1):-1]
+        top_indices: np.ndarray = proba.argsort()[:, -1 : -(num_predictions + 1) : -1]
         top_proba: np.ndarray = np.take_along_axis(proba, top_indices, axis=1)
         predictions: np.ndarray = self._model.classes_[top_indices]
-        incident_types = np.array([IncidentType(p) for p in predictions.flat]).reshape(predictions.shape)
+        incident_types = np.array([IncidentType(p) for p in predictions.flat]).reshape(
+            predictions.shape
+        )
         return np.dstack((incident_types, top_proba))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     clf = CNBDescriptionClf()
     df = ReportData().get_processed_data()
     X = df[ColName.DESC][:5]
@@ -84,7 +94,9 @@ if __name__ == '__main__':
     print(clf.predict(X))
     multi_predict = clf.predict_multiple(X, 5)
     for i, prediction_set in enumerate(multi_predict):
-        print('For description')
+        print("For description")
         print(X[i])
         for prediction_with_proba in prediction_set:
-            print(f'We predict {prediction_with_proba[0].value} with {prediction_with_proba[1]:.2f}% confidence')
+            print(
+                f"We predict {prediction_with_proba[0].value} with {prediction_with_proba[1]:.2f}% confidence"
+            )
