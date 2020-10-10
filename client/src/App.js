@@ -7,7 +7,6 @@ import Select from "react-select";
 import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { getMultiPrediction } from "./actions/predict";
 import {
   locationOptions,
   programOptions,
@@ -15,7 +14,7 @@ import {
   immediateResponseOptions,
   serviceOptions,
 } from "./formOptions";
-import { useFormOptions } from './useFormOptions';
+import { useIncTypeOptions } from './useIncTypeOptions';
 
 const FormRow = styled.div`
   display: flex;
@@ -76,7 +75,6 @@ function App() {
   const [location, setLocation] = useState(null);
   const [clientInitials, setClientInitials] = useState("");
   const [servicesInvolved, setservicesInvolved] = useState([]);
-  const [incidentTypePri, setIncidentTypePri] = useState(null);
   const [incidentTypeSec, setIncidentTypeSec] = useState({});
   const [dateOccurred, setDateOccurred] = useState(new Date());
   const [clientSecInitials, setClientSecInitials] = useState("");
@@ -108,10 +106,12 @@ function App() {
     false
   );
   const [dateTouched, setDateTouched] = useState(false);
-  const [incTypesOptions, setIncTypesOptions] = useState(
-    Object.values(incidentTypes)
-  );
-  const test = useFormOptions()
+  const {
+      incidentTypePri,
+      setIncidentTypePri,
+      reactSelectOptions: incTypesOptions,
+      updateOptionsFromDescription: updateIncTypesOptions,
+  } = useIncTypeOptions()
 
   // Checking functions
   // These functions are run when the description updates and contain the logic
@@ -176,12 +176,6 @@ function App() {
     }
   };
 
-  const checkIncidentType = async () => {
-    const predictions = await getMultiPrediction(description);
-    setIncTypesOptions(predictions);
-    setIncidentTypePri(predictions[0]);
-  };
-
   // run this 1000 seconds when the description is updated
   const onDescriptionUpdate = useCallback(
     _.throttle(() => {
@@ -201,7 +195,7 @@ function App() {
         checkDate();
       }
       if (!incidentTypeTouched) {
-        checkIncidentType();
+        updateIncTypesOptions(description)
       }
       if (!programTouched) {
         checkProgram();

@@ -1,7 +1,6 @@
 import axios from "axios";
-import { incidentTypes } from "../formOptions";
 
-export const getMultiPrediction = async (description) => {
+export const getMultiPrediction = async (description, incidentTypes) => {
   const { data } = await axios.post("/api/predict/", {
     text: description,
     num_predictions: 21,
