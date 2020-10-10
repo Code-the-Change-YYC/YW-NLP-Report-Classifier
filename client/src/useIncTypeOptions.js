@@ -55,12 +55,14 @@ export function useIncTypeOptions() {
     }
 
     async function updateOptionsFromDescription(description) {
-        const predictions = await getMultiPrediction(
-            description,
-            incTypesOptions
-        )
-        setIncTypesOptions(predictions)
-        setIncidentTypePri(predictions[0])
+        if (incTypesOptions) {
+            const predictions = await getMultiPrediction(
+                description,
+                incTypesOptions
+            )
+            setIncTypesOptions(predictions)
+            setIncidentTypePri(predictions[0])
+        }
     }
 
     // Fetch options only on component load
