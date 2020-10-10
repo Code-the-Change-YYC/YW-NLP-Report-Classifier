@@ -15,6 +15,7 @@ import {
   immediateResponseOptions,
   serviceOptions,
 } from "./formOptions";
+import { useFormOptions } from './useFormOptions';
 
 const FormRow = styled.div`
   display: flex;
@@ -110,6 +111,7 @@ function App() {
   const [incTypesOptions, setIncTypesOptions] = useState(
     Object.values(incidentTypes)
   );
+  const test = useFormOptions()
 
   // Checking functions
   // These functions are run when the description updates and contain the logic
