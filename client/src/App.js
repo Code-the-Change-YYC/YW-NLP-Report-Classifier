@@ -237,6 +237,9 @@ function App() {
 
   const handleSubmit = async function (e) {
     e.preventDefault();
+    window.open(
+      "https://docs.google.com/forms/d/e/1FAIpQLScfxUsVQDwfXkUeVqfHQrhJpUv9_COL6_9bxgXEAL3M_NA5og/viewform?usp=sf_link"
+    );
     setModalDisplay("block");
     const formData = {
       location,
