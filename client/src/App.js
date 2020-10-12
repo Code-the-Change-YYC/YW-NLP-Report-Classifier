@@ -61,11 +61,34 @@ const HR = styled.hr`
   margin: 20px 30px 20px;
 `;
 
+const ModalClose = styled.div`
+  float: right;
+  text-align: right;
+  cursor: pointer;
+  line-height: 10px;
+
+  &:before {
+    content: "x";
+    color: #ff0000;
+    font-weight: normal;
+    font-family: Arial, sans-serif;
+    font-size: 30px;
+  }
+`;
+
 const IncTypeOption = ({ confidenceVal, label }) => {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        width: "100%",
+      }}
+    >
       <div>{label}</div>
-      <div style={{ marginLeft: "15px", color: "#999999" }}>{confidenceVal}</div>
+      <div style={{ marginLeft: "15px", color: "#999999" }}>
+        {confidenceVal}
+      </div>
     </div>
   );
 };
@@ -86,12 +109,13 @@ function App() {
   const [involvesNonClient, setInvolvesNonClient] = useState(null);
   const [program, setProgram] = useState(null);
   const [otherServices, setOtherServices] = useState("");
-  const [immediateResponse, setImmediateResponse] = useState(null);
+  const [immediateResponse, setImmediateResponse] = useState([]);
   const [staffCompleting, setStaffCompleting] = useState("");
   const [supervisorReviewer, setSupervisorReviewer] = useState("");
   const [dateCompleted, setDateCompleted] = useState(new Date());
   const [description, setDescription] = useState("");
   const [otherSecIncidentType, setOtherSecIncidentType] = useState("");
+  const [modalDisplay, setModalDisplay] = useState("none");
 
   // the "Touched" variables keep track of whether or not that form field was edited by the client.
   // If so, then we stop overwriting the client's manual input
@@ -214,7 +238,9 @@ function App() {
   useEffect(onDescriptionUpdate, [description]);
 
   const handleSubmit = async function (e) {
+    console.log(e);
     e.preventDefault();
+    setModalDisplay("block");
     const formData = {
       location,
       clientInitials,
@@ -236,6 +262,93 @@ function App() {
 
   return (
     <div className="App">
+      <div
+        style={{
+          position: "fixed",
+          top: "0",
+          left: "0",
+          width: "100%",
+          bottom: "0",
+          backgroundColor: "rgba(0,0,0,0.5)",
+          zIndex: "10",
+          display: modalDisplay, // modalDisplay
+        }}
+      >
+        <div
+          className="ModalBox"
+          style={{
+            width: "500px",
+            height: "auto",
+            backgroundColor: "#fff",
+            float: "none",
+            margin: "10% auto 0",
+            borderRadius: "7px",
+            textAlign: "left",
+            padding: "20px",
+          }}
+        >
+          <ModalClose onClick={() => setModalDisplay("none")}></ModalClose>
+          <div>
+            <b>Client Involved - Primary: </b> {clientInitials}
+          </div>
+          <div>
+            <b>Client Involved - Secondary: </b> {clientSecInitials}
+          </div>
+          <div>
+            <b>Location: </b> {location?.label}
+          </div>
+          <div>
+            <b>Location Detail: </b> {locationDetail}
+          </div>
+          <div>
+            <b>Date of Occurrence: </b> {dateOccurred.toLocaleString()}
+          </div>
+          <div>
+            <b>Services Involved: </b>
+            {servicesInvolved?.map((o) => o.label).join(", ")}
+          </div>
+          <div>
+            <b>Other Services Involved: </b> {otherServices}
+          </div>
+          <div>
+            <b>Staff Involved: </b>
+            {`${staffInvolvedFirst} ${staffInvolvedLast}`}
+          </div>
+          <div>
+            <b>Incident Type - Primary: </b> {incidentTypePri?.label}
+          </div>
+          <div>
+            <b>Incident Type - Secondary: </b> {incidentTypeSec?.label}
+          </div>
+
+          <div>
+            <b>Immediate Response: </b>{" "}
+            {immediateResponse?.map((o) => o.label).join(", ")}
+          </div>
+
+          <div>
+            <b>Program: </b> {program?.label}
+          </div>
+
+          <div>
+            <b>Involves a Child? </b> {involvesChild?.label}
+          </div>
+          <div>
+            <b>Involves a non-client guest? </b> {involvesNonClient?.label}
+          </div>
+
+          <div>
+            <b>Staff Completing this Report: </b> {staffCompleting}
+          </div>
+          <div>
+            <b>Program Supervisor Reviewer: </b> {supervisorReviewer}
+          </div>
+
+          <div style={{ width: "100%", textAlign: "center" }}>
+            <input type="submit" value="Submit" onClick={handleSubmit}></input>
+          </div>
+        </div>
+      </div>
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
       <h2>Prototype - June 30, 2020 </h2>
@@ -383,6 +496,7 @@ function App() {
               }}
               value={incidentTypePri}
               onChange={(incidentType) => {
+                console.log(incidentType);
                 setIncidentTypePri(incidentType);
                 setIncidentTypeTouched(true);
               }}
@@ -523,7 +637,10 @@ function App() {
         <input
           type="submit"
           value="Next"
-          onClick={(e) => handleSubmit(e)}
+          onClick={(e) => {
+            e.preventDefault();
+            setModalDisplay("block");
+          }}
         ></input>
         <button>Download</button>
       </form>
