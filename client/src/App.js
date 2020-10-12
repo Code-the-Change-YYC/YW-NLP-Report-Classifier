@@ -182,6 +182,8 @@ function App() {
     const found = description.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
     if (found && found.length) {
       setClientInitials(found[0]);
+    } else {
+      setClientInitials("");
     }
   };
 
@@ -190,12 +192,12 @@ function App() {
     if (found && found.length) {
       for (const match of found) {
         if (match !== clientInitials) {
-          console.log(match, clientInitials);
           setClientSecInitials(match);
-          break;
+          return;
         }
       }
     }
+    setClientSecInitials("");
   };
 
   const checkIncidentType = async () => {
@@ -238,7 +240,6 @@ function App() {
   useEffect(onDescriptionUpdate, [description]);
 
   const handleSubmit = async function (e) {
-    console.log(e);
     e.preventDefault();
     setModalDisplay("block");
     const formData = {
@@ -425,7 +426,6 @@ function App() {
               onChange={(newSelection) => {
                 setservicesInvolved(newSelection);
                 setServicesTouched(true);
-                console.log(servicesInvolved);
               }}
               options={serviceOptions}
             ></Select>
@@ -496,7 +496,6 @@ function App() {
               }}
               value={incidentTypePri}
               onChange={(incidentType) => {
-                console.log(incidentType);
                 setIncidentTypePri(incidentType);
                 setIncidentTypeTouched(true);
               }}
