@@ -76,7 +76,7 @@ const ModalClose = styled.div`
   }
 `;
 
-const IncTypeOption = ({ confidenceVal, label }) => {
+const IncTypeOption = ({ confidence, label }) => {
   return (
     <div
       style={{
@@ -86,9 +86,7 @@ const IncTypeOption = ({ confidenceVal, label }) => {
       }}
     >
       <div>{label}</div>
-      <div style={{ marginLeft: "15px", color: "#999999" }}>
-        {confidenceVal}
-      </div>
+      <div style={{ marginLeft: "15px", color: "#999999" }}>{confidence}</div>
     </div>
   );
 };
@@ -131,9 +129,7 @@ function App() {
     false
   );
   const [dateTouched, setDateTouched] = useState(false);
-  const [incTypesOptions, setIncTypesOptions] = useState(
-    Object.values(incidentTypes)
-  );
+  const [incTypesOptions, setIncTypesOptions] = useState(incidentTypes);
 
   // Checking functions
   // These functions are run when the description updates and contain the logic
@@ -499,7 +495,7 @@ function App() {
                 setIncidentTypePri(incidentType);
                 setIncidentTypeTouched(true);
               }}
-              options={incTypesOptions}
+              options={incTypesOptions.sort((i) => i.confidence)}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
