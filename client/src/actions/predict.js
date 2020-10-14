@@ -8,12 +8,14 @@ export const getMultiPrediction = async (description) => {
   });
   if (data.predictions) {
     return data.predictions.map((pred) => {
-      const [incType, confidenceVal] = pred;
-      const reactSelectOption = incidentTypes[incType.toLowerCase()];
+      const [incType, confidence] = pred;
+      const reactSelectOption = incidentTypes.find(
+        (i) => i.label.toLowerCase() === incType.toLowerCase()
+      );
       return {
         label: reactSelectOption.label,
         value: reactSelectOption.value,
-        confidenceVal: (confidenceVal * 10).toFixed(2),
+        confidence: (confidence * 10).toFixed(2),
       };
     });
   }
