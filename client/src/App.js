@@ -640,7 +640,7 @@ function App() {
             setModalDisplay("block");
           }}
         ></input>
-        <button>Download</button>
+        <button onClick={(e) => e.preventDefault()}>Download</button>
       </form>
     </div>
   );
