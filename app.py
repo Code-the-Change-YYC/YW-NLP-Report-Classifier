@@ -42,9 +42,16 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
     Returns:
         SubmitOut: Request data alongside risk score.
     """
+
     print(form)
 
     # TODO: access values from `form` to sum up risk scores
     # -> form.form_fields.incident_type_primary to risk_scores.incident_type_to_risk
+    program_risk = risk_scores.program_to_risk[form.form_fields.program]
+    response_risk = risk_scores.response_to_risk[form.form_fields.immediate_response]
+    incident_risk = risk_scores.response_to_risk[form.form_fields.incident_type_primary]
 
-    return SubmitOut(form_fields=form.form_fields, risk_score=5)
+    risk_score = program_risk + response_risk + incident_risk
+
+
+    return SubmitOut(form_fields=form.form_fields, risk_score=risk_score)
