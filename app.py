@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, HTTPException
 
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
@@ -59,6 +59,6 @@ def sum_risk_scores(program, incident_type_primary, immediate_responses) -> int:
     risk_score = (
         risk_scores.program_to_risk[program]
         + risk_scores.incident_type_to_risk[incident_type_primary]
-        + sum(map(risk_scores.response_to_risk.get, immediate_responses))
+        + sum(map(risk_scores.response_to_risk.__getitem__, immediate_responses))
     )
     return risk_score
