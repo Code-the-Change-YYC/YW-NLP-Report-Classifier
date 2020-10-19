@@ -1,6 +1,7 @@
-from pydantic import BaseModel
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel
 
 
 class Form(BaseModel):
@@ -55,4 +56,4 @@ class SubmitIn(BaseModel):
 
 class SubmitOut(BaseModel):
     form_fields: Form
-    risk_score: int
+    risk_assessment: str

@@ -1,4 +1,11 @@
-incident_type_to_risk = {
+from typing import Dict, Sequence
+
+
+RiskScoreMapKey = str
+RiskScoreMapValue = int
+RiskScoreMap = Dict[RiskScoreMapKey, RiskScoreMapValue]
+
+incident_type_to_risk: RiskScoreMap = {
     "child abandonment": 1,
     "client aggression towards another person": 1,
     "client aggression towards property": 3,
@@ -22,7 +29,7 @@ incident_type_to_risk = {
     "other": 1,
 }
 
-program_to_risk = {
+program_to_risk: RiskScoreMap = {
     "child care hub": 5,
     "child support": 5,
     "compass": 1,
@@ -43,7 +50,7 @@ program_to_risk = {
     "transitional housing": 1,
 }
 
-response_to_risk = {
+response_to_risk: RiskScoreMap = {
     "called child welfare": 5,
     "evacuation": 4,
     "first-aid provided": 4,
@@ -55,3 +62,41 @@ response_to_risk = {
     "safety planning": 5,
     "other": 2,
 }
+
+
+class FieldRiskScoreMap:
+    _risk_score_map: RiskScoreMap
+
+    def __init__(self, risk_score_map: RiskScoreMap):
+        self._risk_score_map = risk_score_map
+
+    def max_risk_score(self) -> int:
+        """
+        Returns the maximum possible risk score this field could receive.
+        """
+        risk_scores = self._risk_score_map.values()
+        return max(risk_scores)
+
+    def get_risk_score(self, field_value: RiskScoreMapKey) -> float:
+        """
+        Calculates the risk score for this field with the given `field_value` as
+        its input.
+        """
+        return self._risk_score_map[field_value]
+
+
+class MultiValFieldRiskScoreMap(FieldRiskScoreMap):
+    def max_risk_score_with_value_count(self, value_count: int) -> int:
+        """
+        :value_count: The number of values entered into the field.
+        """
+        risk_scores = sorted(self._risk_score_map.values(), reverse=True)
+        return sum(risk_scores[:value_count])
+
+    def get_risk_score(self, field_value: Sequence[RiskScoreMapKey]) -> float:
+        return sum(map(self._risk_score_map.__getitem__, field_value))
+
+
+incident_type_to_risk_map = FieldRiskScoreMap(incident_type_to_risk)
+program_to_risk_map = FieldRiskScoreMap(program_to_risk)
+response_to_risk_map = MultiValFieldRiskScoreMap(response_to_risk)

@@ -1,9 +1,9 @@
+from server.risk_scores.risk_assessment import get_risk_assessment
 from fastapi import FastAPI, HTTPException
 
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
 from server.schemas.submit import SubmitOut, SubmitIn
-from server.risk_scores import risk_scores
 
 app = FastAPI()
 clf = CNBDescriptionClf()
@@ -43,22 +43,9 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
         SubmitOut: Request data alongside risk score.
     """
     try:
-        risk_score = sum_risk_scores(
-            form.form_fields.program,
-            form.form_fields.incident_type_primary,
-            form.form_fields.immediate_response,
-        )
+        risk_assessment = get_risk_assessment(form.form_fields)
     except KeyError as ke:
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"}
         )
-    return SubmitOut(form_fields=form.form_fields, risk_score=risk_score)
-
-
-def sum_risk_scores(program, incident_type_primary, immediate_responses) -> int:
-    risk_score = (
-        risk_scores.program_to_risk[program]
-        + risk_scores.incident_type_to_risk[incident_type_primary]
-        + sum(map(risk_scores.response_to_risk.__getitem__, immediate_responses))
-    )
-    return risk_score
+    return SubmitOut(form_fields=form.form_fields, risk_assessment=risk_assessment.value)
