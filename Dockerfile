@@ -9,6 +9,7 @@ RUN python -m pip install -r requirements.txt
 RUN python -m spacy download en_core_web_lg
 
 RUN npm install --prefix client
+RUN npm install
 
 EXPOSE 3000
 
