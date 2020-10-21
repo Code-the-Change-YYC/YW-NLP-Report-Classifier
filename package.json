@@ -10,7 +10,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "concurrently \"uvicorn app:app --reload\" \"cd client && npm start\"",
+    "start": "uvicorn app:app",
+    "dev": "concurrently \"uvicorn app:app --reload\" \"cd client && npm start\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cd client && react-scripts build",
     "heroku-postbuild": "npm run install && npm run build && npm install --prefix server"

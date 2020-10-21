@@ -11,6 +11,6 @@ RUN python -m spacy download en_core_web_lg
 RUN npm install --prefix client
 RUN npm install
 
-EXPOSE 3000
+EXPOSE 8000
 
 CMD ["npm", "start"]
