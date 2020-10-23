@@ -10,7 +10,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "uvicorn app:app",
+    "start": "uvicorn app:app --host 0.0.0.0 --port $PORT",
     "dev": "concurrently \"uvicorn app:app --reload\" \"cd client && npm start\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cd client && react-scripts build",
