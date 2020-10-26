@@ -1,3 +1,4 @@
+from server.interceptum_adapter import InterceptumAdapter
 from server.risk_scores.risk_assessment import get_risk_assessment
 from fastapi import FastAPI, HTTPException
 
@@ -48,4 +49,6 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"}
         )
+        
+    redirect_url = InterceptumAdapter(account_name='', username='', password='').call_api(form.form_fields)
     return SubmitOut(form_fields=form.form_fields, risk_assessment=risk_assessment.value)
