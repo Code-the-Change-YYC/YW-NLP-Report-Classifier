@@ -88,7 +88,7 @@ class InterceptumAdapter():
             'Invite code is empty from interceptum response.')
 
         try:
-            invite_code = post_res_root.find("inviteCode").text
+            invite_code = post_res_root.find("data").find("inviteCode").text
             if invite_code is None:
                 raise invalid_invite_code_exception
         except AttributeError:
