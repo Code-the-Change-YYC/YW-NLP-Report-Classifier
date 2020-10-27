@@ -80,13 +80,27 @@ class InterceptumAdapter():
         res = requests.post(INTERCEPTUM_ENDPOINT,
                             data=invite_req_body,
                             headers=XML_REQ_HEADERS)
-        if res.ok and res.content:
-            print(res.content)
+
+        final_url = "https://interceptum.com/si/en/5333180?code="
+        post_res_root = ET.fromstring(res.content)
+
+        invalid_invite_code_exception = InterceptumException(
+            'Invite code is empty from interceptum response.')
+
+        try:
+            invite_code = post_res_root.find("inviteCode").text
+            if invite_code is None:
+                raise invalid_invite_code_exception
+        except AttributeError:
+            raise invalid_invite_code_exception
+
+        if res.ok and post_res_root:
+            final_url = final_url + invite_code
         else:
             raise InterceptumException(
                 'Error obtaining invite request from Interceptum.')
 
-        return ''
+        return final_url
 
     def get_credentials(self) -> str:
         """Gets Interceptum credentials via a login request.
