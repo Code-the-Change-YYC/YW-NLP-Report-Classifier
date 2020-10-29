@@ -1,0 +1,29 @@
+{
+    "name": "Python 3",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "..",
+    },
+
+    // Set *default* container specific settings.json values on container create.
+    "settings": { 
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "python.pythonPath": "/usr/local/bin/python",
+    },
+
+    // Add the IDs of extensions you want installed when the container is created.
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+    ],
+
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    "forwardPorts": [3000, 8000],
+    
+    // From
+    // https://code.visualstudio.com/docs/remote/containers-advanced#_persist-bash-history-between-runs
+    // for persisting bash history
+    "mounts": [
+        "source=projectname-bashhistory,target=/commandhistory,type=volume"
+    ],
+}
