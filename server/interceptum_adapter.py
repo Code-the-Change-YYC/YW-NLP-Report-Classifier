@@ -17,7 +17,7 @@ invite_req_body_base = """
   <langCode>en</langCode>
 	<!--The first name of the participant (optional)-->
 	<firstname>fname</firstname>
-	<!--The last name of the participant (optional)--> 
+	<!--The last name of the participant (optional)-->
 	<lastname>lname</lastname>
 	<!--The email of the participant (optional)-->
 	<email>email@email.com</email>
@@ -59,6 +59,7 @@ class InterceptumAdapter():
     account_name: str
     username: str
     password: str
+    credentials: str
 
     def __init__(self, account_name: str, username: str, password: str):
         """Inits `InterceptumAdapter` with the given `account_name`, `username`,
@@ -66,12 +67,44 @@ class InterceptumAdapter():
         self.account_name = account_name
         self.username = username
         self.password = password
+        self.credentials = self.get_credentials()
 
     def call_api(self, request_body: Form) -> str:
         """Calls the Interceptum API with the given request body.
 
         :param request_body: Python dict converted from the JSON body of the /api/submit endpoint
         :return: The redirect URL to the autocompleted Interceptum form
+        """
+        invite_res_root = self.send_invite_request()
+        final_url = "https://interceptum.com/si/en/5333180?code="
+
+        invalid_invite_code_exception = InterceptumException(
+            'Unable to obtain invite code from Interceptum.')
+
+        try:
+            invite_code = invite_res_root.find("data").find("inviteCode").text
+            if invite_code is None:
+                raise invalid_invite_code_exception
+        except AttributeError:
+            raise invalid_invite_code_exception
+
+        if invite_res_root:
+            final_url = final_url + invite_code
+        else:
+            raise InterceptumException(
+                'Error obtaining invite request from Interceptum.')
+
+        return final_url
+
+    def send_invite_request(self) -> ET.Element:
+        """Sends an invite request to Interceptum and returns the root XML
+        element.
+
+        Retries the request with freshly retrieved credentials if an error
+        occurs in the first attempt.
+
+        Raises:
+            All exceptions from `get_credentials`.
         """
         credentials = self.get_credentials()
         form_values_xml = self.form_values_xml()
@@ -81,33 +114,34 @@ class InterceptumAdapter():
                             data=invite_req_body,
                             headers=XML_REQ_HEADERS)
 
-        final_url = "https://interceptum.com/si/en/5333180?code="
         post_res_root = ET.fromstring(res.content)
-
-        invalid_invite_code_exception = InterceptumException(
-            'Invite code is empty from interceptum response.')
-
-        try:
-            invite_code = post_res_root.find("data").find("inviteCode").text
-            if invite_code is None:
-                raise invalid_invite_code_exception
-        except AttributeError:
-            raise invalid_invite_code_exception
-
-        if res.ok and post_res_root:
-            final_url = final_url + invite_code
+        error = post_res_root.find('ERRORS') is not None \
+            or post_res_root.find('ERRORCODE') is not None
+        # Retry the request with fresh credentials on error
+        if error:
+            credentials = self.get_credentials(force_refresh=True)
+            invite_req_body = invite_req_body_base.format(
+                credentials=credentials, form_values_xml=form_values_xml)
+            res = requests.post(INTERCEPTUM_ENDPOINT,
+                                data=invite_req_body,
+                                headers=XML_REQ_HEADERS)
+            return ET.fromstring(res.content)
         else:
-            raise InterceptumException(
-                'Error obtaining invite request from Interceptum.')
+            return post_res_root
 
-        return final_url
-
-    def get_credentials(self) -> str:
+    def get_credentials(self, force_refresh: bool = False) -> str:
         """Gets Interceptum credentials via a login request.
-        
+
+        Does not request fresh credentials if `self.credentials` has been
+        created already, unless `force_refresh` is `True`.
+
         Raises:
             InterceptumException: Unable to retrieve credentials.
         """
+        credentials_exists = getattr(self, 'credentials', None) is not None
+        if not force_refresh and credentials_exists:
+            return self.credentials
+
         login_request_body = login_request_body_base.format(
             account_name=self.account_name,
             username=self.username,

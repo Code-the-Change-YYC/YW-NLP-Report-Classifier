@@ -8,6 +8,7 @@ from server.schemas.submit import SubmitOut, SubmitIn
 
 app = FastAPI()
 clf = CNBDescriptionClf()
+interceptum = InterceptumAdapter(account_name='', username='', password='')
 
 
 @app.get("/")
@@ -47,8 +48,8 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
         risk_assessment = get_risk_assessment(form.form_fields)
     except KeyError as ke:
         raise HTTPException(
-            422, detail={"error": f"Incorrect request parameter/key: {ke}"}
-        )
-        
-    redirect_url = InterceptumAdapter(account_name='', username='', password='').call_api(form.form_fields)
-    return SubmitOut(form_fields=form.form_fields, risk_assessment=risk_assessment.value)
+            422, detail={"error": f"Incorrect request parameter/key: {ke}"})
+
+    redirect_url = interceptum.call_api(form.form_fields)
+    return SubmitOut(form_fields=form.form_fields,
+                     risk_assessment=risk_assessment.value)
