@@ -4,11 +4,22 @@ interceptum_boolean_dict = {
 }
 
 interceptum_services_involved_dict = {
-
+    'Child Welfare (CFS)': 1,
+    'EMS': 2, 
+    'Police': 6, 
+    'Fire': 3, 
+    'Outreach (DOAP/PACT)': 5, 
+    'Other': 4
 }
 
 interceptum_location_dict = {
-
+    "YW Croydon": 1,
+    "YW Providence": 2,
+    "YW Downtown": 3,
+    "YW Hub": 4,
+    "YW Sheriff King": 5,
+    "In community": 7,
+    "YW Maple": 8,
 }
 
 interceptum_program_dict = {
@@ -33,11 +44,50 @@ interceptum_program_dict = {
 }
 
 interceptum_incident_type_primary_dict = {
-
+    "Child abandonment": 1,
+    "Client aggression towards another person": 2,
+    "Client aggression towards property": 3,
+    "Client death (offsite)": 4,
+    "Client death (onsite)": 5,
+    "Client missing": 6,
+    "Concern for welfare of a child": 7,
+    "Exposure": 8,
+    "Homocide (Threat or attempt)": 9,
+    "Illegal activity on premises": 11,
+    "Injury": 12,
+    "Media/3rd party contact": 13,
+    "Medical emergency": 14,
+    "Mental health emergency": 15,
+    "Security Concern": 16,
+    "Suicide attempt": 17,
+    "Suspected or actual breach of privacy": 18,
+    "Suspicion/allegation of abuse towards or against client": 19,
+    "Suspicion/allegation of child abuse - child is not a client": 20,
+    "Other": 21,
+    "COVID-19 Confirmed": 22,
 }
 
 interceptum_incident_type_secondary_dict = {
-
+    "Child abandonment": 1,
+    "Client aggression towards another person": 2,
+    "Client aggression towards property": 3,
+    "Client death (offsite)": 4,
+    "Client death (onsite)": 5,
+    "Client missing": 6,
+    "Concern for welfare of a child": 7,
+    "Exposure": 8,
+    "Homocide (Threat or attempt)": 9,
+    "Other": 10,
+    "Illegal activity on premises": 11,
+    "Injury": 12,
+    "Media/3rd party contact": 13,
+    "Medical emergency": 14,
+    "Mental health emergency": 15,
+    "Security Concern": 16,
+    "Suicide attempt": 17,
+    "Suspected or actual breach of privacy": 18,
+    "Suspicion/allegation of abuse towards or against client": 19,
+    "Suspicion/allegation of child abuse - child is not a client": 20,
 }
 
 interceptum_immediate_response_dict = {
