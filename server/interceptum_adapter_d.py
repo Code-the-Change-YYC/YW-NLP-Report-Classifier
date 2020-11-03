@@ -102,3 +102,25 @@ interceptum_immediate_response_dict = {
     "Safety planning": 8,
     "Other": 9
 }
+
+field_values_dict = {
+    "description": "447832",
+    "client_primary": "447821",
+    "client_secondary": "447822",
+    "location": "447817",
+    "location_detail": "447818",
+    "services_involved": "447826",
+    "services_involved_other": "447827",
+    "primary_staff_first_name": "447819",
+    "primary_staff_last_name": "447820",
+    "occurence_time": "447816",
+    "incident_type_primary": "447828",
+    "incident_type_secondary": "447829",
+    "child_involved": "447823",
+    "non_client_involved": "447824",
+    "program": "447825",
+    "immediate_response": "447833",
+    "staff_name": "447836",
+    "program_supervisor_reviewer_name": "447838",
+    "completion_date": "447835",
+}
