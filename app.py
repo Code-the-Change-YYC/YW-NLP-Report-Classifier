@@ -50,6 +50,6 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
 
-    redirect_url = interceptum.call_api(form.form_fields)
+    redirect_url = interceptum.call_api(form.form_fields.dict())
     return SubmitOut(form_fields=form.form_fields,
                      risk_assessment=risk_assessment.value)

@@ -1,8 +1,11 @@
 import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import fromstring, tostring, fromstringlist
 
 import requests
+from datetime import datetime
 
 from server.schemas.submit import Form
+import server.interceptum_adapter_d as d
 
 INTERCEPTUM_ENDPOINT = 'https://interceptum.com/service/survey.do'
 
@@ -75,7 +78,7 @@ class InterceptumAdapter():
         :param request_body: Python dict converted from the JSON body of the /api/submit endpoint
         :return: The redirect URL to the autocompleted Interceptum form
         """
-        invite_res_root = self.send_invite_request()
+        invite_res_root = self.send_invite_request(request_body)
         final_url = "https://interceptum.com/si/en/5333180?code="
 
         invalid_invite_code_exception = InterceptumException(
@@ -96,7 +99,7 @@ class InterceptumAdapter():
 
         return final_url
 
-    def send_invite_request(self) -> ET.Element:
+    def send_invite_request(self, request_body: dict) -> ET.Element:
         """Sends an invite request to Interceptum and returns the root XML
         element.
 
@@ -107,7 +110,7 @@ class InterceptumAdapter():
             All exceptions from `get_credentials`.
         """
         credentials = self.get_credentials()
-        form_values_xml = self.form_values_xml()
+        form_values_xml = self.form_values_to_xml(request_body)
         invite_req_body = invite_req_body_base.format(
             credentials=credentials, form_values_xml=form_values_xml)
         res = requests.post(INTERCEPTUM_ENDPOINT,
@@ -163,3 +166,28 @@ class InterceptumAdapter():
 
     def form_values_xml(self):
         return '<value fId="447821">TS</value>'
+
+    def form_values_to_xml(self, form_values: dict) -> str:
+        xml_values = []
+        for field, value in form_values.items():
+            if isinstance(value, list):
+                value_map = d.multi_options[field]
+                mapped_text = (str(value_map.get(val, 0)) for val in value)
+                text = "|".join(mapped_text)
+
+            elif isinstance(value, datetime):
+                text = value.strftime("%Y-%m-%d %H:%M")
+
+            elif isinstance(value, bool):
+                text = d.interceptum_boolean_dict[value]
+
+            elif field in d.single_option:
+                value_map = d.single_option[field]
+                text = value_map[value]
+            else:
+                text = value
+                
+            fId = d.field_values_dict[field]
+            xml_values.append(f"<value fId={fId}>{text}</value>")
+        return "".join(xml_values)
+            
