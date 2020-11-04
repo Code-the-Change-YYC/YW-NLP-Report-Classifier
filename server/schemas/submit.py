@@ -30,7 +30,7 @@ class Form(BaseModel):
                 "description": "Example description from form field.",
                 "client_primary": "AB",
                 "client_secondary": "DL",
-                "location": "YWCA",
+                "location": "yw croydon",
                 "location_detail": "Around the corner.",
                 "services_involved": ["police", "hospital"],
                 "primary_staff_first_name": "John",
