@@ -172,7 +172,8 @@ class InterceptumAdapter():
         for field, value in form_values.items():
             if isinstance(value, list):
                 value_map = d.multi_options[field]
-                mapped_text = (str(value_map.get(val, 0)) for val in value)
+                mapped_text = (str(value_map[val]) for val in value
+                               if val in value_map)
                 text = "|".join(mapped_text)
 
             elif isinstance(value, datetime):
@@ -186,8 +187,7 @@ class InterceptumAdapter():
                 text = value_map[value]
             else:
                 text = value
-                
+
             fId = d.field_values_dict[field]
-            xml_values.append(f"<value fId={fId}>{text}</value>")
+            xml_values.append(f"<value fId=\"{fId}\">{text}</value>")
         return "".join(xml_values)
-            
