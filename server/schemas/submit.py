@@ -57,3 +57,4 @@ class SubmitIn(BaseModel):
 class SubmitOut(BaseModel):
     form_fields: Form
     risk_assessment: str
+    redirect_url: str
