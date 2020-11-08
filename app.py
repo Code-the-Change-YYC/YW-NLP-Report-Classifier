@@ -12,21 +12,12 @@ from server.schemas.prediction import (
 app = FastAPI()
 clf = CNBDescriptionClf()
 
-router = APIRouter()
-
-if os.environ.get("PYTHON_ENV") == "production":
-    @app.get("/")
-    def index():
-        project_path = Path(__file__).parent.resolve()
-        static_root = project_path / "client/build"
-        return FileResponse(str(static_root) + '/index.html', media_type='text/html')
-
-@router.get("/")
+@app.get("/api/")
 def index():
     return {"Hello": "World"}
 
 
-@router.post("/predict/", response_model=PredictOut)
+@app.post("/api/predict/", response_model=PredictOut)
 async def predict(predict_in: PredictIn) -> PredictOut:
     """Predict most probable incident types from input string.
 
@@ -44,20 +35,6 @@ async def predict(predict_in: PredictIn) -> PredictOut:
     return PredictOut(input_text=input_string, predictions=predictions)
 
 
-@router.post("/submit/")
+@app.post("/api/submit/")
 async def submit_form(xml_file: UploadFile = File(...)):
     return {"detail": "A"}
-
-# if (process.env.NODE_ENV === "production") {
-#   const path = require("path");
-#   const root = path.join(__dirname, "..", "build");
-#   app.use(express.static(root));
-#   app.get("*", (req, res) => {
-#     res.sendFile("index.html", { root });
-#   });
-# }
-if os.environ.get("PYTHON_ENV") == "production":
-    project_path = Path(__file__).parent.resolve()
-    static_root = project_path / "client/build/static"
-    app.mount("/static", StaticFiles(directory=static_root), name="static")
-    app.include_router(router, prefix="/api")
