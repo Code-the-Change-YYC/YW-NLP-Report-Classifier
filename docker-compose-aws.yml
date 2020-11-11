@@ -1,0 +1,20 @@
+version: '3.0'
+services: 
+    backend:
+        container_name: backend
+        command: uvicorn app:app --reload --port 8000 --host 0.0.0.0
+        image: nlp-prototype-server:latest
+
+
+    web:
+        depends_on: 
+            - backend
+        container_name: proxy-app
+        build: 
+            context: client
+            dockerfile: Dockerfile
+        ports: 
+            - "80:80"
+        restart: always
+        image: nlp-prototype-client:latest
+        
