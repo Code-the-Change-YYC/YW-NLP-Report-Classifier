@@ -151,3 +151,5 @@ node_modules
 **/.ipynb_checkpoints/
 .env/
 .virtual_documents/
+
+.devcontainer/
