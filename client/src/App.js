@@ -496,7 +496,7 @@ function App() {
                 setIncidentTypePri(incidentType);
                 setIncidentTypeTouched(true);
               }}
-              options={incTypesOptions.sort((i) => i.confidence)}
+              options={incTypesOptions?.sort((i) => i.confidence)}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
