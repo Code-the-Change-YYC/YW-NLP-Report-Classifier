@@ -1,10 +1,10 @@
 {
   "root": true,
   "project": {
-    "name": "YW-NLP-Demo"
+    "name": "YW-NLP"
   },
   "api": {
-    "projectId": "33e21qir",
+    "projectId": "olnd0a1o",
     "dataset": "production"
   },
   "plugins": [
