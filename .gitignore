@@ -153,3 +153,5 @@ node_modules
 .virtual_documents/
 
 .devcontainer/
+
+**/credentials.json

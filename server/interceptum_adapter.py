@@ -1,3 +1,4 @@
+from server.credentials import Credentials
 import xml.etree.ElementTree as ET
 
 import requests
@@ -58,18 +59,14 @@ class InterceptumException(Exception):
 
 
 class InterceptumAdapter():
-    account_name: str
-    username: str
-    password: str
-    credentials: str
+    account_credentials: Credentials
+    api_credentials: str
 
-    def __init__(self, account_name: str, username: str, password: str):
+    def __init__(self, account_credentials: Credentials):
         """Inits `InterceptumAdapter` with the given `account_name`, `username`,
         and `password` to use in requests."""
-        self.account_name = account_name
-        self.username = username
-        self.password = password
-        self.credentials = self.get_credentials()
+        self.account_credentials = account_credentials
+        self.api_credentials = self.get_api_credentials()
 
     def call_api(self, request_body: dict) -> str:
         """Calls the Interceptum API with the given request body.
@@ -108,7 +105,7 @@ class InterceptumAdapter():
         Raises:
             All exceptions from `get_credentials`.
         """
-        credentials = self.get_credentials()
+        credentials = self.get_api_credentials()
         form_values_xml = self.form_values_to_xml(request_body)
         invite_req_body = invite_req_body_base.format(
             credentials=credentials, form_values_xml=form_values_xml)
@@ -121,7 +118,7 @@ class InterceptumAdapter():
             or post_res_root.find('ERRORCODE') is not None
         # Retry the request with fresh credentials on error
         if error:
-            credentials = self.get_credentials(force_refresh=True)
+            credentials = self.get_api_credentials(force_refresh=True)
             invite_req_body = invite_req_body_base.format(
                 credentials=credentials, form_values_xml=form_values_xml)
             res = requests.post(INTERCEPTUM_ENDPOINT,
@@ -131,7 +128,7 @@ class InterceptumAdapter():
         else:
             return post_res_root
 
-    def get_credentials(self, force_refresh: bool = False) -> str:
+    def get_api_credentials(self, force_refresh: bool = False) -> str:
         """Gets Interceptum credentials via a login request.
 
         Does not request fresh credentials if `self.credentials` has been
@@ -142,12 +139,12 @@ class InterceptumAdapter():
         """
         credentials_exists = getattr(self, 'credentials', None) is not None
         if not force_refresh and credentials_exists:
-            return self.credentials
+            return self.api_credentials
 
         login_request_body = login_request_body_base.format(
-            account_name=self.account_name,
-            username=self.username,
-            password=self.password)
+            account_name=self.account_credentials.account_name,
+            username=self.account_credentials.username,
+            password=self.account_credentials.password)
         res = requests.post(INTERCEPTUM_ENDPOINT,
                             data=login_request_body,
                             headers=XML_REQ_HEADERS)

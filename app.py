@@ -1,3 +1,4 @@
+from server.credentials import Credentials
 from server.interceptum_adapter import InterceptumAdapter
 from server.risk_scores.risk_assessment import get_risk_assessment
 from fastapi import FastAPI, HTTPException
@@ -8,7 +9,8 @@ from server.schemas.submit import SubmitOut, SubmitIn
 
 app = FastAPI()
 clf = CNBDescriptionClf()
-interceptum = InterceptumAdapter(account_name='', username='', password='')
+credentials = Credentials()
+interceptum = InterceptumAdapter(credentials)
 
 
 @app.get("/")
