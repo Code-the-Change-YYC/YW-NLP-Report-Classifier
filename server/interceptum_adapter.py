@@ -1,5 +1,4 @@
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import fromstring, tostring, fromstringlist
 
 import requests
 from datetime import datetime
@@ -72,7 +71,7 @@ class InterceptumAdapter():
         self.password = password
         self.credentials = self.get_credentials()
 
-    def call_api(self, request_body: Form) -> str:
+    def call_api(self, request_body: dict) -> str:
         """Calls the Interceptum API with the given request body.
 
         :param request_body: Python dict converted from the JSON body of the /api/submit endpoint
@@ -163,9 +162,6 @@ class InterceptumAdapter():
             return cred
         except AttributeError:
             raise login_exception
-
-    def form_values_xml(self):
-        return '<value fId="447821">TS</value>'
 
     def form_values_to_xml(self, form_values: dict) -> str:
         xml_values = []
