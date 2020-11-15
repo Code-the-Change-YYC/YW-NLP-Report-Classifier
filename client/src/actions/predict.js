@@ -25,7 +25,7 @@ function getIncTypesLookup(incTypesOptions) {
 export const getMultiPrediction = async (description, incidentTypes) => {
     const { data } = await axios.post('/api/predict/', {
         text: description,
-        num_predictions: 21,
+        num_predictions: incidentTypes.length,
     })
     if (data.predictions) {
         const incidentTypesLookup = getIncTypesLookup(incidentTypes)

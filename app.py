@@ -10,8 +10,8 @@ from server.schemas.submit import SubmitOut, SubmitIn
 app = FastAPI()
 clf = CNBDescriptionClf()
 
-SANITY_READ_TOKEN = 'sk3NUupsXKArTsNbHr8pLrHslLSghe7Vcsg8aRnQJnyzXwihYWkqTlh33Gp3EzYDEYBORzuQWa9IRI1Ah9ftAWFYvHkWDtt2WgMxcOqojINepTu4R8kzDss6cIoYTHXxHRaoitA5t1pxLwbPmF4N53cqfj3aJC55RgpokiJx3NFw7QBAClmw'
-SANITY_GQL_ENDPOINT = 'https://33e21qir.api.sanity.io/v1/graphql/production/default'
+SANITY_READ_TOKEN = 'skagnXfvkArS8Su6sEsTxpvQWB0bNBKS8X6RUr3Y6ytzOT1wg1VH6vF75EPY7JYKjZNcfMYdrCIfTIGq5DEFVBuOS8sOVus6j3ntfvcWnZ5rzFEKfsWLkApp0CU8SMUQFq6zeWKWiTGx0H0prFkP24Cud9n25B6jP9c2q1jxMpGlaS1o9pXL'
+SANITY_GQL_ENDPOINT = 'https://olnd0a1o.api.sanity.io/v1/graphql/production/default'
 
 formQuery = """
     {
