@@ -123,11 +123,11 @@ function App() {
   );
   const [dateTouched, setDateTouched] = useState(false);
   const {
-    incidentTypePri,
-    setIncidentTypePri,
-    reactSelectOptions: incTypesOptions,
-    updateOptionsFromDescription: updateIncTypesOptions,
-  } = useIncTypeOptions();
+      incidentTypePri,
+      setIncidentTypePri,
+      incTypesOptions,
+      updateOptionsFromDescription: updateIncTypesOptions,
+  } = useIncTypeOptions()
 
   const {
     locations,
@@ -270,6 +270,8 @@ function App() {
         console.log(body);
       });
   };
+
+  const sortedIncTypeOptions = incTypesOptions?.sort((i) => i.confidence);
 
   return (
     <div className="App">
@@ -509,7 +511,7 @@ function App() {
                 setIncidentTypePri(incidentType);
                 setIncidentTypeTouched(true);
               }}
-              options={incTypesOptions?.sort((i) => i.confidence)}
+              options={sortedIncTypeOptions}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
@@ -519,7 +521,7 @@ function App() {
               onChange={(incidentType) => {
                 setIncidentTypeSec(incidentType);
               }}
-              options={incTypesOptions?.sort((i) => i.confidence)}
+              options={sortedIncTypeOptions}
             ></Select>
           </div>
         </FormRow>

@@ -20,28 +20,28 @@ function sanityOptionsToReactSelectOptions(sanityOptions) {
 }
 
 const formQuery = gql`
-  fragment OptionWithKeywordFrag on OptionWithKeywords {
-    name
-    keywords
-  }
-  {
-    CirForm(id: "cirForm") {
-      primaryIncTypes
-      locations {
-        ...OptionWithKeywordFrag
-      }
-      programs {
-        ...OptionWithKeywordFrag
-      }
-      immediateResponses {
-        ...OptionWithKeywordFrag
-      }
-      servicesInvolved {
-        ...OptionWithKeywordFrag
-      }
+    fragment OptionWithKeywordFrag on OptionWithKeywords {
+        name
+        keywords
     }
-  }
-`;
+    {
+        CirForm(id: "cirForm") {
+            primaryIncTypes
+            locations {
+                ...OptionWithKeywordFrag
+            }
+            programs {
+                ...OptionWithKeywordFrag
+            }
+            immediateResponses {
+                ...OptionWithKeywordFrag
+            }
+            servicesInvolved {
+                ...OptionWithKeywordFrag
+            }
+        }
+    }
+`
 
 export function useFormOptions() {
   const [formOptions, setFormOptions] = useState({
@@ -53,34 +53,38 @@ export function useFormOptions() {
   });
 
   async function fetchFormOptions() {
-    const res = await fetch(process.env.REACT_APP_SANITY_GRAPHQL_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${process.env.REACT_APP_SANITY_READ_TOKEN}`,
-      },
-      body: JSON.stringify({ query: formQuery }),
-    });
-    const { data } = await res.json();
-    const incTypes = data?.CirForm?.primaryIncTypes;
-    const locations = data?.CirForm?.locations;
-    const programs = data?.CirForm?.programs;
-    const immediateResponses = data?.CirForm?.immediateResponses;
-    const services = data?.CirForm?.servicesInvolved;
+      const res = await fetch(process.env.REACT_APP_SANITY_GRAPHQL_ENDPOINT, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+              Authorization: `Bearer ${process.env.REACT_APP_SANITY_READ_TOKEN}`,
+          },
+          body: JSON.stringify({ query: formQuery }),
+      })
+      const { data } = await res.json()
+      const incTypes = data?.CirForm?.primaryIncTypes
+      const locations = data?.CirForm?.locations
+      const programs = data?.CirForm?.programs
+      const immediateResponses = data?.CirForm?.immediateResponses
+      const services = data?.CirForm?.servicesInvolved
 
-    console.log(data);
-    if (!incTypes) {
-      return;
-    }
-    const newFormOptions = {
-      incTypes,
-      locations: sanityOptionsToReactSelectOptions(locations),
-      programs: sanityOptionsToReactSelectOptions(programs),
-      immediateResponses: sanityOptionsToReactSelectOptions(immediateResponses),
-      services: sanityOptionsToReactSelectOptions(services),
-    };
-    setFormOptions(newFormOptions);
+      if (!incTypes) {
+          return
+      }
+      const newFormOptions = {
+          incTypes: incTypes.map((incType) => ({
+              value: incType.toLowerCase(),
+              label: incType,
+          })),
+          locations: sanityOptionsToReactSelectOptions(locations),
+          programs: sanityOptionsToReactSelectOptions(programs),
+          immediateResponses: sanityOptionsToReactSelectOptions(
+              immediateResponses
+          ),
+          services: sanityOptionsToReactSelectOptions(services),
+      }
+      setFormOptions(newFormOptions)
   }
 
   // Fetch options only on component load
