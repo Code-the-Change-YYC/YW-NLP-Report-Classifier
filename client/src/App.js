@@ -7,14 +7,8 @@ import Select from "react-select";
 import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import {
-  locationOptions,
-  programOptions,
-  incidentTypes,
-  immediateResponseOptions,
-  serviceOptions,
-} from "./formOptions";
-import { useIncTypeOptions } from './useIncTypeOptions';
+import { useIncTypeOptions } from "./useIncTypeOptions";
+import { useFormOptions } from "./useFormOptions";
 
 const FormRow = styled.div`
   display: flex;
@@ -129,11 +123,18 @@ function App() {
   );
   const [dateTouched, setDateTouched] = useState(false);
   const {
-      incidentTypePri,
-      setIncidentTypePri,
-      reactSelectOptions: incTypesOptions,
-      updateOptionsFromDescription: updateIncTypesOptions,
-  } = useIncTypeOptions()
+    incidentTypePri,
+    setIncidentTypePri,
+    reactSelectOptions: incTypesOptions,
+    updateOptionsFromDescription: updateIncTypesOptions,
+  } = useIncTypeOptions();
+
+  const {
+    locations,
+    programs,
+    immediateResponses,
+    services,
+  } = useFormOptions();
 
   // Checking functions
   // These functions are run when the description updates and contain the logic
@@ -158,17 +159,29 @@ function App() {
     return newOptions;
   };
 
-  const checkServices = () =>
-    setservicesInvolved(autocompleteMultipleOptions(serviceOptions));
+  const checkServices = () => {
+    if (services) {
+      setservicesInvolved(autocompleteMultipleOptions(services));
+    }
+  };
 
-  const checkLocation = () =>
-    setLocation(autocompleteSingleOption(locationOptions));
+  const checkLocation = () => {
+    if (locations) {
+      setLocation(autocompleteSingleOption(locations));
+    }
+  };
 
-  const checkProgram = () =>
-    setProgram(autocompleteSingleOption(programOptions));
+  const checkProgram = () => {
+    if (programs) {
+      setProgram(autocompleteSingleOption(programs));
+    }
+  };
 
-  const checkImmediateResponse = () =>
-    setImmediateResponse(autocompleteMultipleOptions(immediateResponseOptions));
+  const checkImmediateResponse = () => {
+    if (immediateResponses) {
+      setImmediateResponse(autocompleteMultipleOptions(immediateResponses));
+    }
+  };
 
   const checkDate = () => {
     const results = chrono.parse(description);
@@ -219,7 +232,7 @@ function App() {
         checkDate();
       }
       if (!incidentTypeTouched) {
-        updateIncTypesOptions(description)
+        updateIncTypesOptions(description);
       }
       if (!programTouched) {
         checkProgram();
@@ -396,7 +409,7 @@ function App() {
                 setLocation(newLocation);
                 setLocationTouched(true);
               }}
-              options={locationOptions}
+              options={locations}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
@@ -424,7 +437,7 @@ function App() {
                 setservicesInvolved(newSelection);
                 setServicesTouched(true);
               }}
-              options={serviceOptions}
+              options={services}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
@@ -506,7 +519,7 @@ function App() {
               onChange={(incidentType) => {
                 setIncidentTypeSec(incidentType);
               }}
-              options={incidentTypes}
+              options={incTypesOptions?.sort((i) => i.confidence)}
             ></Select>
           </div>
         </FormRow>
@@ -577,7 +590,7 @@ function App() {
               setProgram(program);
               setProgramTouched(true);
             }}
-            options={programOptions}
+            options={programs}
           ></Select>
         </FormRow>
         <FormRow>
@@ -595,7 +608,7 @@ function App() {
               setImmediateResponse(newSelection);
               setImmediateResponseTouched(true);
             }}
-            options={immediateResponseOptions}
+            options={immediateResponses}
           ></Select>
         </FormRow>
         <FormRow style={{ flexDirection: "row" }}>
