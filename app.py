@@ -8,9 +8,8 @@ from server.schemas.submit import SubmitOut, SubmitIn
 app = FastAPI()
 clf = CNBDescriptionClf()
 
-
-@app.get("/")
-async def index():
+@app.get("/api/")
+def index():
     return {"Hello": "World"}
 
 
