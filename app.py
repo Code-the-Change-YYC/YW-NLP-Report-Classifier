@@ -1,8 +1,6 @@
 import os
 from pathlib import Path
 from fastapi import FastAPI, File, UploadFile, APIRouter
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.prediction import (
     PredictIn,
