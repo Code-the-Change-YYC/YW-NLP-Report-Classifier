@@ -50,11 +50,21 @@
 button,
 input[type="submit"] {
   padding: 7px 15px;
-  margin-top: 40px;
-  margin-left: 10px;
   border: 1px solid #000;
+  margin-top: 20px;
   color: #fff;
   background-color: #81bc01;
   font-size: 16px;
   border-radius: 5px;
+  cursor: pointer;
+}
+
+form button,
+form input[type="submit"] {
+  margin-top: 40px;
+  margin-left: 10px;
+}
+
+.ModalBox > div {
+  margin-top: 6px;
 }

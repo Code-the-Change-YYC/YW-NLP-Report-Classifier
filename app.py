@@ -1,11 +1,9 @@
-import os
-from pathlib import Path
-from fastapi import FastAPI, File, UploadFile, APIRouter
+from server.risk_scores.risk_assessment import get_risk_assessment
+from fastapi import FastAPI, HTTPException
+
 from models.cnb_model import CNBDescriptionClf
-from server.schemas.prediction import (
-    PredictIn,
-    PredictOut,
-)
+from server.schemas.predict import PredictIn, PredictOut
+from server.schemas.submit import SubmitOut, SubmitIn
 
 app = FastAPI()
 clf = CNBDescriptionClf()
@@ -33,6 +31,20 @@ async def predict(predict_in: PredictIn) -> PredictOut:
     return PredictOut(input_text=input_string, predictions=predictions)
 
 
-@app.post("/api/submit/")
-async def submit_form(xml_file: UploadFile = File(...)):
-    return {"detail": "A"}
+@app.post("/api/submit/", response_model=SubmitOut)
+async def submit_form(form: SubmitIn) -> SubmitOut:
+    """Submit JSON form data from front end.
+
+    Args:
+        form (SubmitIn)
+
+    Returns:
+        SubmitOut: Request data alongside risk score.
+    """
+    try:
+        risk_assessment = get_risk_assessment(form.form_fields)
+    except KeyError as ke:
+        raise HTTPException(
+            422, detail={"error": f"Incorrect request parameter/key: {ke}"}
+        )
+    return SubmitOut(form_fields=form.form_fields, risk_assessment=risk_assessment.value)
