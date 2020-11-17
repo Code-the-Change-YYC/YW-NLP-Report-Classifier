@@ -1,0 +1,19 @@
+version: '3.0'
+services: 
+    backend:
+        container_name: backend
+        command: uvicorn app:app --reload --port 8000 --host 0.0.0.0
+        image: 847668204885.dkr.ecr.us-west-2.amazonaws.com/nlp-prototype-server:latest
+
+    web:
+        depends_on: 
+            - backend
+        container_name: web
+        build: 
+            context: client
+            dockerfile: Dockerfile
+        ports: 
+            - "80:80"
+        restart: always
+        image: 847668204885.dkr.ecr.us-west-2.amazonaws.com/nlp-prototype-client:latest
+        

@@ -12,9 +12,8 @@ clf = CNBDescriptionClf()
 credentials = Credentials()
 interceptum = InterceptumAdapter(credentials)
 
-
-@app.get("/")
-async def index():
+@app.get("/api/")
+def index():
     return {"Hello": "World"}
 
 

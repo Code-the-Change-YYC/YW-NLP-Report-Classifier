@@ -26,3 +26,9 @@ Dependencies are split up by development environment using multiple `requirement
 
 - `training`: This includes training of the project's models in IPython notebooks.
 - `preprocess`: This includes the general preprocessing of the raw report data.
+
+### AWS Deployment
+
+For updated deployment to our AWS server, run `server/deploy.sh` from the root folder. This script assumes that the necessary access permissions are granted before the script runs.
+
+Note: The docker-compose files in the root folder are currently not being used for deployment.
