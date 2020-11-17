@@ -1,0 +1,21 @@
+version: '3.7'
+services: 
+    backend:
+        container_name: backend
+        build: 
+            context: .
+            dockerfile: Dockerfile
+        restart: always
+        command: uvicorn app:app --reload --port 8000 --host 0.0.0.0
+
+    nginx:
+        depends_on: 
+            - backend
+        container_name: proxy-app
+        build: 
+            context: client
+            dockerfile: Dockerfile
+        ports: 
+            - "80:80"
+        restart: always
+        
