@@ -11,9 +11,9 @@ class Form(BaseModel):
     location: str
     location_detail: Optional[str] = None
     services_involved: List[str]
-    services_involved_other: str
-    primary_staff_first_name: str
-    primary_staff_last_name: str
+    services_involved_other: Optional[str] = None
+    primary_staff_first_name: Optional[str] = None
+    primary_staff_last_name: Optional[str] = None
     occurence_time: datetime
     incident_type_primary: str
     incident_type_secondary: Optional[str] = None
