@@ -1,8 +1,10 @@
 from enum import Enum
 import server.schemas.submit as submit_schema
 from typing import List, Tuple
+import yagmail
 
 import server.risk_scores.risk_scores as risk_scores
+from server.risk_scores.yagmail_secrets import gmail_username, gmail_password
 
 
 class RiskAssessment(Enum):
@@ -43,6 +45,17 @@ def get_risk_assessment(form: submit_schema.Form) -> RiskAssessment:
 
     for max_percent, assessment in assessment_ranges:
         if percent_of_max <= max_percent:
+            if assessment == RiskAssessment.HIGH:
+                email_high_risk_alert()
             return assessment
 
     return RiskAssessment.UNDEFINED
+
+yag = yagmail.SMTP(gmail_username, gmail_password)
+
+def email_high_risk_alert():
+    yag.send(
+        gmail_username, 
+        subject="High risk assessment determined", 
+        contents="A high risk assessment was determined in a recently filled out form"
+        )
