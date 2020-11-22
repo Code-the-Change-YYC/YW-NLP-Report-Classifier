@@ -1,36 +1,36 @@
 export const locationOptions = [
   {
-    value: "community",
+    value: "in community",
     label: "In community",
     keywords: ["community"],
   },
   {
-    value: "croydon",
+    value: "yw croydon",
     label: "YW Croydon",
     keywords: ["Croydon"],
   },
   {
-    value: "downtown",
+    value: "yw downtown",
     label: "YW Downtown",
     keywords: ["Downtown"],
   },
   {
-    value: "hub",
+    value: "yw hub",
     label: "YW Hub",
     keywords: ["Hub"],
   },
   {
-    value: "maple",
+    value: "yw maple",
     label: "YW Maple",
     keywords: ["Maple"],
   },
   {
-    value: "providence",
+    value: "yw providence",
     label: "YW Providence",
     keywords: ["Providence"],
   },
   {
-    value: "sheriff king",
+    value: "yw sheriff king",
     label: "YW Sheriff King",
     keywords: ["Sheriff King"],
   },
@@ -39,7 +39,7 @@ export const locationOptions = [
 export const programOptions = [
   {
     label: "Child Care (Hub)",
-    value: "child care hub",
+    value: "child care (hub)",
     keywords: ["child care"],
   },
   {
@@ -54,22 +54,22 @@ export const programOptions = [
   },
   {
     label: "Counselling and Personal Development",
-    value: "counselling",
+    value: "counselling and personal development",
     keywords: ["counselling"],
   },
   {
     label: "Croydon (Community Housing)",
-    value: "croydon",
+    value: "croydon (community housing)",
     keywords: ["croydon"],
   },
   {
     label: "DCRT",
-    value: "DCRT",
+    value: "dcrt",
     keywords: ["DCRT"],
   },
   {
     label: "Drop-In Child Care",
-    value: "dropin child care",
+    value: "drop-in child care",
     keywords: ["Drop-In Child Care", "drop in child care", "drop in"],
   },
   {
@@ -94,7 +94,7 @@ export const programOptions = [
   },
   {
     label: "LINC",
-    value: "LINC",
+    value: "linc",
     keywords: ["LINC"],
   },
   {
@@ -168,7 +168,7 @@ export const incidentTypes = [
   },
   {
     label: "Homicide (Threat or attempt)",
-    value: "homicide (Threat or attempt)",
+    value: "homicide (threat or attempt)",
   },
   {
     label: "Illegal activity on premises",
@@ -223,9 +223,9 @@ export const immediateResponseOptions = [
     keywords: ["child welfare"],
   },
   {
-    label: "Evacuation",
-    value: "evacuation",
-    keywords: ["evacuation", "evacuate", "evacuated"],
+    label: "Evacution",
+    value: "evacution",
+    keywords: ["evacution", "evacuation", "evacuate", "evacuated"],
   },
   {
     label: "First-aid provided",
@@ -270,7 +270,7 @@ export const immediateResponseOptions = [
 
 export const serviceOptions = [
   {
-    value: "cfs",
+    value: "child welfare (cfs)",
     label: "Child Welfare (CFS)",
     keywords: ["child welfare", "cfs"],
   },
@@ -295,7 +295,7 @@ export const serviceOptions = [
     ],
   },
   {
-    value: "doap/pact",
+    value: "outreach (doap/pact)",
     label: "Outreach (DOAP/PACT)",
     keywords: ["doap", "pact"],
   },

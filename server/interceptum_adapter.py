@@ -163,6 +163,8 @@ class InterceptumAdapter():
     def form_values_to_xml(self, form_values: dict) -> str:
         xml_values = []
         for field, value in form_values.items():
+            if value is None:
+                continue
             if isinstance(value, list):
                 value_map = d.multi_options[field]
                 mapped_text = (str(value_map[val]) for val in value

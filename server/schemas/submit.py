@@ -21,9 +21,9 @@ class Form(BaseModel):
     non_client_involved: bool
     program: str
     immediate_response: List[str]
-    staff_name = str
-    program_supervisor_reviewer_name = str
-    completion_date = datetime
+    staff_name: str
+    program_supervisor_reviewer_name: str
+    completion_date: datetime
 
     class Config:
         schema_extra = {
@@ -44,7 +44,7 @@ class Form(BaseModel):
                 "non_client_involved": False,
                 "program": "compass",
                 "immediate_response":
-                ["evacuation", "mental health assessment"],
+                ["evacution", "mental health assessment"],
                 "staff_name": "John man",
                 "program_supervisor_reviewer_name": "another john",
                 "completion_date": "2008-09-15T15:53:00+05:00",
