@@ -8,6 +8,7 @@ import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getMultiPrediction } from "./actions/predict";
+import { getRedirectUrl } from "./actions/submit";
 import {
   locationOptions,
   programOptions,
@@ -93,26 +94,32 @@ const IncTypeOption = ({ confidence, label }) => {
 
 function App() {
   // State variables
-  const [location, setLocation] = useState(null);
+  const [description, setDescription] = useState("");
   const [clientInitials, setClientInitials] = useState("");
-  const [servicesInvolved, setservicesInvolved] = useState([]);
-  const [incidentTypePri, setIncidentTypePri] = useState(null);
-  const [incidentTypeSec, setIncidentTypeSec] = useState({});
-  const [dateOccurred, setDateOccurred] = useState(new Date());
   const [clientSecInitials, setClientSecInitials] = useState("");
+  const [location, setLocation] = useState(null);
   const [locationDetail, setLocationDetail] = useState("");
+  const [servicesInvolved, setservicesInvolved] = useState([]);
+  const [otherServices, setOtherServices] = useState("");
   const [staffInvolvedFirst, setStaffInvolvedFirst] = useState("");
   const [staffInvolvedLast, setStaffInvolvedLast] = useState("");
-  const [involvesChild, setInvolvesChild] = useState(null);
-  const [involvesNonClient, setInvolvesNonClient] = useState(null);
+  const [dateOccurred, setDateOccurred] = useState(new Date());
+  const [incidentTypePri, setIncidentTypePri] = useState(null);
+  const [incidentTypeSec, setIncidentTypeSec] = useState(null);
+  const [otherSecIncidentType, setOtherSecIncidentType] = useState("");
+  const [involvesChild, setInvolvesChild] = useState({
+    value: "no",
+    label: "No",
+  });
+  const [involvesNonClient, setInvolvesNonClient] = useState({
+    value: "no",
+    label: "No",
+  });
   const [program, setProgram] = useState(null);
-  const [otherServices, setOtherServices] = useState("");
   const [immediateResponse, setImmediateResponse] = useState([]);
   const [staffCompleting, setStaffCompleting] = useState("");
   const [supervisorReviewer, setSupervisorReviewer] = useState("");
   const [dateCompleted, setDateCompleted] = useState(new Date());
-  const [description, setDescription] = useState("");
-  const [otherSecIncidentType, setOtherSecIncidentType] = useState("");
   const [modalDisplay, setModalDisplay] = useState("none");
 
   // the "Touched" variables keep track of whether or not that form field was edited by the client.
@@ -130,6 +137,7 @@ function App() {
   );
   const [dateTouched, setDateTouched] = useState(false);
   const [incTypesOptions, setIncTypesOptions] = useState(incidentTypes);
+  const [submitClicked, setSubmitClicked] = useState(false);
 
   // Checking functions
   // These functions are run when the description updates and contain the logic
@@ -181,6 +189,29 @@ function App() {
     } else {
       setClientInitials("");
     }
+  };
+
+  const checkRequiredFields = () => {
+    return (
+      description.length > 0 &&
+      clientInitials.length > 0 &&
+      location !== undefined &&
+      incidentTypePri !== undefined &&
+      program !== undefined &&
+      immediateResponse.length > 0 &&
+      staffCompleting.length > 0 &&
+      supervisorReviewer.length > 0
+    );
+  };
+
+  const warningStyle = (val) => {
+    if (
+      submitClicked == true &&
+      (val === null || val === undefined || val.length == 0)
+    ) {
+      return { border: "1px solid red" };
+    }
+    return {};
   };
 
   const checkSecondInitials = () => {
@@ -237,27 +268,32 @@ function App() {
 
   const handleSubmit = async function (e) {
     e.preventDefault();
-    window.open(
-      "https://docs.google.com/forms/d/e/1FAIpQLScfxUsVQDwfXkUeVqfHQrhJpUv9_COL6_9bxgXEAL3M_NA5og/viewform?usp=sf_link"
-    );
-    setModalDisplay("block");
+    // window.open(
+    //   "https://docs.google.com/forms/d/e/1FAIpQLScfxUsVQDwfXkUeVqfHQrhJpUv9_COL6_9bxgXEAL3M_NA5og/viewform?usp=sf_link"
+    // );
     const formData = {
+      description,
+      client_primary: clientInitials,
+      client_secondary: clientSecInitials,
       location,
-      clientInitials,
-      // ...
+      location_detail: locationDetail,
+      services_involved: servicesInvolved,
+      services_involved_other: otherServices,
+      primary_staff_first_name: staffInvolvedFirst,
+      primary_staff_last_name: staffInvolvedLast,
+      occurence_time: dateOccurred,
+      incident_type_primary: incidentTypePri,
+      incident_type_secondary: incidentTypeSec,
+      child_involved: involvesChild,
+      non_client_involved: involvesNonClient,
+      program,
+      immediate_response: immediateResponse,
+      staff_name: staffCompleting,
+      program_supervisor_reviewer_name: supervisorReviewer,
+      completion_date: dateCompleted,
     };
-    await fetch("http://localhost:3002/submitForm", {
-      mode: "no-cors", // no-cors, *cors, same-origin
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((body) => {
-        console.log(body);
-      });
+    const redirectUrl = await getRedirectUrl(formData);
+    console.log(redirectUrl);
   };
 
   return (
@@ -271,7 +307,7 @@ function App() {
           bottom: "0",
           backgroundColor: "rgba(0,0,0,0.5)",
           zIndex: "10",
-          display: modalDisplay, // modalDisplay
+          display: modalDisplay,
         }}
       >
         <div
@@ -301,7 +337,7 @@ function App() {
             <b>Location Detail: </b> {locationDetail}
           </div>
           <div>
-            <b>Date of Occurrence: </b> {dateOccurred.toLocaleString()}
+            <b>Date of Occurrence: </b> {dateOccurred?.toLocaleString()}
           </div>
           <div>
             <b>Services Involved: </b>
@@ -352,26 +388,29 @@ function App() {
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
       <h2>Prototype - June 30, 2020 </h2>
+
       <FormRow>
-        <label>Description of Incident</label>
+        <label>Description of Incident *</label>
         <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={7}
+          style={{ ...warningStyle(description) }}
         ></Textarea>
       </FormRow>
+
       <HR></HR>
       <form>
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
-            <label>Client Involved - Primary (Initials)</label>
+            <label>Client Involved - Primary (Initials) *</label>
             <Input
               value={clientInitials}
               onChange={(e) => {
                 setClientInitials(e.target.value);
                 setClientInitialsTouched(true);
               }}
-              style={{ width: "95%" }}
+              style={{ width: "95%", ...warningStyle(clientInitials) }}
             ></Input>
           </div>
           <div style={{ width: "100%" }}>
@@ -385,12 +424,18 @@ function App() {
 
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
-            <label>Location</label>
+            <label>Location *</label>
             <Select
               styles={{
                 container: (provided) => ({
                   ...provided,
                   width: "95%",
+                }),
+                control: (provided) => ({
+                  ...provided,
+                  boxShadow: "none",
+                  "&:hover": {},
+                  ...warningStyle(location),
                 }),
               }}
               value={location}
@@ -465,7 +510,7 @@ function App() {
         </FormRow>
 
         <FormRow>
-          <label>Date and Time of Occurrence</label>
+          <label>Date and Time of Occurrence *</label>
           <DatePicker
             selected={dateOccurred}
             onChange={(date) => {
@@ -483,7 +528,7 @@ function App() {
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
             <div>
-              <label>Incident Type (Primary)</label>
+              <label>Incident Type (Primary) *</label>
             </div>
             <Select
               formatOptionLabel={IncTypeOption}
@@ -491,6 +536,12 @@ function App() {
                 container: (provided) => ({
                   ...provided,
                   width: "95%",
+                }),
+                control: (provided) => ({
+                  ...provided,
+                  boxShadow: "none",
+                  "&:hover": {},
+                  ...warningStyle(incidentTypePri),
                 }),
               }}
               value={incidentTypePri}
@@ -566,12 +617,18 @@ function App() {
         </FormRow>
 
         <FormRow>
-          <label>Program</label>
+          <label>Program *</label>
           <Select
             styles={{
               container: (provided) => ({
                 ...provided,
                 width: "100%",
+              }),
+              control: (provided) => ({
+                ...provided,
+                boxShadow: "none",
+                "&:hover": {},
+                ...warningStyle(program),
               }),
             }}
             value={program}
@@ -583,12 +640,18 @@ function App() {
           ></Select>
         </FormRow>
         <FormRow>
-          <label>Immediate Response to the Incident</label>
+          <label>Immediate Response to the Incident *</label>
           <Select
             styles={{
               container: (provided) => ({
                 ...provided,
                 width: "100%",
+              }),
+              control: (provided) => ({
+                ...provided,
+                boxShadow: "none",
+                "&:hover": {},
+                ...warningStyle(immediateResponse),
               }),
             }}
             value={immediateResponse}
@@ -602,23 +665,24 @@ function App() {
         </FormRow>
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
-            <label>Name of Staff Completing this Report</label>
+            <label>Name of Staff Completing this Report *</label>
             <Input
               value={staffCompleting}
               onChange={(e) => setStaffCompleting(e.target.value)}
-              style={{ width: "95%" }}
+              style={{ width: "95%", ...warningStyle(staffCompleting) }}
             ></Input>
           </div>
           <div style={{ width: "100%" }}>
-            <label>Name of Program Supervisor Reviewer</label>
+            <label>Name of Program Supervisor Reviewer *</label>
             <Input
               value={supervisorReviewer}
               onChange={(e) => setSupervisorReviewer(e.target.value)}
+              style={{ ...warningStyle(supervisorReviewer) }}
             ></Input>
           </div>
         </FormRow>
         <FormRow>
-          <label>Completed On</label>
+          <label>Completed On *</label>
           <DatePicker
             selected={dateCompleted}
             showTimeSelect
@@ -637,7 +701,10 @@ function App() {
           value="Next"
           onClick={(e) => {
             e.preventDefault();
-            setModalDisplay("block");
+            setSubmitClicked(true);
+            if (checkRequiredFields()) {
+              setModalDisplay("block");
+            }
           }}
         ></input>
         <button onClick={(e) => e.preventDefault()}>Download</button>
