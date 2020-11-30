@@ -387,7 +387,7 @@ function App() {
       </div>
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
-      <h2>Prototype - June 30, 2020 </h2>
+      <h2>Prototype - December 1, 2020 </h2>
 
       <FormRow>
         <label>Description of Incident *</label>
