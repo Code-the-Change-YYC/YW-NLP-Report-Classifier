@@ -7,9 +7,9 @@ export const getRedirectUrl = async (formData) => {
     services_involved: formData.services_involved.map((s) => s.value),
     incident_type_primary: formData.incident_type_primary?.value,
     incident_type_secondary: formData.incident_type_secondary?.value,
-    child_involved: formData.child_involved?.value == "yes" ? true : false,
+    child_involved: formData.child_involved?.value === "yes" ? true : false,
     non_client_involved:
-      formData.non_client_involved?.value == "yes" ? true : false,
+      formData.non_client_involved?.value === "yes" ? true : false,
     program: formData.program?.value,
     immediate_response: formData.immediate_response.map((r) => r.value),
   };
