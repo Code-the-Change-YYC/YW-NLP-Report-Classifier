@@ -1,13 +1,23 @@
 import { useState } from "react";
 
 const useTextFieldInfo = () => {
-  const [info, setInfo] = useState({ user: "", autocomplete: "", useAutocomplete: true });
-  const setUserValue = (value) => setInfo({ ...info, user: value });
-  const setAutocompleteValue = (value) => setInfo({ ...info, autocomplete: value });
-  const setUseAutocomplete = (useAutocomplete) => setInfo({ ...info, useAutocomplete });
-  const valid = info.useAutocomplete ? info.autocomplete.length > 0 : info.user.length > 0;
+  const [userValue, setUserValue] = useState("");
+  const [autocompleteValue, setAutocompleteValue] = useState("");
+  const [useAutocomplete, setUseAutocompleteDefault] = useState(true);
+  const valid = useAutocomplete ? autocompleteValue.length > 0 : userValue.length > 0;
+  const value = useAutocomplete ? autocompleteValue : userValue;
 
-  return [info, setUserValue, setAutocompleteValue, setUseAutocomplete, valid];
+  function setUseAutocomplete(newValue) {
+    // if no argument, toggle
+    if (newValue === undefined) {
+      setUseAutocompleteDefault(!useAutocomplete);
+      return;
+    }
+
+    setUseAutocompleteDefault(newValue);
+  }
+
+  return [value, setUserValue, setAutocompleteValue, setUseAutocomplete, valid];
 }
 
 export default useTextFieldInfo;

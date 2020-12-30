@@ -3,23 +3,26 @@ import { Input } from "../styled";
 
 const TextInput = ({
   label,
-  info,
+  value,
   setValue,
   setShowAutocomplete,
   submitClicked,
   required
 }) => {
-  const showWarning = submitClicked && !info.value;
+  const showWarning = submitClicked && !value;
   const style = { width: "95%", border: `1px solid${showWarning ? " red" : ""}` };
   const [touched, setTouched] = useState(false);
 
-  const valueToShow = info.showAutocomplete ? info.autocomplete : info.manual;
+  const handleClick = (e) => {
+    e.preventDefault();
+    setShowAutocomplete();
+  }
 
   return (
     <div style={{ width: "100%" }}>
-      <label>{label + (required ? " *" : "")}<button>T</button></label>
+      <label>{label + (required ? " *" : "")}<button onClick={handleClick}>T</button></label>
       <Input
-        value={valueToShow}
+        value={value}
         onChange={(e) => {
           setValue(e.target.value);
           if (!touched) {

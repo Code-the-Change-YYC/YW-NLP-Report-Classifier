@@ -32,8 +32,8 @@ function App() {
   // State variables
   const [description, setDescription] = useState("");
 
-  const [clientInitialsInfo, setClientInitials, setClientInitialsAutocomplete, setClientInitialsShowAutocomplete, clientInitialsValid] = useTextFieldInfo();
-  const [clientSecInitials, setClientSecInitials] = useState("");
+  const [clientInitials, setClientInitials, setClientInitialsAutocomplete, setClientInitialsShowAutocomplete, clientInitialsValid] = useTextFieldInfo();
+  const [clientSecInitials, setClientSecInitials, setClientSecInitialsAutocomplete, setClientSecInitialsShowAutocomplete, clientInitialsSecValid] = useTextFieldInfo();
   const [location, setLocation] = useState(null);
   const [locationDetail, setLocationDetail] = useState("");
   const [servicesInvolved, setservicesInvolved] = useState([]);
@@ -61,9 +61,6 @@ function App() {
   // the "Touched" variables keep track of whether or not that form field was edited by the client.
   // If so, then we stop overwriting the client's manual input
   const [locationTouched, setLocationTouched] = useState(false);
-  const [clientSecInitialsTouched, setClientSecInitialsTouched] = useState(
-    false
-  );
   const [servicesTouched, setServicesTouched] = useState(false);
   const [incidentTypeTouched, setIncidentTypeTouched] = useState(false);
   const [programTouched, setProgramTouched] = useState(false);
@@ -177,8 +174,8 @@ function App() {
     const found = description.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
     if (found && found.length) {
       for (const match of found) {
-        if (match !== clientInitials.user) {
-          setClientSecInitials(match);
+        if (match !== clientInitials) {
+          setClientSecInitialsAutocomplete(match);
           return;
         }
       }
@@ -192,12 +189,8 @@ function App() {
       if (!locationTouched) {
         checkLocation();
       }
-      if (!clientInitialsTouched) {
-        checkInitials();
-      }
-      if (!clientSecInitialsTouched) {
-        checkSecondInitials();
-      }
+      checkInitials();
+      checkSecondInitials();
       if (!servicesTouched) {
         checkServices();
       }
@@ -371,17 +364,18 @@ function App() {
           <TextInput
             label="Client Involved - Primary (Initials)"
             required={true}
+            value={clientInitials}
             setValue={setClientInitials}
             setShowAutocomplete={setClientInitialsShowAutocomplete}
-            setTouched={setClientInitialsTouched}
-            info={clientInitialsInfo}
+            submitClicked={submitClicked}
           ></TextInput>
           <TextInput
             label="Client Involved - Secondary (Initials)"
-            required={true}
-            setValue={setClientSecInitials}
-            setTouched={setClientSecInitialsTouched}
+            required={false}
             value={clientSecInitials}
+            setValue={setClientSecInitials}
+            setShowAutocomplete={setClientSecInitialsShowAutocomplete}
+            submitClicked={submitClicked}
           ></TextInput>
         </FormRow>
 
