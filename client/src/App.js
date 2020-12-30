@@ -6,70 +6,12 @@ import "./App.css";
 import _ from "lodash";
 import chrono from "chrono-node";
 import Select from "react-select";
-import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getRedirectUrl } from "./actions/submit";
-
-const FormRow = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-
-  textarea {
-    align-self: stretch;
-    font-size: 12pt;
-  }
-
-  & > label {
-    margin-bottom: 5px;
-  }
-
-  & > div > label {
-    display: flex;
-    margin-bottom: 5px;
-  }
-
-  margin: 5px 0px;
-  text-align: left;
-`;
-
-const Input = styled.input`
-  padding: 8px 5px;
-  font-size: 12pt;
-  border: 1px solid lightgray;
-  border-radius: 4px;
-  width: 100%;
-  box-sizing: border-box;
-`;
-
-const Textarea = styled.textarea`
-  padding: 8px 5px;
-  font-size: 12pt;
-  border: 1px solid lightgray;
-  border-radius: 4px;
-  width: 100%;
-  box-sizing: border-box;
-`;
-
-const HR = styled.hr`
-  margin: 20px 30px 20px;
-`;
-
-const ModalClose = styled.div`
-  float: right;
-  text-align: right;
-  cursor: pointer;
-  line-height: 10px;
-
-  &:before {
-    content: "x";
-    color: #ff0000;
-    font-weight: normal;
-    font-family: Arial, sans-serif;
-    font-size: 30px;
-  }
-`;
+import { FormRow, Input, Textarea, HR, ModalClose } from "./styled";
+import TextInput from './components/TextInput';
+import useTextFieldInfo from "./hooks/useTextFieldInfo";
 
 const IncTypeOption = ({ confidence, label }) => {
   return (
@@ -89,7 +31,8 @@ const IncTypeOption = ({ confidence, label }) => {
 function App() {
   // State variables
   const [description, setDescription] = useState("");
-  const [clientInitials, setClientInitials] = useState("");
+
+  const [clientInitialsInfo, setClientInitials, setClientInitialsAutocomplete, setClientInitialsShowAutocomplete, clientInitialsValid] = useTextFieldInfo();
   const [clientSecInitials, setClientSecInitials] = useState("");
   const [location, setLocation] = useState(null);
   const [locationDetail, setLocationDetail] = useState("");
@@ -118,7 +61,6 @@ function App() {
   // the "Touched" variables keep track of whether or not that form field was edited by the client.
   // If so, then we stop overwriting the client's manual input
   const [locationTouched, setLocationTouched] = useState(false);
-  const [clientInitialsTouched, setClientInitialsTouched] = useState(false);
   const [clientSecInitialsTouched, setClientSecInitialsTouched] = useState(
     false
   );
@@ -202,16 +144,16 @@ function App() {
   const checkInitials = () => {
     const found = description.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
     if (found && found.length) {
-      setClientInitials(found[0]);
+      setClientInitialsAutocomplete(found[0]);
     } else {
-      setClientInitials("");
+      setClientInitialsAutocomplete("");
     }
   };
 
   const checkRequiredFields = () => {
     return (
       description.length > 0 &&
-      clientInitials.length > 0 &&
+      clientInitialsValid &&
       location !== undefined &&
       incidentTypePri !== undefined &&
       program !== undefined &&
@@ -235,7 +177,7 @@ function App() {
     const found = description.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
     if (found && found.length) {
       for (const match of found) {
-        if (match !== clientInitials) {
+        if (match !== clientInitials.user) {
           setClientSecInitials(match);
           return;
         }
@@ -415,7 +357,7 @@ function App() {
       <HR></HR>
       <form>
         <FormRow style={{ flexDirection: "row" }}>
-          <div style={{ width: "100%" }}>
+          {/* <div style={{ width: "100%" }}>
             <label>Client Involved - Primary (Initials) *</label>
             <Input
               value={clientInitials}
@@ -425,17 +367,22 @@ function App() {
               }}
               style={{ width: "95%", ...warningStyle(clientInitials) }}
             ></Input>
-          </div>
-          <div style={{ width: "100%" }}>
-            <label>Client Involved - Secondary (Initials)</label>
-            <Input
-              value={clientSecInitials}
-              onChange={(e) => {
-                setClientSecInitials(e.target.value);
-                setClientSecInitialsTouched(true);
-              }}
-            ></Input>
-          </div>
+          </div> */}
+          <TextInput
+            label="Client Involved - Primary (Initials)"
+            required={true}
+            setValue={setClientInitials}
+            setShowAutocomplete={setClientInitialsShowAutocomplete}
+            setTouched={setClientInitialsTouched}
+            info={clientInitialsInfo}
+          ></TextInput>
+          <TextInput
+            label="Client Involved - Secondary (Initials)"
+            required={true}
+            setValue={setClientSecInitials}
+            setTouched={setClientSecInitialsTouched}
+            value={clientSecInitials}
+          ></TextInput>
         </FormRow>
 
         <FormRow style={{ flexDirection: "row" }}>
