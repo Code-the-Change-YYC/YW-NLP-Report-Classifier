@@ -1,3 +1,5 @@
+import { useFormOptions } from './useFormOptions';
+import { useIncTypeOptions } from './useIncTypeOptions';
 import React, { useState, useCallback, useEffect } from "react";
 import logo from "./logo.jpg";
 import "./App.css";
@@ -7,15 +9,7 @@ import Select from "react-select";
 import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { getMultiPrediction } from "./actions/predict";
 import { getRedirectUrl } from "./actions/submit";
-import {
-  locationOptions,
-  programOptions,
-  incidentTypes,
-  immediateResponseOptions,
-  serviceOptions,
-} from "./formOptions";
 
 const FormRow = styled.div`
   display: flex;
@@ -104,7 +98,6 @@ function App() {
   const [staffInvolvedFirst, setStaffInvolvedFirst] = useState("");
   const [staffInvolvedLast, setStaffInvolvedLast] = useState("");
   const [dateOccurred, setDateOccurred] = useState(new Date());
-  const [incidentTypePri, setIncidentTypePri] = useState(null);
   const [incidentTypeSec, setIncidentTypeSec] = useState(null);
   const [otherSecIncidentType, setOtherSecIncidentType] = useState("");
   const [involvesChild, setInvolvesChild] = useState({
@@ -136,7 +129,19 @@ function App() {
     false
   );
   const [dateTouched, setDateTouched] = useState(false);
-  const [incTypesOptions, setIncTypesOptions] = useState(incidentTypes);
+  const {
+    incidentTypePri,
+    setIncidentTypePri,
+    incTypesOptions,
+    updateOptionsFromDescription: updateIncTypesOptions,
+  } = useIncTypeOptions()
+
+  const {
+    locations,
+    programs,
+    immediateResponses,
+    services,
+  } = useFormOptions();
   const [submitClicked, setSubmitClicked] = useState(false);
 
   // Checking functions
@@ -162,17 +167,29 @@ function App() {
     return newOptions;
   };
 
-  const checkServices = () =>
-    setservicesInvolved(autocompleteMultipleOptions(serviceOptions));
+  const checkServices = () => {
+    if (services) {
+      setservicesInvolved(autocompleteMultipleOptions(services));
+    }
+  };
 
-  const checkLocation = () =>
-    setLocation(autocompleteSingleOption(locationOptions));
+  const checkLocation = () => {
+    if (locations) {
+      setLocation(autocompleteSingleOption(locations));
+    }
+  };
 
-  const checkProgram = () =>
-    setProgram(autocompleteSingleOption(programOptions));
+  const checkProgram = () => {
+    if (programs) {
+      setProgram(autocompleteSingleOption(programs));
+    }
+  };
 
-  const checkImmediateResponse = () =>
-    setImmediateResponse(autocompleteMultipleOptions(immediateResponseOptions));
+  const checkImmediateResponse = () => {
+    if (immediateResponses) {
+      setImmediateResponse(autocompleteMultipleOptions(immediateResponses));
+    }
+  };
 
   const checkDate = () => {
     const results = chrono.parse(description);
@@ -206,8 +223,8 @@ function App() {
 
   const warningStyle = (val) => {
     if (
-      submitClicked == true &&
-      (val === null || val === undefined || val.length == 0)
+      submitClicked &&
+      (val === null || val === undefined || val.length === 0)
     ) {
       return { border: "1px solid red" };
     }
@@ -225,12 +242,6 @@ function App() {
       }
     }
     setClientSecInitials("");
-  };
-
-  const checkIncidentType = async () => {
-    const predictions = await getMultiPrediction(description);
-    setIncTypesOptions(predictions);
-    setIncidentTypePri(predictions[0]);
   };
 
   // run this 1000 seconds when the description is updated
@@ -252,7 +263,7 @@ function App() {
         checkDate();
       }
       if (!incidentTypeTouched) {
-        checkIncidentType();
+        updateIncTypesOptions(description);
       }
       if (!programTouched) {
         checkProgram();
@@ -295,6 +306,8 @@ function App() {
     const redirectUrl = await getRedirectUrl(formData);
     console.log(redirectUrl);
   };
+
+  const sortedIncTypeOptions = incTypesOptions?.sort((i) => i.confidence);
 
   return (
     <div className="App">
@@ -417,7 +430,10 @@ function App() {
             <label>Client Involved - Secondary (Initials)</label>
             <Input
               value={clientSecInitials}
-              onChange={(e) => setClientSecInitials(e.target.value)}
+              onChange={(e) => {
+                setClientSecInitials(e.target.value);
+                setClientSecInitialsTouched(true);
+              }}
             ></Input>
           </div>
         </FormRow>
@@ -443,7 +459,7 @@ function App() {
                 setLocation(newLocation);
                 setLocationTouched(true);
               }}
-              options={locationOptions}
+              options={locations}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
@@ -471,7 +487,7 @@ function App() {
                 setservicesInvolved(newSelection);
                 setServicesTouched(true);
               }}
-              options={serviceOptions}
+              options={services}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
@@ -549,7 +565,7 @@ function App() {
                 setIncidentTypePri(incidentType);
                 setIncidentTypeTouched(true);
               }}
-              options={incTypesOptions.sort((i) => i.confidence)}
+              options={sortedIncTypeOptions}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
@@ -559,7 +575,7 @@ function App() {
               onChange={(incidentType) => {
                 setIncidentTypeSec(incidentType);
               }}
-              options={incidentTypes}
+              options={sortedIncTypeOptions}
             ></Select>
           </div>
         </FormRow>
@@ -636,7 +652,7 @@ function App() {
               setProgram(program);
               setProgramTouched(true);
             }}
-            options={programOptions}
+            options={programs}
           ></Select>
         </FormRow>
         <FormRow>
@@ -660,7 +676,7 @@ function App() {
               setImmediateResponse(newSelection);
               setImmediateResponseTouched(true);
             }}
-            options={immediateResponseOptions}
+            options={immediateResponses}
           ></Select>
         </FormRow>
         <FormRow style={{ flexDirection: "row" }}>
