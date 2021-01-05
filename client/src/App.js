@@ -260,6 +260,20 @@ function App() {
       });
   };
 
+  const numConfidenceValues = 5;
+  const reactSelectIncTypeOpts = incTypesOptions
+    .sort((i) => i.confidence)
+    .map((opt, i) => {
+      if (i > numConfidenceValues - 1) {
+        return {
+          ...opt,
+          confidence: '',
+        };
+      } else {
+        return opt;
+      }
+    });
+
   return (
     <div className="App">
       <div
@@ -498,7 +512,7 @@ function App() {
                 setIncidentTypePri(incidentType);
                 setIncidentTypeTouched(true);
               }}
-              options={incTypesOptions.sort((i) => i.confidence)}
+              options={reactSelectIncTypeOpts}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
