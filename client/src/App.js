@@ -1,17 +1,21 @@
-import { useFormOptions } from './useFormOptions';
-import { useIncTypeOptions } from './useIncTypeOptions';
+import { useFormOptions } from "./useFormOptions";
+import { useIncTypeOptions } from "./useIncTypeOptions";
 import React, { useState, useCallback, useEffect } from "react";
 import logo from "./logo.jpg";
 import "./App.css";
 import _ from "lodash";
 import chrono from "chrono-node";
 import Select from "react-select";
-import DatePicker from "react-datepicker";
+import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getRedirectUrl } from "./actions/submit";
 import { FormRow, Input, Textarea, HR, ModalClose } from "./styled";
-import TextInput from './components/TextInput';
+import TextInput from "./components/TextInput";
 import useTextFieldInfo from "./hooks/useTextFieldInfo";
+import useSelectFieldInfo from "./hooks/useSelectFieldInfo";
+import useDateFieldInfo from "./hooks/useDateFieldInfo";
+import SelectInput from "./components/SelectInput";
+import DatePicker from "./components/Datepicker";
 
 const IncTypeOption = ({ confidence, label }) => {
   return (
@@ -32,15 +36,49 @@ function App() {
   // State variables
   const [description, setDescription] = useState("");
 
-  const [clientInitials, setClientInitials, setClientInitialsAutocomplete, setClientInitialsShowAutocomplete, clientInitialsValid] = useTextFieldInfo();
-  const [clientSecInitials, setClientSecInitials, setClientSecInitialsAutocomplete, setClientSecInitialsShowAutocomplete, clientInitialsSecValid] = useTextFieldInfo();
-  const [location, setLocation] = useState(null);
+  const [
+    clientInitials,
+    setClientInitials,
+    setClientInitialsAutocomplete,
+    setClientInitialsShowAutocomplete,
+    clientInitialsValid,
+  ] = useTextFieldInfo();
+  const [
+    clientSecInitials,
+    setClientSecInitials,
+    setClientSecInitialsAutocomplete,
+    setClientSecInitialsShowAutocomplete,
+    clientInitialsSecValid,
+  ] = useTextFieldInfo();
+  const [
+    location,
+    setLocation,
+    setLocationAutocomplete,
+    setLocationShowAutocomplete,
+    locationValid,
+  ] = useSelectFieldInfo();
+
   const [locationDetail, setLocationDetail] = useState("");
-  const [servicesInvolved, setservicesInvolved] = useState([]);
+
+  const [
+    servicesInvolved,
+    setServicesInvolved,
+    setServicesInvolvedAutocomplete,
+    setServicesInvolvedShowAutocomplete,
+    servicesInvolvedValid,
+  ] = useSelectFieldInfo();
+
   const [otherServices, setOtherServices] = useState("");
   const [staffInvolvedFirst, setStaffInvolvedFirst] = useState("");
   const [staffInvolvedLast, setStaffInvolvedLast] = useState("");
-  const [dateOccurred, setDateOccurred] = useState(new Date());
+  const [
+    dateOccurred,
+    setDateOccurred,
+    setDateOccurredAutocomplete,
+    setDateOccurredShowAutocomplete,
+    dateOccurredValid,
+  ] = useDateFieldInfo();
+
   const [incidentTypeSec, setIncidentTypeSec] = useState(null);
   const [otherSecIncidentType, setOtherSecIncidentType] = useState("");
   const [involvesChild, setInvolvesChild] = useState({
@@ -51,8 +89,23 @@ function App() {
     value: "no",
     label: "No",
   });
-  const [program, setProgram] = useState(null);
-  const [immediateResponse, setImmediateResponse] = useState([]);
+
+  const [
+    program,
+    setProgram,
+    setProgramAutocomplete,
+    setProgramShowAutocomplete,
+    programValid,
+  ] = useSelectFieldInfo();
+
+  const [
+    immediateResponse,
+    setImmediateResponse,
+    setImmediateResponseAutocomplete,
+    setImmediateResponseShowAutocomplete,
+    immediateResponseValid,
+  ] = useSelectFieldInfo();
+
   const [staffCompleting, setStaffCompleting] = useState("");
   const [supervisorReviewer, setSupervisorReviewer] = useState("");
   const [dateCompleted, setDateCompleted] = useState(new Date());
@@ -60,20 +113,16 @@ function App() {
 
   // the "Touched" variables keep track of whether or not that form field was edited by the client.
   // If so, then we stop overwriting the client's manual input
-  const [locationTouched, setLocationTouched] = useState(false);
-  const [servicesTouched, setServicesTouched] = useState(false);
   const [incidentTypeTouched, setIncidentTypeTouched] = useState(false);
-  const [programTouched, setProgramTouched] = useState(false);
-  const [immediateResponseTouched, setImmediateResponseTouched] = useState(
-    false
-  );
-  const [dateTouched, setDateTouched] = useState(false);
   const {
     incidentTypePri,
     setIncidentTypePri,
+    setIncidentTypePriAutocomplete,
+    setIncidentTypePriShowAutocomplete,
+    incidentTypePriValid,
     incTypesOptions,
     updateOptionsFromDescription: updateIncTypesOptions,
-  } = useIncTypeOptions()
+  } = useIncTypeOptions();
 
   const {
     locations,
@@ -81,6 +130,7 @@ function App() {
     immediateResponses,
     services,
   } = useFormOptions();
+
   const [submitClicked, setSubmitClicked] = useState(false);
 
   // Checking functions
@@ -108,25 +158,27 @@ function App() {
 
   const checkServices = () => {
     if (services) {
-      setservicesInvolved(autocompleteMultipleOptions(services));
+      setServicesInvolvedAutocomplete(autocompleteMultipleOptions(services));
     }
   };
 
   const checkLocation = () => {
     if (locations) {
-      setLocation(autocompleteSingleOption(locations));
+      setLocationAutocomplete(autocompleteSingleOption(locations));
     }
   };
 
   const checkProgram = () => {
     if (programs) {
-      setProgram(autocompleteSingleOption(programs));
+      setProgramAutocomplete(autocompleteSingleOption(programs));
     }
   };
 
   const checkImmediateResponse = () => {
     if (immediateResponses) {
-      setImmediateResponse(autocompleteMultipleOptions(immediateResponses));
+      setImmediateResponseAutocomplete(
+        autocompleteMultipleOptions(immediateResponses)
+      );
     }
   };
 
@@ -134,7 +186,7 @@ function App() {
     const results = chrono.parse(description);
 
     if (results && results.length) {
-      setDateOccurred(results[0].start.date());
+      setDateOccurredAutocomplete(results[0].start.date());
     }
   };
 
@@ -186,26 +238,14 @@ function App() {
   // run this 1000 seconds when the description is updated
   const onDescriptionUpdate = useCallback(
     _.throttle(() => {
-      if (!locationTouched) {
-        checkLocation();
-      }
+      checkLocation();
       checkInitials();
       checkSecondInitials();
-      if (!servicesTouched) {
-        checkServices();
-      }
-      if (!dateTouched) {
-        checkDate();
-      }
-      if (!incidentTypeTouched) {
-        updateIncTypesOptions(description);
-      }
-      if (!programTouched) {
-        checkProgram();
-      }
-      if (!immediateResponseTouched) {
-        checkImmediateResponse();
-      }
+      checkServices();
+      checkDate();
+      updateIncTypesOptions(description);
+      checkProgram();
+      checkImmediateResponse();
     }, 1000),
     [checkLocation, checkInitials, checkServices, checkDate, _]
   );
@@ -350,17 +390,6 @@ function App() {
       <HR></HR>
       <form>
         <FormRow style={{ flexDirection: "row" }}>
-          {/* <div style={{ width: "100%" }}>
-            <label>Client Involved - Primary (Initials) *</label>
-            <Input
-              value={clientInitials}
-              onChange={(e) => {
-                setClientInitials(e.target.value);
-                setClientInitialsTouched(true);
-              }}
-              style={{ width: "95%", ...warningStyle(clientInitials) }}
-            ></Input>
-          </div> */}
           <TextInput
             label="Client Involved - Primary (Initials)"
             required={true}
@@ -368,6 +397,7 @@ function App() {
             setValue={setClientInitials}
             setShowAutocomplete={setClientInitialsShowAutocomplete}
             submitClicked={submitClicked}
+            customStyle={{ width: "95%" }}
           ></TextInput>
           <TextInput
             label="Client Involved - Secondary (Initials)"
@@ -380,29 +410,17 @@ function App() {
         </FormRow>
 
         <FormRow style={{ flexDirection: "row" }}>
-          <div style={{ width: "100%" }}>
-            <label>Location *</label>
-            <Select
-              styles={{
-                container: (provided) => ({
-                  ...provided,
-                  width: "95%",
-                }),
-                control: (provided) => ({
-                  ...provided,
-                  boxShadow: "none",
-                  "&:hover": {},
-                  ...warningStyle(location),
-                }),
-              }}
-              value={location}
-              onChange={(newLocation) => {
-                setLocation(newLocation);
-                setLocationTouched(true);
-              }}
-              options={locations}
-            ></Select>
-          </div>
+          <SelectInput
+            label="Location"
+            options={locations}
+            value={location}
+            setValue={setLocation}
+            setShowAutocomplete={setLocationShowAutocomplete}
+            submitClicked={submitClicked}
+            required={true}
+            customStyle={{ width: "95%" }}
+          ></SelectInput>
+
           <div style={{ width: "100%" }}>
             <label>Location Detail</label>
             <Input
@@ -413,24 +431,17 @@ function App() {
         </FormRow>
 
         <FormRow style={{ flexDirection: "row" }}>
-          <div style={{ width: "100%" }}>
-            <label>Services Involved</label>
-            <Select
-              styles={{
-                container: (provided) => ({
-                  ...provided,
-                  width: "95%",
-                }),
-              }}
-              value={servicesInvolved}
-              isMulti
-              onChange={(newSelection) => {
-                setservicesInvolved(newSelection);
-                setServicesTouched(true);
-              }}
-              options={services}
-            ></Select>
-          </div>
+          <SelectInput
+            label="Services Involved"
+            options={services}
+            value={servicesInvolved}
+            setValue={setServicesInvolved}
+            setShowAutocomplete={setServicesInvolvedShowAutocomplete}
+            submitClicked={submitClicked}
+            isMulti={true}
+            customStyle={{ width: "95%" }}
+          ></SelectInput>
+
           <div style={{ width: "100%" }}>
             <label
               style={
@@ -467,48 +478,29 @@ function App() {
         </FormRow>
 
         <FormRow>
-          <label>Date and Time of Occurrence *</label>
           <DatePicker
-            selected={dateOccurred}
-            onChange={(date) => {
-              setDateOccurred(date);
-              setDateTouched(true);
-            }}
-            showTimeSelect
-            timeIntervals={15}
-            style={{ padding: "5px" }}
-            customInput={<Input></Input>}
-            dateFormat="MMMM d, yyyy h:mm aa"
+            label="Date and Time of Occurrence"
+            value={dateOccurred}
+            setValue={setDateOccurred}
+            setShowAutocomplete={setDateOccurredShowAutocomplete}
+            submitClicked={submitClicked}
+            required={true}
           ></DatePicker>
         </FormRow>
 
         <FormRow style={{ flexDirection: "row" }}>
-          <div style={{ width: "100%" }}>
-            <div>
-              <label>Incident Type (Primary) *</label>
-            </div>
-            <Select
-              formatOptionLabel={IncTypeOption}
-              styles={{
-                container: (provided) => ({
-                  ...provided,
-                  width: "95%",
-                }),
-                control: (provided) => ({
-                  ...provided,
-                  boxShadow: "none",
-                  "&:hover": {},
-                  ...warningStyle(incidentTypePri),
-                }),
-              }}
-              value={incidentTypePri}
-              onChange={(incidentType) => {
-                setIncidentTypePri(incidentType);
-                setIncidentTypeTouched(true);
-              }}
-              options={sortedIncTypeOptions}
-            ></Select>
-          </div>
+          <SelectInput
+            label="Incident Type (Primary)"
+            value={incidentTypePri}
+            options={sortedIncTypeOptions}
+            setValue={setIncidentTypePri}
+            setShowAutocomplete={setIncidentTypePriShowAutocomplete}
+            submitClicked={submitClicked}
+            formatOptionLabel={IncTypeOption}
+            required={true}
+            customStyle={{ width: "95%" }}
+          ></SelectInput>
+
           <div style={{ width: "100%" }}>
             <label>Incident Type (Secondary)</label>
             <Select
@@ -574,51 +566,27 @@ function App() {
         </FormRow>
 
         <FormRow>
-          <label>Program *</label>
-          <Select
-            styles={{
-              container: (provided) => ({
-                ...provided,
-                width: "100%",
-              }),
-              control: (provided) => ({
-                ...provided,
-                boxShadow: "none",
-                "&:hover": {},
-                ...warningStyle(program),
-              }),
-            }}
-            value={program}
-            onChange={(program) => {
-              setProgram(program);
-              setProgramTouched(true);
-            }}
+          <SelectInput
+            label="Program"
             options={programs}
-          ></Select>
+            value={program}
+            setValue={setProgram}
+            setShowAutocomplete={setProgramShowAutocomplete}
+            submitClicked={submitClicked}
+            required={true}
+          ></SelectInput>
         </FormRow>
         <FormRow>
-          <label>Immediate Response to the Incident *</label>
-          <Select
-            styles={{
-              container: (provided) => ({
-                ...provided,
-                width: "100%",
-              }),
-              control: (provided) => ({
-                ...provided,
-                boxShadow: "none",
-                "&:hover": {},
-                ...warningStyle(immediateResponse),
-              }),
-            }}
-            value={immediateResponse}
-            isMulti
-            onChange={(newSelection) => {
-              setImmediateResponse(newSelection);
-              setImmediateResponseTouched(true);
-            }}
+          <SelectInput
+            label="Immediate Response to the Incident"
             options={immediateResponses}
-          ></Select>
+            value={immediateResponse}
+            setValue={setImmediateResponse}
+            setShowAutocomplete={setImmediateResponseShowAutocomplete}
+            submitClicked={submitClicked}
+            required={true}
+            isMulti={true}
+          ></SelectInput>
         </FormRow>
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
@@ -640,7 +608,7 @@ function App() {
         </FormRow>
         <FormRow>
           <label>Completed On *</label>
-          <DatePicker
+          <ReactDatePicker
             selected={dateCompleted}
             showTimeSelect
             timeIntervals={15}
@@ -651,7 +619,7 @@ function App() {
             onChange={(date) => {
               setDateCompleted(date);
             }}
-          ></DatePicker>
+          ></ReactDatePicker>
         </FormRow>
         <input
           type="submit"

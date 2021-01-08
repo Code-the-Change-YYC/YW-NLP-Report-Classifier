@@ -7,20 +7,34 @@ const TextInput = ({
   setValue,
   setShowAutocomplete,
   submitClicked,
-  required
+  required,
+  customStyle,
 }) => {
   const showWarning = submitClicked && !value;
-  const style = { width: "95%", border: `1px solid${showWarning ? " red" : ""}` };
+  const style = {
+    width: "100%",
+    border: `1px solid${showWarning ? " red" : "lightgray"}`,
+    ...customStyle,
+  };
   const [touched, setTouched] = useState(false);
+  const [autoCompleteCheckbox, setAutoCompleteCheckbox] = useState(true);
 
   const handleClick = (e) => {
-    e.preventDefault();
+    setAutoCompleteCheckbox(!autoCompleteCheckbox);
     setShowAutocomplete();
-  }
+  };
 
   return (
     <div style={{ width: "100%" }}>
-      <label>{label + (required ? " *" : "")}<button onClick={handleClick}>T</button></label>
+      <label>
+        {label + (required ? " *" : "")}
+        <input
+          type="checkbox"
+          checked={autoCompleteCheckbox}
+          onClick={handleClick}
+          style={{ marginLeft: "10px" }}
+        />
+      </label>
       <Input
         value={value}
         onChange={(e) => {
