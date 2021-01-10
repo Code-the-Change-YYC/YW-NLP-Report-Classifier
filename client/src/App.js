@@ -144,6 +144,19 @@ function App() {
   } = useFormOptions();
   const [submitClicked, setSubmitClicked] = useState(false);
 
+  useEffect(() => {
+    if (!immediateResponseTouched && immediateResponse?.length === 0) {
+      const otherImmediateResponse = immediateResponses?.find((response) => {
+        if (response?.value) {
+          return response.value.toLowerCase().includes('other');
+        }
+      });
+      setImmediateResponse(
+        otherImmediateResponse ? [otherImmediateResponse] : []
+      );
+    }
+  }, [immediateResponses, immediateResponse, immediateResponseTouched]);
+
   // Checking functions
   // These functions are run when the description updates and contain the logic
   // for autocompleting the form fields.
