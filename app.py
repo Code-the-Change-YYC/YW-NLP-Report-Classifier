@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
 from server.schemas.submit import SubmitOut, SubmitIn
+from server.connection import collection
 
 app = FastAPI()
 clf = CNBDescriptionClf()
@@ -83,6 +84,10 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
 
     redirect_url = interceptum.call_api(form.form_fields.dict())
+    
+    #make a local copy to mongodb
+    collection.insert_one(form.form_fields.dict())
+
     return SubmitOut(form_fields=form.form_fields,
                      risk_assessment=risk_assessment.value,
                      redirect_url=redirect_url)
