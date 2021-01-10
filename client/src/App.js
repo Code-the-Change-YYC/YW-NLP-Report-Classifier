@@ -307,7 +307,28 @@ function App() {
     console.log(redirectUrl);
   };
 
-  const sortedIncTypeOptions = incTypesOptions?.sort((i) => i.confidence);
+  const sortedIncTypeOptions = incTypesOptions?.sort((firstEl, secondEl) => {
+    if (firstEl.confidence && secondEl.confidence) {
+      return (
+        Number.parseFloat(secondEl.confidence) -
+        Number.parseFloat(firstEl.confidence)
+      );
+    }
+  });
+  
+  const numConfidenceValues = 5;
+  const reactSelectIncTypeOpts = sortedIncTypeOptions?.map((opt, i) => {
+    if (i > numConfidenceValues - 1) {
+      return {
+        ...opt,
+        confidence: '',
+      };
+    } else {
+      return opt;
+    }
+  });
+
+
 
   return (
     <div className="App">
@@ -565,7 +586,7 @@ function App() {
                 setIncidentTypePri(incidentType);
                 setIncidentTypeTouched(true);
               }}
-              options={sortedIncTypeOptions}
+              options={reactSelectIncTypeOpts}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
