@@ -7,9 +7,8 @@ import _ from "lodash";
 import chrono from "chrono-node";
 import Select from "react-select";
 import styled from "styled-components";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { getRedirectUrl } from "./actions/submit";
+import { DateInputNoFuture } from "./DateInputNoFuture";
 
 const FormRow = styled.div`
   display: flex;
@@ -34,7 +33,7 @@ const FormRow = styled.div`
   text-align: left;
 `;
 
-const Input = styled.input`
+export const Input = styled.input`
   padding: 8px 5px;
   font-size: 12pt;
   border: 1px solid lightgray;
@@ -152,6 +151,19 @@ function App() {
   } = useFormOptions();
   const [submitClicked, setSubmitClicked] = useState(false);
 
+  useEffect(() => {
+    if (!immediateResponseTouched && immediateResponse?.length === 0) {
+      const otherImmediateResponse = immediateResponses?.find((response) => {
+        if (response?.value) {
+          return response.value.toLowerCase().includes('other');
+        }
+      });
+      setImmediateResponse(
+        otherImmediateResponse ? [otherImmediateResponse] : []
+      );
+    }
+  }, [immediateResponses, immediateResponse, immediateResponseTouched]);
+
   // Checking functions
   // These functions are run when the description updates and contain the logic
   // for autocompleting the form fields.
@@ -225,7 +237,9 @@ function App() {
       program !== undefined &&
       immediateResponse.length > 0 &&
       staffCompleting.length > 0 &&
-      supervisorReviewer.length > 0
+      supervisorReviewer.length > 0 &&
+      dateOccurred !== null &&
+      dateCompleted !== null
     );
   };
 
@@ -555,19 +569,15 @@ function App() {
         </FormRow>
 
         <FormRow>
-          <label>Date and Time of Occurrence *</label>
-          <DatePicker
+          <DateInputNoFuture
+            date={dateOccurred}
+            setDate={setDateOccurred}
             selected={dateOccurred}
-            onChange={(date) => {
-              setDateOccurred(date);
+            onChangeCallback={() => {
               setDateTouched(true);
             }}
-            showTimeSelect
-            timeIntervals={15}
-            style={{ padding: "5px" }}
-            customInput={<Input></Input>}
-            dateFormat="MMMM d, yyyy h:mm aa"
-          ></DatePicker>
+            labelText={'Date and Time of Occurrence *'}
+          ></DateInputNoFuture>
         </FormRow>
 
         <FormRow style={{ flexDirection: "row" }}>
@@ -727,19 +737,7 @@ function App() {
           </div>
         </FormRow>
         <FormRow>
-          <label>Completed On *</label>
-          <DatePicker
-            selected={dateCompleted}
-            showTimeSelect
-            timeIntervals={15}
-            style={{ padding: "5px" }}
-            customInput={<Input></Input>}
-            dateFormat="MMMM d, yyyy h:mm aa"
-            value={Date.now()}
-            onChange={(date) => {
-              setDateCompleted(date);
-            }}
-          ></DatePicker>
+          <DateInputNoFuture date={dateCompleted} setDate={setDateCompleted} labelText={"Completed On * "} />
         </FormRow>
         <input
           type="submit"
