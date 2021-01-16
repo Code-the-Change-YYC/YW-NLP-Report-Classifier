@@ -56,14 +56,12 @@ function App() {
     setClientSecInitials,
     setClientSecInitialsAutocomplete,
     setClientSecInitialsShowAutocomplete,
-    clientInitialsSecValid,
   ] = useTextFieldInfo();
   const [
     location,
     setLocation,
     setLocationAutocomplete,
     setLocationShowAutocomplete,
-    locationValid,
   ] = useSelectFieldInfo();
 
   const [locationDetail, setLocationDetail] = useState("");
@@ -73,7 +71,6 @@ function App() {
     setServicesInvolved,
     setServicesInvolvedAutocomplete,
     setServicesInvolvedShowAutocomplete,
-    servicesInvolvedValid,
   ] = useSelectFieldInfo();
 
   const [otherServices, setOtherServices] = useState("");
@@ -84,7 +81,6 @@ function App() {
     setDateOccurred,
     setDateOccurredAutocomplete,
     setDateOccurredShowAutocomplete,
-    dateOccurredValid,
   ] = useDateFieldInfo();
 
   const [incidentTypeSec, setIncidentTypeSec] = useState(null);
@@ -103,7 +99,6 @@ function App() {
     setProgram,
     setProgramAutocomplete,
     setProgramShowAutocomplete,
-    programValid,
   ] = useSelectFieldInfo();
 
   const [
@@ -111,7 +106,6 @@ function App() {
     setImmediateResponse,
     setImmediateResponseAutocomplete,
     setImmediateResponseShowAutocomplete,
-    immediateResponseValid,
   ] = useSelectFieldInfo();
 
   const [staffCompleting, setStaffCompleting] = useState("");
@@ -119,15 +113,10 @@ function App() {
   const [dateCompleted, setDateCompleted] = useState(new Date());
   const [modalDisplay, setModalDisplay] = useState("none");
 
-  // the "Touched" variables keep track of whether or not that form field was edited by the client.
-  // If so, then we stop overwriting the client's manual input
-  const [incidentTypeTouched, setIncidentTypeTouched] = useState(false);
   const {
     incidentTypePri,
     setIncidentTypePri,
-    setIncidentTypePriAutocomplete,
     setIncidentTypePriShowAutocomplete,
-    incidentTypePriValid,
     incTypesOptions,
     updateOptionsFromDescription: updateIncTypesOptions,
   } = useIncTypeOptions();
