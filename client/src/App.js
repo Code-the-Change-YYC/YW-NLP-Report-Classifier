@@ -419,6 +419,7 @@ function App() {
           onChange={(e) => setDescription(e.target.value)}
           rows={7}
           style={{ ...warningStyle(description) }}
+          spellCheck
         ></Textarea>
       </FormRow>
 
@@ -519,6 +520,7 @@ function App() {
             setValue={setDateOccurred}
             setShowAutocomplete={setDateOccurredShowAutocomplete}
             required
+            submitClicked={submitClicked}
             noFutureDate
           ></DateInput>
         </FormRow>

@@ -13,10 +13,6 @@ const SelectInput = ({
   formatOptionLabel = null,
   customStyle,
 }) => {
-  const showWarning = submitClicked && !value;
-  const style = {
-    border: `1px solid${showWarning ? " red" : "lightgray"}`,
-  };
   const [touched, setTouched] = useState(false);
   const [autoCompleteCheckbox, setAutoCompleteCheckbox] = useState(true);
 
@@ -24,6 +20,13 @@ const SelectInput = ({
     setAutoCompleteCheckbox(!autoCompleteCheckbox);
     setShowAutocomplete();
   };
+
+  const showWarning = submitClicked && !value;
+  const style = {
+    // prettier-ignore
+    border: `1px solid ${ showWarning ? "red" : (autoCompleteCheckbox && !touched ? "#00adef" : "lightgrey")}`,
+  };
+
   return (
     <div style={{ width: "100%" }}>
       <label>
