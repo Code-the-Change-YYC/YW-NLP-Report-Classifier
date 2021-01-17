@@ -4,8 +4,16 @@ from typing import List, Tuple
 import yagmail
 
 import server.risk_scores.risk_scores as risk_scores
-from server.risk_scores.yagmail_secrets import gmail_username, gmail_password
+from server.credentials import Credentials
 
+credentials = Credentials()
+yag = yagmail.SMTP(credentials.gmail_username, credentials.gmail_password)
+email_format = (
+    """
+    <h2>A high risk assessment was determined in a critical incident report recently filled out</h2>
+    Contents of report form:
+    {form_values}
+    """)
 
 class RiskAssessment(Enum):
     UNDEFINED = 'UNDEFINED'
@@ -28,34 +36,33 @@ assessment_ranges: List[AssessmentRange] = [
 assessment_ranges.sort(key=lambda range: range[0])
 
 
-def get_risk_assessment(form: submit_schema.Form) -> RiskAssessment:
+def get_risk_assessment(form: submit_schema.Form, email_for_high_risk: bool) -> RiskAssessment:
+    """Calculate risk assessment of incoming form. Toggle Yagmail for high risk reports"""
     risk_score = (
         risk_scores.program_to_risk_map.get_risk_score(form.program) +
         risk_scores.incident_type_to_risk_map.get_risk_score(form.incident_type_primary) +
         risk_scores.response_to_risk_map.get_risk_score(
-            form.immediate_response)
-    )
+            form.immediate_response))
+
     max_risk_score = (
         risk_scores.program_to_risk_map.max_risk_score() +
         risk_scores.incident_type_to_risk_map.max_risk_score() +
         risk_scores.response_to_risk_map.max_risk_score_with_value_count(
-            len(form.immediate_response))
-    )
+            len(form.immediate_response)))
+
     percent_of_max = risk_score / max_risk_score
 
     for max_percent, assessment in assessment_ranges:
         if percent_of_max <= max_percent:
             if assessment == RiskAssessment.HIGH:
-                email_high_risk_alert()
+                email_high_risk_alert(form.dict()) # TODO: make async
             return assessment
+    else:
+        return RiskAssessment.UNDEFINED
 
-    return RiskAssessment.UNDEFINED
-
-yag = yagmail.SMTP(gmail_username, gmail_password)
-
-def email_high_risk_alert():
+def email_high_risk_alert(form_values: dict):
+    form_values = (f"<b>{field}</b>: {value}" for field, value in form_values.items())
     yag.send(
-        gmail_username, 
-        subject="High risk assessment determined", 
-        contents="A high risk assessment was determined in a recently filled out form"
-        )
+        credentials.gmail_username, 
+        subject="Recent high risk assessment", 
+        contents=email_format.format(form_values="\n".join(form_values)))

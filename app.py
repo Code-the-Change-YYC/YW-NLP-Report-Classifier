@@ -74,7 +74,8 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
         SubmitOut: Request data alongside risk score.
     """
     try:
-        risk_assessment = get_risk_assessment(form.form_fields)
+        risk_assessment = get_risk_assessment(form.form_fields, False)
+        # NOTE: `email_for_high_risk` disabled for rn to avoid spam
     except KeyError as ke:
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})

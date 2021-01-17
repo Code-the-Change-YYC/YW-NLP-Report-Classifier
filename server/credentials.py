@@ -52,6 +52,16 @@ class Credentials:
         """The Interceptum password."""
         return self['password']
 
+    @property
+    def gmail_username(self) -> str:
+        """The Gmail username."""
+        return self['gmailUsername']
+    
+    @property
+    def gmail_password(self) -> str:
+        """The Gmail password"""
+        return self['gmailPassword']
+
     def __getitem__(self, cred_name: str) -> Any:
         """Gets the credential value with name `cred_name`.
         
