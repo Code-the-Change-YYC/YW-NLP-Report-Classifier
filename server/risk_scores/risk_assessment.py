@@ -54,7 +54,7 @@ def get_risk_assessment(form: submit_schema.Form, email_for_high_risk: bool) -> 
 
     for max_percent, assessment in assessment_ranges:
         if percent_of_max <= max_percent:
-            if assessment == RiskAssessment.HIGH:
+            if assessment == RiskAssessment.HIGH and email_for_high_risk:
                 email_high_risk_alert(form.dict()) # TODO: make async
             return assessment
     else:
@@ -66,3 +66,4 @@ def email_high_risk_alert(form_values: dict):
         credentials.gmail_username, 
         subject="Recent high risk assessment", 
         contents=email_format.format(form_values="\n".join(form_values)))
+        
