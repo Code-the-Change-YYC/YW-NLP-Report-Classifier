@@ -52,14 +52,38 @@ CNBPipeline = NewType('CNBPipeline', Pipeline)
 """Same as `sklearn.naive_bayes.ComplementNB` but accepts strings as inputs."""
 
 
-def load_cnb() -> CNBPipeline:
+def load_cnb(model_path: str, copy_from_prod: bool = True) -> CNBPipeline:
     """Unpickles the trained ComplementNB description classifier, ensuring its
     dependencies are met.
 
-    :return: The CNB classifier.
+    Params:
+        model_path: The path to the pickled model. If this is not the production
+        model, a copy of the production model is made at `model_path`, unless
+        `copy_from_prod` is `False`, in which case `model_path` is attempted to
+        be loaded.
+
+    Returns: The CNB classifier.
     """
-    with open(model_paths.cnb, 'rb') as f:
-        return pickle.load(f)
+    if model_path != model_paths.cnb and copy_from_prod:
+        with open(model_paths.cnb, 'rb') as prod_model, open(model_path, 'wb') as model:
+            model_contents = prod_model.read()
+            model.write(model_contents)
+            return pickle.loads(model_contents)
+    else:
+        with open(model_path, 'rb') as model_file:
+            return pickle.load(model_file)            
+    
+
+def save_cnb(model: CNBPipeline, model_path: str):
+    """Save the CNB model.
+    
+    Params:
+        model: The model to save.
+        model_path: The path of the file to save the model to.
+    """
+    with open(model_path, 'wb') as model_file:
+        pickle.dump(model, model_file)
+
 
 
 SVMPipeline = NewType('SVMPipeline', Pipeline)
