@@ -1,0 +1,306 @@
+/**
+Edit this json then run the following commands to update the data in the cirForm
+document. This can be faster than editing in the GUI.
+
+```
+npx sanity documents delete cirForm
+npx sanity documents create cirForm.json
+```
+
+The most up to date json of the cirForm document can be retrieved with
+
+```
+npx sanity documents get cirForm
+```
+
+Note that this document does not have any affect on data until the mentioned
+commands are run.
+*/
+{
+    "_createdAt": "2020-11-14T17:31:40Z",
+    "_id": "cirForm",
+    "_rev": "VPCZ7L6OTK7IRDnDvOpjE4",
+    "_type": "cirForm",
+    "_updatedAt": "2020-11-14T17:31:40Z",
+    "primaryIncTypes": [
+        "Client aggression towards another person",
+        "Client aggression towards property",
+        "Concern for welfare of a child",
+        "Homicide (Threat or attempt)",
+        "Medical emergency",
+        "Mental health emergency",
+        "Other",
+        "Security concern",
+        "Suicide attempt",
+        "Suspicion/allegation of child abuse - child is not a client",
+        "Suspicion/allegation of abuse towards or against client",
+        "Suspected or actual breach of privacy",
+        "Media/3rd party contact",
+        "Injury",
+        "Illegal activity on premises",
+        "Exposure",
+        "COVID-19 Confirmed",
+        "Refusal to isolate for covid-19",
+        "Client missing",
+        "Client death (onsite)",
+        "Client death (offsite)",
+        "Child abandonment"
+    ],
+    "locations": [
+        {
+            "_type": "optionWithKeywords",
+            "_key": "community",
+            "name": "In community",
+            "keywords": ["community"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "_key": "croydon",
+            "name": "YW Croydon",
+            "keywords": ["Croydon"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "_key": "downtown",
+            "name": "YW Downtown",
+            "keywords": ["Downtown"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "_key": "hub",
+            "name": "YW Hub",
+            "keywords": ["Hub"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "_key": "maple",
+            "name": "YW Maple",
+            "keywords": ["Maple"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "_key": "providence",
+            "name": "YW Providence",
+            "keywords": ["Providence"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "_key": "sheriff king",
+            "name": "YW Sheriff King",
+            "keywords": ["Sheriff King"]
+        }
+    ],
+    "programs": [
+        {
+            "_type": "optionWithKeywords",
+            "name": "Child Care (Hub)",
+            "_key": "child care hub",
+            "keywords": ["child care"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Child Support",
+            "_key": "child support",
+            "keywords": ["child support"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Compass",
+            "_key": "compass",
+            "keywords": ["compass"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Counselling and Personal Development",
+            "_key": "counselling",
+            "keywords": ["counselling"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Croydon (Community Housing)",
+            "_key": "croydon",
+            "keywords": ["croydon"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "DCRT",
+            "_key": "DCRT",
+            "keywords": ["DCRT"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Drop-In Child Care",
+            "_key": "dropin child care",
+            "keywords": ["Drop-In Child Care", "drop in child care", "drop in"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Employment Resource Center",
+            "_key": "employment resource center",
+            "keywords": ["employment resource center"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Family Access",
+            "_key": "family access",
+            "keywords": ["family access"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Family Resource Network",
+            "_key": "family resource network",
+            "keywords": ["family resource network"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Intensive Case Management",
+            "_key": "intensive case management",
+            "keywords": ["intensive case management"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "LINC",
+            "_key": "LINC",
+            "keywords": ["LINC"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Mindful Moments",
+            "_key": "mindful moments",
+            "keywords": ["mindful moments"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Outreach Counselling",
+            "_key": "outreach counselling",
+            "keywords": ["outreach counselling"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Providence (Community Housing)",
+            "_key": "providence (community housing)",
+            "keywords": ["providence"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Sheriff King Home",
+            "_key": "sheriff king home",
+            "keywords": ["sheriff king home"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "The Maple (Community Housing)",
+            "_key": "the maple (community housing)",
+            "keywords": ["the maple"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Transitional Housing",
+            "_key": "transitional housing",
+            "keywords": ["transitional housing"]
+        }
+    ],
+    "immediateResponses": [
+        {
+            "_type": "optionWithKeywords",
+            "name": "Called Child Welfare",
+            "_key": "called child welfare",
+            "keywords": ["child welfare"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Evacuation",
+            "_key": "evacuation",
+            "keywords": ["evacuation", "evacuate", "evacuated"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "First-aid provided",
+            "_key": "first-aid provided",
+            "keywords": ["first-aid", "first aid"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Infection prevention protocol",
+            "_key": "infection prevention protocol",
+            "keywords": ["infection prevention protocol"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Mental health assessment",
+            "_key": "mental health assessment",
+            "keywords": ["mental health assessment", "mental assessment"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Naloxone administered",
+            "_key": "naloxone administered",
+            "keywords": ["naloxone"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Person barred/access restricted",
+            "_key": "person barred/access restricted",
+            "keywords": ["barred", "access restricted"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Safety assessment",
+            "_key": "safety assessment",
+            "keywords": ["safety assessment"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Safety planning",
+            "_key": "safety planning",
+            "keywords": ["safety planning"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "name": "Other",
+            "_key": "other"
+        }
+    ],
+    "servicesInvolved": [
+        {
+            "_type": "optionWithKeywords",
+            "_key": "cfs",
+            "name": "Child Welfare (CFS)",
+            "keywords": ["child welfare", "cfs"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "_key": "ems",
+            "name": "EMS",
+            "keywords": ["ems", "ambulance"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "_key": "police",
+            "name": "Police",
+            "keywords": ["police"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "_key": "fire",
+            "name": "Fire",
+            "keywords": [
+                "fire service",
+                "fire station",
+                "fire department",
+                "fire services"
+            ]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "_key": "doap/pact",
+            "name": "Outreach (DOAP/PACT)",
+            "keywords": ["doap", "pact"]
+        },
+        {
+            "_type": "optionWithKeywords",
+            "_key": "other",
+            "name": "Other"
+        }
+    ]
+}

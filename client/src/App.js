@@ -1,3 +1,5 @@
+import { useFormOptions } from './useFormOptions';
+import { useIncTypeOptions } from './useIncTypeOptions';
 import React, { useState, useCallback, useEffect } from "react";
 import logo from "./logo.jpg";
 import "./App.css";
@@ -5,16 +7,8 @@ import _ from "lodash";
 import chrono from "chrono-node";
 import Select from "react-select";
 import styled from "styled-components";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { getMultiPrediction } from "./actions/predict";
-import {
-  locationOptions,
-  programOptions,
-  incidentTypes,
-  immediateResponseOptions,
-  serviceOptions,
-} from "./formOptions";
+import { getRedirectUrl } from "./actions/submit";
+import { DateInputNoFuture } from "./DateInputNoFuture";
 
 const FormRow = styled.div`
   display: flex;
@@ -39,7 +33,7 @@ const FormRow = styled.div`
   text-align: left;
 `;
 
-const Input = styled.input`
+export const Input = styled.input`
   padding: 8px 5px;
   font-size: 12pt;
   border: 1px solid lightgray;
@@ -76,6 +70,14 @@ const ModalClose = styled.div`
   }
 `;
 
+const FeedbackBox = styled.div`
+  margin-top: 20px;
+  padding: 10px 100px;
+  text-align: center;
+  background-color: #49ace9;
+  display: inline-block;
+`;
+
 const IncTypeOption = ({ confidence, label }) => {
   return (
     <div
@@ -93,26 +95,31 @@ const IncTypeOption = ({ confidence, label }) => {
 
 function App() {
   // State variables
-  const [location, setLocation] = useState(null);
+  const [description, setDescription] = useState("");
   const [clientInitials, setClientInitials] = useState("");
-  const [servicesInvolved, setservicesInvolved] = useState([]);
-  const [incidentTypePri, setIncidentTypePri] = useState(null);
-  const [incidentTypeSec, setIncidentTypeSec] = useState({});
-  const [dateOccurred, setDateOccurred] = useState(new Date());
   const [clientSecInitials, setClientSecInitials] = useState("");
+  const [location, setLocation] = useState(null);
   const [locationDetail, setLocationDetail] = useState("");
+  const [servicesInvolved, setservicesInvolved] = useState([]);
+  const [otherServices, setOtherServices] = useState("");
   const [staffInvolvedFirst, setStaffInvolvedFirst] = useState("");
   const [staffInvolvedLast, setStaffInvolvedLast] = useState("");
-  const [involvesChild, setInvolvesChild] = useState(null);
-  const [involvesNonClient, setInvolvesNonClient] = useState(null);
+  const [dateOccurred, setDateOccurred] = useState(new Date());
+  const [incidentTypeSec, setIncidentTypeSec] = useState(null);
+  const [otherSecIncidentType, setOtherSecIncidentType] = useState("");
+  const [involvesChild, setInvolvesChild] = useState({
+    value: "no",
+    label: "No",
+  });
+  const [involvesNonClient, setInvolvesNonClient] = useState({
+    value: "no",
+    label: "No",
+  });
   const [program, setProgram] = useState(null);
-  const [otherServices, setOtherServices] = useState("");
   const [immediateResponse, setImmediateResponse] = useState([]);
   const [staffCompleting, setStaffCompleting] = useState("");
   const [supervisorReviewer, setSupervisorReviewer] = useState("");
   const [dateCompleted, setDateCompleted] = useState(new Date());
-  const [description, setDescription] = useState("");
-  const [otherSecIncidentType, setOtherSecIncidentType] = useState("");
   const [modalDisplay, setModalDisplay] = useState("none");
 
   // the "Touched" variables keep track of whether or not that form field was edited by the client.
@@ -129,7 +136,33 @@ function App() {
     false
   );
   const [dateTouched, setDateTouched] = useState(false);
-  const [incTypesOptions, setIncTypesOptions] = useState(incidentTypes);
+  const {
+    incidentTypePri,
+    setIncidentTypePri,
+    incTypesOptions,
+    updateOptionsFromDescription: updateIncTypesOptions,
+  } = useIncTypeOptions()
+
+  const {
+    locations,
+    programs,
+    immediateResponses,
+    services,
+  } = useFormOptions();
+  const [submitClicked, setSubmitClicked] = useState(false);
+
+  useEffect(() => {
+    if (!immediateResponseTouched && immediateResponse?.length === 0) {
+      const otherImmediateResponse = immediateResponses?.find((response) => {
+        if (response?.value) {
+          return response.value.toLowerCase().includes('other');
+        }
+      });
+      setImmediateResponse(
+        otherImmediateResponse ? [otherImmediateResponse] : []
+      );
+    }
+  }, [immediateResponses, immediateResponse, immediateResponseTouched]);
 
   // Checking functions
   // These functions are run when the description updates and contain the logic
@@ -154,17 +187,29 @@ function App() {
     return newOptions;
   };
 
-  const checkServices = () =>
-    setservicesInvolved(autocompleteMultipleOptions(serviceOptions));
+  const checkServices = () => {
+    if (services) {
+      setservicesInvolved(autocompleteMultipleOptions(services));
+    }
+  };
 
-  const checkLocation = () =>
-    setLocation(autocompleteSingleOption(locationOptions));
+  const checkLocation = () => {
+    if (locations) {
+      setLocation(autocompleteSingleOption(locations));
+    }
+  };
 
-  const checkProgram = () =>
-    setProgram(autocompleteSingleOption(programOptions));
+  const checkProgram = () => {
+    if (programs) {
+      setProgram(autocompleteSingleOption(programs));
+    }
+  };
 
-  const checkImmediateResponse = () =>
-    setImmediateResponse(autocompleteMultipleOptions(immediateResponseOptions));
+  const checkImmediateResponse = () => {
+    if (immediateResponses) {
+      setImmediateResponse(autocompleteMultipleOptions(immediateResponses));
+    }
+  };
 
   const checkDate = () => {
     const results = chrono.parse(description);
@@ -183,6 +228,31 @@ function App() {
     }
   };
 
+  const checkRequiredFields = () => {
+    return (
+      description.length > 0 &&
+      clientInitials.length > 0 &&
+      location !== undefined &&
+      incidentTypePri !== undefined &&
+      program !== undefined &&
+      immediateResponse.length > 0 &&
+      staffCompleting.length > 0 &&
+      supervisorReviewer.length > 0 &&
+      dateOccurred !== null &&
+      dateCompleted !== null
+    );
+  };
+
+  const warningStyle = (val) => {
+    if (
+      submitClicked &&
+      (val === null || val === undefined || val.length === 0)
+    ) {
+      return { border: "1px solid red" };
+    }
+    return {};
+  };
+
   const checkSecondInitials = () => {
     const found = description.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
     if (found && found.length) {
@@ -194,12 +264,6 @@ function App() {
       }
     }
     setClientSecInitials("");
-  };
-
-  const checkIncidentType = async () => {
-    const predictions = await getMultiPrediction(description);
-    setIncTypesOptions(predictions);
-    setIncidentTypePri(predictions[0]);
   };
 
   // run this 1000 seconds when the description is updated
@@ -221,7 +285,7 @@ function App() {
         checkDate();
       }
       if (!incidentTypeTouched) {
-        checkIncidentType();
+        updateIncTypesOptions(description);
       }
       if (!programTouched) {
         checkProgram();
@@ -237,28 +301,56 @@ function App() {
 
   const handleSubmit = async function (e) {
     e.preventDefault();
-    window.open(
-      "https://docs.google.com/forms/d/e/1FAIpQLScfxUsVQDwfXkUeVqfHQrhJpUv9_COL6_9bxgXEAL3M_NA5og/viewform?usp=sf_link"
-    );
-    setModalDisplay("block");
+    // window.open(
+    //   "https://docs.google.com/forms/d/e/1FAIpQLScfxUsVQDwfXkUeVqfHQrhJpUv9_COL6_9bxgXEAL3M_NA5og/viewform?usp=sf_link"
+    // );
     const formData = {
+      description,
+      client_primary: clientInitials,
+      client_secondary: clientSecInitials,
       location,
-      clientInitials,
-      // ...
+      location_detail: locationDetail,
+      services_involved: servicesInvolved,
+      services_involved_other: otherServices,
+      primary_staff_first_name: staffInvolvedFirst,
+      primary_staff_last_name: staffInvolvedLast,
+      occurence_time: dateOccurred,
+      incident_type_primary: incidentTypePri,
+      incident_type_secondary: incidentTypeSec,
+      child_involved: involvesChild,
+      non_client_involved: involvesNonClient,
+      program,
+      immediate_response: immediateResponse,
+      staff_name: staffCompleting,
+      program_supervisor_reviewer_name: supervisorReviewer,
+      completion_date: dateCompleted,
     };
-    await fetch("http://localhost:3002/submitForm", {
-      mode: "no-cors", // no-cors, *cors, same-origin
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((body) => {
-        console.log(body);
-      });
+    const redirectUrl = await getRedirectUrl(formData);
+    console.log(redirectUrl);
   };
+
+  const sortedIncTypeOptions = incTypesOptions?.sort((firstEl, secondEl) => {
+    if (firstEl.confidence && secondEl.confidence) {
+      return (
+        Number.parseFloat(secondEl.confidence) -
+        Number.parseFloat(firstEl.confidence)
+      );
+    }
+  });
+  
+  const numConfidenceValues = 5;
+  const reactSelectIncTypeOpts = sortedIncTypeOptions?.map((opt, i) => {
+    if (i > numConfidenceValues - 1) {
+      return {
+        ...opt,
+        confidence: '',
+      };
+    } else {
+      return opt;
+    }
+  });
+
+
 
   return (
     <div className="App">
@@ -271,7 +363,7 @@ function App() {
           bottom: "0",
           backgroundColor: "rgba(0,0,0,0.5)",
           zIndex: "10",
-          display: modalDisplay, // modalDisplay
+          display: modalDisplay,
         }}
       >
         <div
@@ -301,7 +393,7 @@ function App() {
             <b>Location Detail: </b> {locationDetail}
           </div>
           <div>
-            <b>Date of Occurrence: </b> {dateOccurred.toLocaleString()}
+            <b>Date of Occurrence: </b> {dateOccurred?.toLocaleString()}
           </div>
           <div>
             <b>Services Involved: </b>
@@ -351,46 +443,58 @@ function App() {
       </div>
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
-      <h2>Prototype - June 30, 2020 </h2>
+      <h2>Prototype - December 1, 2020 </h2>
+
       <FormRow>
-        <label>Description of Incident</label>
+        <label>Description of Incident *</label>
         <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={7}
+          style={{ ...warningStyle(description) }}
         ></Textarea>
       </FormRow>
+
       <HR></HR>
       <form>
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
-            <label>Client Involved - Primary (Initials)</label>
+            <label>Client Involved - Primary (Initials) *</label>
             <Input
               value={clientInitials}
               onChange={(e) => {
                 setClientInitials(e.target.value);
                 setClientInitialsTouched(true);
               }}
-              style={{ width: "95%" }}
+              style={{ width: "95%", ...warningStyle(clientInitials) }}
             ></Input>
           </div>
           <div style={{ width: "100%" }}>
             <label>Client Involved - Secondary (Initials)</label>
             <Input
               value={clientSecInitials}
-              onChange={(e) => setClientSecInitials(e.target.value)}
+              onChange={(e) => {
+                setClientSecInitials(e.target.value);
+                setClientSecInitialsTouched(true);
+              }}
             ></Input>
           </div>
         </FormRow>
 
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
-            <label>Location</label>
+            <label>Location *</label>
             <Select
               styles={{
                 container: (provided) => ({
                   ...provided,
                   width: "95%",
+                }),
+                control: (provided) => ({
+                  ...provided,
+                  boxShadow: "none",
+                  "&:hover": {},
+                  ...warningStyle(location),
                 }),
               }}
               value={location}
@@ -398,7 +502,7 @@ function App() {
                 setLocation(newLocation);
                 setLocationTouched(true);
               }}
-              options={locationOptions}
+              options={locations}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
@@ -426,7 +530,7 @@ function App() {
                 setservicesInvolved(newSelection);
                 setServicesTouched(true);
               }}
-              options={serviceOptions}
+              options={services}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
@@ -465,25 +569,21 @@ function App() {
         </FormRow>
 
         <FormRow>
-          <label>Date and Time of Occurrence</label>
-          <DatePicker
+          <DateInputNoFuture
+            date={dateOccurred}
+            setDate={setDateOccurred}
             selected={dateOccurred}
-            onChange={(date) => {
-              setDateOccurred(date);
+            onChangeCallback={() => {
               setDateTouched(true);
             }}
-            showTimeSelect
-            timeIntervals={15}
-            style={{ padding: "5px" }}
-            customInput={<Input></Input>}
-            dateFormat="MMMM d, yyyy h:mm aa"
-          ></DatePicker>
+            labelText={'Date and Time of Occurrence *'}
+          ></DateInputNoFuture>
         </FormRow>
 
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
             <div>
-              <label>Incident Type (Primary)</label>
+              <label>Incident Type (Primary) *</label>
             </div>
             <Select
               formatOptionLabel={IncTypeOption}
@@ -492,13 +592,19 @@ function App() {
                   ...provided,
                   width: "95%",
                 }),
+                control: (provided) => ({
+                  ...provided,
+                  boxShadow: "none",
+                  "&:hover": {},
+                  ...warningStyle(incidentTypePri),
+                }),
               }}
               value={incidentTypePri}
               onChange={(incidentType) => {
                 setIncidentTypePri(incidentType);
                 setIncidentTypeTouched(true);
               }}
-              options={incTypesOptions.sort((i) => i.confidence)}
+              options={reactSelectIncTypeOpts}
             ></Select>
           </div>
           <div style={{ width: "100%" }}>
@@ -508,7 +614,7 @@ function App() {
               onChange={(incidentType) => {
                 setIncidentTypeSec(incidentType);
               }}
-              options={incidentTypes}
+              options={sortedIncTypeOptions}
             ></Select>
           </div>
         </FormRow>
@@ -566,12 +672,18 @@ function App() {
         </FormRow>
 
         <FormRow>
-          <label>Program</label>
+          <label>Program *</label>
           <Select
             styles={{
               container: (provided) => ({
                 ...provided,
                 width: "100%",
+              }),
+              control: (provided) => ({
+                ...provided,
+                boxShadow: "none",
+                "&:hover": {},
+                ...warningStyle(program),
               }),
             }}
             value={program}
@@ -579,16 +691,22 @@ function App() {
               setProgram(program);
               setProgramTouched(true);
             }}
-            options={programOptions}
+            options={programs}
           ></Select>
         </FormRow>
         <FormRow>
-          <label>Immediate Response to the Incident</label>
+          <label>Immediate Response to the Incident *</label>
           <Select
             styles={{
               container: (provided) => ({
                 ...provided,
                 width: "100%",
+              }),
+              control: (provided) => ({
+                ...provided,
+                boxShadow: "none",
+                "&:hover": {},
+                ...warningStyle(immediateResponse),
               }),
             }}
             value={immediateResponse}
@@ -597,51 +715,49 @@ function App() {
               setImmediateResponse(newSelection);
               setImmediateResponseTouched(true);
             }}
-            options={immediateResponseOptions}
+            options={immediateResponses}
           ></Select>
         </FormRow>
         <FormRow style={{ flexDirection: "row" }}>
           <div style={{ width: "100%" }}>
-            <label>Name of Staff Completing this Report</label>
+            <label>Name of Staff Completing this Report *</label>
             <Input
               value={staffCompleting}
               onChange={(e) => setStaffCompleting(e.target.value)}
-              style={{ width: "95%" }}
+              style={{ width: "95%", ...warningStyle(staffCompleting) }}
             ></Input>
           </div>
           <div style={{ width: "100%" }}>
-            <label>Name of Program Supervisor Reviewer</label>
+            <label>Name of Program Supervisor Reviewer *</label>
             <Input
               value={supervisorReviewer}
               onChange={(e) => setSupervisorReviewer(e.target.value)}
+              style={{ ...warningStyle(supervisorReviewer) }}
             ></Input>
           </div>
         </FormRow>
         <FormRow>
-          <label>Completed On</label>
-          <DatePicker
-            selected={dateCompleted}
-            showTimeSelect
-            timeIntervals={15}
-            style={{ padding: "5px" }}
-            customInput={<Input></Input>}
-            dateFormat="MMMM d, yyyy h:mm aa"
-            value={Date.now()}
-            onChange={(date) => {
-              setDateCompleted(date);
-            }}
-          ></DatePicker>
+          <DateInputNoFuture date={dateCompleted} setDate={setDateCompleted} labelText={"Completed On * "} />
         </FormRow>
         <input
           type="submit"
           value="Next"
           onClick={(e) => {
             e.preventDefault();
-            setModalDisplay("block");
+            setSubmitClicked(true);
+            if (checkRequiredFields()) {
+              setModalDisplay("block");
+            }
           }}
         ></input>
         <button onClick={(e) => e.preventDefault()}>Download</button>
       </form>
+      <FeedbackBox>
+        Please provide us feedback at: <br></br>
+        <a href="https://forms.gle/NxvkQafJ3h5osQDD8">
+        https://forms.gle/NxvkQafJ3h5osQDD8
+        </a>
+      </FeedbackBox>
     </div>
   );
 }
