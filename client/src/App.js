@@ -13,9 +13,9 @@ import useTextFieldInfo from "./hooks/useTextFieldInfo";
 import useSelectFieldInfo from "./hooks/useSelectFieldInfo";
 import useDateFieldInfo from "./hooks/useDateFieldInfo";
 import SelectInput from "./components/SelectInput";
-import DatePicker from "./components/Datepicker";
-import { DateInputNoFuture } from "./components/DateInputNoFuture";
-import styled from 'styled-components';
+import DateInput from "./components/DateInput";
+import ReactDatePicker from "react-datepicker";
+import styled from "styled-components";
 
 const FeedbackBox = styled.div`
   margin-top: 20px;
@@ -134,10 +134,10 @@ function App() {
     if (!immediateResponse || immediateResponse?.length === 0) {
       const otherImmediateResponse = immediateResponses?.find((response) => {
         if (response?.value) {
-          return response.value.toLowerCase().includes('other');
+          return response.value.toLowerCase().includes("other");
         }
       });
-      setImmediateResponseAutocomplete(prev =>
+      setImmediateResponseAutocomplete((prev) =>
         otherImmediateResponse ? [otherImmediateResponse] : prev
       );
     }
@@ -196,7 +196,11 @@ function App() {
     const results = chrono.parse(description);
 
     if (results && results.length) {
-      setDateOccurredAutocomplete(results[0].start.date());
+      let date = results[0].start.date();
+      if (date > Date.now()) {
+        date = new Date();
+      }
+      setDateOccurredAutocomplete(date);
     }
   };
 
@@ -302,13 +306,13 @@ function App() {
       );
     }
   });
-  
+
   const numConfidenceValues = 5;
   const reactSelectIncTypeOpts = sortedIncTypeOptions?.map((opt, i) => {
     if (i > numConfidenceValues - 1) {
       return {
         ...opt,
-        confidence: '',
+        confidence: "",
       };
     } else {
       return opt;
@@ -423,7 +427,7 @@ function App() {
         <FormRow style={{ flexDirection: "row" }}>
           <TextInput
             label="Client Involved - Primary (Initials)"
-            required={true}
+            required
             value={clientInitials}
             setValue={setClientInitials}
             setShowAutocomplete={setClientInitialsShowAutocomplete}
@@ -448,7 +452,7 @@ function App() {
             setValue={setLocation}
             setShowAutocomplete={setLocationShowAutocomplete}
             submitClicked={submitClicked}
-            required={true}
+            required
             customStyle={{ width: "95%" }}
           ></SelectInput>
 
@@ -469,7 +473,7 @@ function App() {
             setValue={setServicesInvolved}
             setShowAutocomplete={setServicesInvolvedShowAutocomplete}
             submitClicked={submitClicked}
-            isMulti={true}
+            isMulti
             customStyle={{ width: "95%" }}
           ></SelectInput>
 
@@ -509,13 +513,14 @@ function App() {
         </FormRow>
 
         <FormRow>
-          <DatePicker
+          <DateInput
             label="Date and Time of Occurrence"
             value={dateOccurred}
             setValue={setDateOccurred}
             setShowAutocomplete={setDateOccurredShowAutocomplete}
-            required={true}
-          ></DatePicker>
+            required
+            noFutureDate
+          ></DateInput>
         </FormRow>
 
         <FormRow style={{ flexDirection: "row" }}>
@@ -527,7 +532,7 @@ function App() {
             setShowAutocomplete={setIncidentTypePriShowAutocomplete}
             submitClicked={submitClicked}
             formatOptionLabel={IncTypeOption}
-            required={true}
+            required
             customStyle={{ width: "95%" }}
           ></SelectInput>
 
@@ -603,7 +608,7 @@ function App() {
             setValue={setProgram}
             setShowAutocomplete={setProgramShowAutocomplete}
             submitClicked={submitClicked}
-            required={true}
+            required
           ></SelectInput>
         </FormRow>
         <FormRow>
@@ -614,8 +619,8 @@ function App() {
             setValue={setImmediateResponse}
             setShowAutocomplete={setImmediateResponseShowAutocomplete}
             submitClicked={submitClicked}
-            required={true}
-            isMulti={true}
+            required
+            isMulti
           ></SelectInput>
         </FormRow>
         <FormRow style={{ flexDirection: "row" }}>
@@ -637,12 +642,26 @@ function App() {
           </div>
         </FormRow>
         <FormRow>
-          <DateInputNoFuture
-            date={dateCompleted}
+          <label>Completed On *</label>
+          <ReactDatePicker
+            selected={dateCompleted}
+            showTimeSelect
+            timeIntervals={15}
+            dateFormat="MMMM d, yyyy h:mm aa"
             setDate={setDateCompleted}
-          >
-            Completed On *
-          </DateInputNoFuture>
+            value={Date.now()}
+            onChange={(date) => {
+              if (date > Date.now()) {
+                setDateCompleted(new Date());
+              } else {
+                setDateCompleted(date);
+              }
+            }}
+            maxDate={new Date()}
+            minTime={new Date().setHours(0, 0, 0, 0)}
+            maxTime={new Date()}
+            customInput={<Input></Input>}
+          ></ReactDatePicker>
         </FormRow>
         <input
           type="submit"
@@ -660,7 +679,7 @@ function App() {
       <FeedbackBox>
         Please provide us feedback at: <br></br>
         <a href="https://forms.gle/NxvkQafJ3h5osQDD8">
-        https://forms.gle/NxvkQafJ3h5osQDD8
+          https://forms.gle/NxvkQafJ3h5osQDD8
         </a>
       </FeedbackBox>
     </div>
