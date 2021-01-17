@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException
 
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
-from server.schemas.submit import SubmitOut, SubmitIn
+from server.schemas.submit import Form, SubmitOut, SubmitIn
 
 app = FastAPI()
 clf = CNBDescriptionClf()
@@ -38,6 +38,11 @@ def run_query(uri, query, headers):
             f"Unexpected status code returned: {request.status_code}")
 
 
+def update_model(form_fields: Form):
+    "Update the classifier from the form submission"
+    clf.partial_fit([form_fields.description], [form_fields.incident_type_primary])
+
+
 @app.get("/")
 async def index():
     return {"Hello": "World"}
@@ -51,7 +56,7 @@ async def predict(predict_in: PredictIn) -> PredictOut:
         predict_in (PredictIn): Input text and number of predictions to return.
 
     Returns:
-        PredictMultiOut: JSON containing input text and predictions with their
+        PredictOut: JSON containing input text and predictions with their
         probabilities.
     """
     inc_types = run_query(credentials.sanity_gql_endpoint, formQuery, headers)['data']['CirForm']['primaryIncTypes']
@@ -78,6 +83,8 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
     except KeyError as ke:
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
+
+    update_model(form.form_fields)
 
     redirect_url = interceptum.call_api(form.form_fields.dict())
     return SubmitOut(form_fields=form.form_fields,
