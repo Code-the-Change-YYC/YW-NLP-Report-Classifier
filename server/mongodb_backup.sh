@@ -4,19 +4,19 @@
 CURRENT_DATE=`date +"%d%b%Y"`
 
  
-BACKUP_PATH='/backups/mongodb'
+BACKUP_PATH='mongodb'
 MONGO_HOST='localhost'
 MONGO_PORT='27017'
  
-DATABASE_NAME='BACK_UPS'
-
+DATABASE_NAME='YWCA_reports'
+COLLECTION='test_report'
  
 
 # make new file record
 mkdir -p ${BACKUP_PATH}/${TODAY}
 
 #export as Json 
-mongodump --host ${MONGO_HOST} --port ${MONGO_PORT} -db ${DATABASE_NAME} --out ${DB_BACKUP_PATH}/${TODAY}/
+mongodump --db ${DATABASE_NAME} --collection ${COLLECTION} --out ${BACKUP_PATH}/${CURRENT_DATE}
 
 
 # Only keep 3 days of back up record
