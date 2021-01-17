@@ -10,18 +10,22 @@ const TextInput = ({
   required,
   customStyle,
 }) => {
-  const showWarning = submitClicked && !value;
-  const style = {
-    width: "100%",
-    border: `1px solid${showWarning ? " red" : "lightgray"}`,
-    ...customStyle,
-  };
   const [touched, setTouched] = useState(false);
   const [autoCompleteCheckbox, setAutoCompleteCheckbox] = useState(true);
 
   const handleClick = (e) => {
     setAutoCompleteCheckbox(!autoCompleteCheckbox);
     setShowAutocomplete();
+  };
+
+  const showWarning = submitClicked && !value;
+
+  const style = {
+    width: "100%",
+    // prettier will remove the parentheses around the second ternanry if statement:
+    // prettier-ignore
+    border: `1px solid ${ showWarning ? "red" : (autoCompleteCheckbox && !touched ? "#00adef" : "lightgrey")}`,
+    ...customStyle,
   };
 
   return (

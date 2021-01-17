@@ -8,21 +8,22 @@ const DateInput = ({
   value,
   setValue,
   setShowAutocomplete,
-  // submitClicked,
+  submitClicked,
   required,
   noFutureDate = false,
 }) => {
-  // const showWarning = submitClicked && !value;
-  // const style = {
-  //   width: "95%",
-  //   border: `1px solid${showWarning ? " red" : "lightgray"}`,
-  // };
   const [touched, setTouched] = useState(false);
   const [autoCompleteCheckbox, setAutoCompleteCheckbox] = useState(true);
 
   const handleClick = (e) => {
     setAutoCompleteCheckbox(!autoCompleteCheckbox);
     setShowAutocomplete();
+  };
+
+  const showWarning = submitClicked && !value;
+  const style = {
+    // prettier-ignore
+    border: `1px solid ${ showWarning ? "red" : (autoCompleteCheckbox && !touched ? "#00adef" : "lightgrey")}`,
   };
 
   return (
@@ -52,7 +53,7 @@ const DateInput = ({
         showTimeSelect
         timeIntervals={15}
         style={{ padding: "5px" }}
-        customInput={<Input></Input>}
+        customInput={<Input style={style}></Input>}
         dateFormat="MMMM d, yyyy h:mm aa"
         maxDate={noFutureDate ? new Date() : null}
         minTime={noFutureDate ? new Date().setHours(0, 0, 0, 0) : null}
