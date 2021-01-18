@@ -1,4 +1,4 @@
-import os
+from server.credentials import Credentials
 from typing import List, Optional
 
 import numpy as np
@@ -12,14 +12,10 @@ from preprocess.report_data import ReportData
 from preprocess.report_data_d import ColName
 from training.description_classification.utils import load_cnb, CNBPipeline, save_cnb
 
-ENV_KEY = 'ENV'
 PROD = 'production'
 DEV = 'development'
-ENV = os.getenv(ENV_KEY)
-if ENV is None or (ENV != PROD and ENV != DEV):
-    raise Exception(f'Environment variable {ENV_KEY} must be set to either {PROD} or {DEV}.')
 
-IS_DEV = ENV == DEV
+IS_DEV = Credentials().PYTHON_ENV == DEV
 
 class CNBDescriptionClf(Model[CNBPipeline]):
     """Complement Naive Bayes model for description classification."""
