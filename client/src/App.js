@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import logo from "./logo.jpg";
 import "./App.css";
 import Select from "react-select";
-import { getRedirectUrl } from "./actions/submit";
 import { FormRow, Input, Textarea, HR, ModalClose } from "./styled";
 import TextInput from "./components/TextInput";
 import useTextFieldInfo from "./hooks/useTextFieldInfo";
 import useSelectFieldInfo from "./hooks/useSelectFieldInfo";
 import useDateFieldInfo from "./hooks/useDateFieldInfo";
+import useSubmit from "./hooks/useSubmit";
 import SelectInput from "./components/SelectInput";
 import DateInput from "./components/DateInput";
 import FeedbackBox from "./components/FeedbackBox";
@@ -125,62 +125,34 @@ function App() {
     updateIncTypesOptions,
   });
 
-  const [submitClicked, setSubmitClicked] = useState(false);
-
-  const checkRequiredFields = () => {
-    return (
-      description.length > 0 &&
-      clientInitialsValid &&
-      location !== undefined &&
-      incidentTypePri !== undefined &&
-      program !== undefined &&
-      immediateResponse.length > 0 &&
-      staffCompleting.length > 0 &&
-      supervisorReviewer.length > 0 &&
-      dateOccurred !== null &&
-      dateCompleted !== null
-    );
-  };
-
-  const warningStyle = (val) => {
-    if (
-      submitClicked &&
-      (val === null || val === undefined || val.length === 0)
-    ) {
-      return { border: "1px solid red" };
-    }
-    return {};
-  };
-
-  const handleSubmit = async function (e) {
-    e.preventDefault();
-    // window.open(
-    //   "https://docs.google.com/forms/d/e/1FAIpQLScfxUsVQDwfXkUeVqfHQrhJpUv9_COL6_9bxgXEAL3M_NA5og/viewform?usp=sf_link"
-    // );
-    const formData = {
-      description,
-      client_primary: clientInitials,
-      client_secondary: clientSecInitials,
-      location,
-      location_detail: locationDetail,
-      services_involved: servicesInvolved,
-      services_involved_other: otherServices,
-      primary_staff_first_name: staffInvolvedFirst,
-      primary_staff_last_name: staffInvolvedLast,
-      occurence_time: dateOccurred,
-      incident_type_primary: incidentTypePri,
-      incident_type_secondary: incidentTypeSec,
-      child_involved: involvesChild,
-      non_client_involved: involvesNonClient,
-      program,
-      immediate_response: immediateResponse,
-      staff_name: staffCompleting,
-      program_supervisor_reviewer_name: supervisorReviewer,
-      completion_date: dateCompleted,
-    };
-    const redirectUrl = await getRedirectUrl(formData);
-    console.log(redirectUrl);
-  };
+  const {
+    submitClicked,
+    setSubmitClicked,
+    submitWarningStyle,
+    handleSubmit,
+    checkRequiredFields,
+  } = useSubmit({
+    description,
+    clientInitials,
+    clientSecInitials,
+    location,
+    locationDetail,
+    servicesInvolved,
+    otherServices,
+    staffInvolvedFirst,
+    staffInvolvedLast,
+    dateOccurred,
+    incidentTypePri,
+    incidentTypeSec,
+    involvesChild,
+    involvesNonClient,
+    program,
+    immediateResponse,
+    staffCompleting,
+    supervisorReviewer,
+    dateCompleted,
+    clientInitialsValid,
+  });
 
   return (
     <div className="App">
@@ -280,7 +252,7 @@ function App() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={7}
-          style={{ ...warningStyle(description) }}
+          style={{ ...submitWarningStyle(description) }}
           spellCheck
         ></Textarea>
       </FormRow>
@@ -488,7 +460,7 @@ function App() {
             <Input
               value={staffCompleting}
               onChange={(e) => setStaffCompleting(e.target.value)}
-              style={{ width: "95%", ...warningStyle(staffCompleting) }}
+              style={{ width: "95%", ...submitWarningStyle(staffCompleting) }}
             ></Input>
           </div>
           <div style={{ width: "100%" }}>
@@ -496,7 +468,7 @@ function App() {
             <Input
               value={supervisorReviewer}
               onChange={(e) => setSupervisorReviewer(e.target.value)}
-              style={{ ...warningStyle(supervisorReviewer) }}
+              style={{ ...submitWarningStyle(supervisorReviewer) }}
             ></Input>
           </div>
         </FormRow>
