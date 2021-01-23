@@ -14,31 +14,9 @@ import useSelectFieldInfo from "./hooks/useSelectFieldInfo";
 import useDateFieldInfo from "./hooks/useDateFieldInfo";
 import SelectInput from "./components/SelectInput";
 import DateInput from "./components/DateInput";
+import FeedbackBox from "./components/FeedbackBox";
+import IncTypePrimaryField from "./components/IncTypePrimaryField";
 import ReactDatePicker from "react-datepicker";
-import styled from "styled-components";
-
-const FeedbackBox = styled.div`
-  margin-top: 20px;
-  padding: 10px 100px;
-  text-align: center;
-  background-color: #49ace9;
-  display: inline-block;
-`;
-
-const IncTypeOption = ({ confidence, label }) => {
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        width: "100%",
-      }}
-    >
-      <div>{label}</div>
-      <div style={{ marginLeft: "15px", color: "#999999" }}>{confidence}</div>
-    </div>
-  );
-};
 
 function App() {
   // State variables
@@ -117,7 +95,7 @@ function App() {
     incidentTypePri,
     setIncidentTypePri,
     setIncidentTypePriShowAutocomplete,
-    incTypesOptions,
+    sortedIncTypeOptions,
     updateOptionsFromDescription: updateIncTypesOptions,
   } = useIncTypeOptions();
 
@@ -298,26 +276,6 @@ function App() {
     console.log(redirectUrl);
   };
 
-  const sortedIncTypeOptions = incTypesOptions?.sort((firstEl, secondEl) => {
-    if (firstEl.confidence && secondEl.confidence) {
-      return (
-        Number.parseFloat(secondEl.confidence) -
-        Number.parseFloat(firstEl.confidence)
-      );
-    }
-  });
-
-  const numConfidenceValues = 5;
-  const reactSelectIncTypeOpts = sortedIncTypeOptions?.map((opt, i) => {
-    if (i > numConfidenceValues - 1) {
-      return {
-        ...opt,
-        confidence: "",
-      };
-    } else {
-      return opt;
-    }
-  });
 
   return (
     <div className="App">
@@ -526,17 +484,14 @@ function App() {
         </FormRow>
 
         <FormRow style={{ flexDirection: "row" }}>
-          <SelectInput
-            label="Incident Type (Primary)"
-            value={incidentTypePri}
-            options={reactSelectIncTypeOpts}
-            setValue={setIncidentTypePri}
+          <IncTypePrimaryField
+            incidentType={incidentTypePri}
+            setIncidentType={setIncidentTypePri}
+            sortedIncTypeOptions={sortedIncTypeOptions}
             setShowAutocomplete={setIncidentTypePriShowAutocomplete}
             submitClicked={submitClicked}
-            formatOptionLabel={IncTypeOption}
-            required
-            customStyle={{ width: "95%" }}
-          ></SelectInput>
+          >
+          </IncTypePrimaryField>
 
           <div style={{ width: "100%" }}>
             <label>Incident Type (Secondary)</label>
@@ -678,12 +633,7 @@ function App() {
         ></input>
         <button onClick={(e) => e.preventDefault()}>Download</button>
       </form>
-      <FeedbackBox>
-        Please provide us feedback at: <br></br>
-        <a href="https://forms.gle/NxvkQafJ3h5osQDD8">
-          https://forms.gle/NxvkQafJ3h5osQDD8
-        </a>
-      </FeedbackBox>
+      <FeedbackBox />;
     </div>
   );
 }

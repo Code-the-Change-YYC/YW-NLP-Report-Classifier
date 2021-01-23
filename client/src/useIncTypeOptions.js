@@ -34,13 +34,21 @@ export function useIncTypeOptions() {
     }
   }, [incTypes]);
 
+  const sortedIncTypeOptions = incTypesOptions?.sort((firstEl, secondEl) => {
+    if (firstEl.confidence && secondEl.confidence) {
+      return (
+        Number.parseFloat(secondEl.confidence) -
+        Number.parseFloat(firstEl.confidence)
+      );
+    }
+  });
   return {
     incidentTypePri,
     setIncidentTypePri,
     setIncidentTypePriAutocomplete,
     setIncidentTypePriShowAutocomplete,
     incidentTypePriValid,
-    incTypesOptions,
+    sortedIncTypeOptions,
     updateOptionsFromDescription,
   };
 }
