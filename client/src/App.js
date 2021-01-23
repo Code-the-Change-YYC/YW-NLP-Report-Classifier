@@ -1,5 +1,5 @@
-import { useFormOptions } from "./useFormOptions";
-import { useIncTypeOptions } from "./useIncTypeOptions";
+import { useFormOptions } from "./hooks/useFormOptions";
+import { useIncTypeOptions } from "./hooks/useIncTypeOptions";
 import React, { useState, useCallback, useEffect } from "react";
 import logo from "./logo.jpg";
 import "./App.css";

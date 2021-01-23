@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getMultiPrediction } from "./actions/predict";
+import { getMultiPrediction } from "../actions/predict";
 import { useFormOptions } from "./useFormOptions";
-import useSelectFieldInfo from "./hooks/useSelectFieldInfo";
+import useSelectFieldInfo from "./useSelectFieldInfo";
 
 export function useIncTypeOptions() {
   const [
