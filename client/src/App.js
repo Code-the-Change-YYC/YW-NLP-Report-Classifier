@@ -1,10 +1,8 @@
 import { useFormOptions } from "./hooks/useFormOptions";
 import { useIncTypeOptions } from "./hooks/useIncTypeOptions";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState } from "react";
 import logo from "./logo.jpg";
 import "./App.css";
-import _ from "lodash";
-import chrono from "chrono-node";
 import Select from "react-select";
 import { getRedirectUrl } from "./actions/submit";
 import { FormRow, Input, Textarea, HR, ModalClose } from "./styled";
@@ -17,6 +15,7 @@ import DateInput from "./components/DateInput";
 import FeedbackBox from "./components/FeedbackBox";
 import IncTypePrimaryField from "./components/IncTypePrimaryField";
 import ReactDatePicker from "react-datepicker";
+import useAutocomplete from "./hooks/useAutocomplete";
 
 function App() {
   // State variables
@@ -95,6 +94,7 @@ function App() {
     incidentTypePri,
     setIncidentTypePri,
     setIncidentTypePriShowAutocomplete,
+    incTypesOptions,
     sortedIncTypeOptions,
     updateOptionsFromDescription: updateIncTypesOptions,
   } = useIncTypeOptions();
@@ -106,90 +106,26 @@ function App() {
     services,
   } = useFormOptions();
 
+  useAutocomplete({
+    description,
+    immediateResponses,
+    immediateResponse,
+    services,
+    locations,
+    programs,
+    clientInitials,
+    incTypesOptions,
+    setImmediateResponseAutocomplete,
+    setServicesInvolvedAutocomplete,
+    setLocationAutocomplete,
+    setProgramAutocomplete,
+    setDateOccurredAutocomplete,
+    setClientInitialsAutocomplete,
+    setClientSecInitialsAutocomplete,
+    updateIncTypesOptions,
+  });
+
   const [submitClicked, setSubmitClicked] = useState(false);
-
-  useEffect(() => {
-    if (!immediateResponse || immediateResponse?.length === 0) {
-      const otherImmediateResponse = immediateResponses?.find((response) => {
-        if (response?.value) {
-          return response.value.toLowerCase().includes("other");
-        }
-      });
-      setImmediateResponseAutocomplete((prev) =>
-        otherImmediateResponse ? [otherImmediateResponse] : prev
-      );
-    }
-  }, [immediateResponses, immediateResponse, setImmediateResponseAutocomplete]);
-
-  // Checking functions
-  // These functions are run when the description updates and contain the logic
-  // for autocompleting the form fields.
-
-  const autocompleteSingleOption = (options) => {
-    const lowercasedDescription = description.toLowerCase();
-    return options.find((option) =>
-      (option.keywords || []).some((keyword) =>
-        lowercasedDescription.includes(keyword.toLowerCase())
-      )
-    );
-  };
-
-  const autocompleteMultipleOptions = (options) => {
-    const lowercasedDescription = description.toLowerCase();
-    const newOptions = options.filter((option) =>
-      (option.keywords || []).some((keyword) =>
-        lowercasedDescription.includes(keyword.toLowerCase())
-      )
-    );
-    return newOptions;
-  };
-
-  const checkServices = () => {
-    if (services) {
-      setServicesInvolvedAutocomplete(autocompleteMultipleOptions(services));
-    }
-  };
-
-  const checkLocation = () => {
-    if (locations) {
-      setLocationAutocomplete(autocompleteSingleOption(locations));
-    }
-  };
-
-  const checkProgram = () => {
-    if (programs) {
-      setProgramAutocomplete(autocompleteSingleOption(programs));
-    }
-  };
-
-  const checkImmediateResponse = () => {
-    if (immediateResponses) {
-      setImmediateResponseAutocomplete(
-        autocompleteMultipleOptions(immediateResponses)
-      );
-    }
-  };
-
-  const checkDate = () => {
-    const results = chrono.parse(description);
-
-    if (results && results.length) {
-      let date = results[0].start.date();
-      if (date > Date.now()) {
-        date = new Date();
-      }
-      setDateOccurredAutocomplete(date);
-    }
-  };
-
-  const checkInitials = () => {
-    const found = description.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
-    if (found && found.length) {
-      setClientInitialsAutocomplete(found[0]);
-    } else {
-      setClientInitialsAutocomplete("");
-    }
-  };
 
   const checkRequiredFields = () => {
     return (
@@ -215,36 +151,6 @@ function App() {
     }
     return {};
   };
-
-  const checkSecondInitials = () => {
-    const found = description.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
-    if (found && found.length) {
-      for (const match of found) {
-        if (match !== clientInitials) {
-          setClientSecInitialsAutocomplete(match);
-          return;
-        }
-      }
-    }
-    setClientSecInitials("");
-  };
-
-  // run this 1000 seconds when the description is updated
-  const onDescriptionUpdate = useCallback(
-    _.throttle(() => {
-      checkLocation();
-      checkInitials();
-      checkSecondInitials();
-      checkServices();
-      checkDate();
-      updateIncTypesOptions(description);
-      checkProgram();
-      checkImmediateResponse();
-    }, 1000),
-    [checkLocation, checkInitials, checkServices, checkDate, _]
-  );
-
-  useEffect(onDescriptionUpdate, [description]);
 
   const handleSubmit = async function (e) {
     e.preventDefault();
@@ -275,7 +181,6 @@ function App() {
     const redirectUrl = await getRedirectUrl(formData);
     console.log(redirectUrl);
   };
-
 
   return (
     <div className="App">
@@ -369,7 +274,6 @@ function App() {
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
       <h2>Prototype - December 1, 2020 </h2>
-
       <FormRow>
         <label>Description of Incident *</label>
         <Textarea
@@ -380,7 +284,6 @@ function App() {
           spellCheck
         ></Textarea>
       </FormRow>
-
       <HR></HR>
       <form>
         <FormRow style={{ flexDirection: "row" }}>
@@ -490,8 +393,7 @@ function App() {
             sortedIncTypeOptions={sortedIncTypeOptions}
             setShowAutocomplete={setIncidentTypePriShowAutocomplete}
             submitClicked={submitClicked}
-          >
-          </IncTypePrimaryField>
+          ></IncTypePrimaryField>
 
           <div style={{ width: "100%" }}>
             <label>Incident Type (Secondary)</label>

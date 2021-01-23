@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getMultiPrediction } from "../actions/predict";
 import { useFormOptions } from "./useFormOptions";
 import useSelectFieldInfo from "./useSelectFieldInfo";
@@ -16,16 +16,19 @@ export function useIncTypeOptions() {
 
   const [incTypesOptions, setIncTypesOptions] = useState();
 
-  async function updateOptionsFromDescription(description) {
-    if (incTypesOptions) {
-      const { updatedIncTypes, topIncType } = await getMultiPrediction(
-        description,
-        incTypesOptions
-      );
-      setIncTypesOptions(Object.values(updatedIncTypes));
-      setIncidentTypePriAutocomplete(topIncType);
-    }
-  }
+  const updateOptionsFromDescription = useCallback(
+    async (description, options) => {
+      if (options) {
+        const { updatedIncTypes, topIncType } = await getMultiPrediction(
+          description,
+          options
+        );
+        setIncTypesOptions(Object.values(updatedIncTypes));
+        setIncidentTypePriAutocomplete(topIncType);
+      }
+    },
+    [setIncTypesOptions, setIncidentTypePriAutocomplete]
+  );
 
   // Fetch options only on component load
   useEffect(() => {
@@ -48,6 +51,7 @@ export function useIncTypeOptions() {
     setIncidentTypePriAutocomplete,
     setIncidentTypePriShowAutocomplete,
     incidentTypePriValid,
+    incTypesOptions,
     sortedIncTypeOptions,
     updateOptionsFromDescription,
   };
