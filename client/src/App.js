@@ -354,7 +354,6 @@ function App() {
             setShowAutocomplete={setDateOccurredShowAutocomplete}
             required
             submitClicked={submitClicked}
-            noFutureDate
           ></DateInput>
         </FormRow>
 
@@ -475,23 +474,16 @@ function App() {
         <FormRow>
           <label>Completed On *</label>
           <ReactDatePicker
+            value={Date.now()}
             selected={dateCompleted}
+            setDate={setDateCompleted}
+            onChange={(date) => {
+              setDateCompleted(date);
+            }}
+            customInput={<Input></Input>}
             showTimeSelect
             timeIntervals={15}
             dateFormat="MMMM d, yyyy h:mm aa"
-            setDate={setDateCompleted}
-            value={Date.now()}
-            onChange={(date) => {
-              if (date > Date.now()) {
-                setDateCompleted(new Date());
-              } else {
-                setDateCompleted(date);
-              }
-            }}
-            maxDate={new Date()}
-            minTime={new Date().setHours(0, 0, 0, 0)}
-            maxTime={new Date()}
-            customInput={<Input></Input>}
           ></ReactDatePicker>
         </FormRow>
         <input
