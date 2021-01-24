@@ -11,4 +11,4 @@ RUN python -m spacy download en_core_web_lg
 EXPOSE 8000
 ENV PORT=8000
 
-CMD ENV=production uvicorn app:app --reload --port 8000 --host 0.0.0.0
+CMD uvicorn app:app --reload --port 8000 --host 0.0.0.0
