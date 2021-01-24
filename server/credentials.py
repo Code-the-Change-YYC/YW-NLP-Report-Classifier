@@ -28,6 +28,21 @@ class Credentials:
             self._credentials = json.load(cred_file)
 
     @property
+    def PYTHON_ENV(self) -> str:
+        """Python running environment, either `'development'` or `'production'`."""
+        return self['PYTHON_ENV']
+
+    @property
+    def sanity_gql_endpoint(self) -> str:
+        """The Sanity GraphQL endpoint."""
+        return self['sanityGqlEndpoint']
+
+    @property
+    def sanity_read_token(self) -> str:
+        """The auth token required for reading from Sanity."""
+        return self['sanityReadToken']
+
+    @property
     def account_name(self) -> str:
         """The Interceptum account name."""
         return self['accountName']

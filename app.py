@@ -10,13 +10,11 @@ from server.schemas.predict import PredictIn, PredictOut
 from server.schemas.submit import SubmitOut, SubmitIn
 from server.connection import collection
 
+
 app = FastAPI()
 clf = CNBDescriptionClf()
 credentials = Credentials()
 interceptum = InterceptumAdapter(credentials)
-
-SANITY_READ_TOKEN = 'skagnXfvkArS8Su6sEsTxpvQWB0bNBKS8X6RUr3Y6ytzOT1wg1VH6vF75EPY7JYKjZNcfMYdrCIfTIGq5DEFVBuOS8sOVus6j3ntfvcWnZ5rzFEKfsWLkApp0CU8SMUQFq6zeWKWiTGx0H0prFkP24Cud9n25B6jP9c2q1jxMpGlaS1o9pXL'
-SANITY_GQL_ENDPOINT = 'https://olnd0a1o.api.sanity.io/v1/graphql/production/default'
 
 formQuery = """
     {
@@ -29,7 +27,7 @@ formQuery = """
 headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'Authorization': f'Bearer {SANITY_READ_TOKEN}',
+    'Authorization': f'Bearer {credentials.sanity_read_token}',
 }
 
 
@@ -40,6 +38,11 @@ def run_query(uri, query, headers):
     else:
         raise Exception(
             f"Unexpected status code returned: {request.status_code}")
+
+
+def update_model(form_fields: Form):
+    "Update the classifier from the form submission"
+    clf.partial_fit([form_fields.description], [form_fields.incident_type_primary])
 
 
 @app.get("/")
@@ -55,10 +58,10 @@ async def predict(predict_in: PredictIn) -> PredictOut:
         predict_in (PredictIn): Input text and number of predictions to return.
 
     Returns:
-        PredictMultiOut: JSON containing input text and predictions with their
+        PredictOut: JSON containing input text and predictions with their
         probabilities.
     """
-    inc_types = run_query(SANITY_GQL_ENDPOINT, formQuery, headers)['data']['CirForm']['primaryIncTypes']
+    inc_types = run_query(credentials.sanity_gql_endpoint, formQuery, headers)['data']['CirForm']['primaryIncTypes']
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)
@@ -82,6 +85,8 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
     except KeyError as ke:
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
+
+    update_model(form.form_fields)
 
     redirect_url = interceptum.call_api(form.form_fields.dict())
     
