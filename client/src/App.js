@@ -1,44 +1,21 @@
-import { useFormOptions } from "./useFormOptions";
-import { useIncTypeOptions } from "./useIncTypeOptions";
-import React, { useState, useCallback, useEffect } from "react";
+import { useFormOptions } from "./hooks/useFormOptions";
+import { useIncTypeOptions } from "./hooks/useIncTypeOptions";
+import React, { useState } from "react";
 import logo from "./logo.jpg";
 import "./App.css";
-import _ from "lodash";
-import chrono from "chrono-node";
 import Select from "react-select";
-import { getRedirectUrl } from "./actions/submit";
 import { FormRow, Input, Textarea, HR, ModalClose } from "./styled";
 import TextInput from "./components/TextInput";
 import useTextFieldInfo from "./hooks/useTextFieldInfo";
 import useSelectFieldInfo from "./hooks/useSelectFieldInfo";
 import useDateFieldInfo from "./hooks/useDateFieldInfo";
+import useSubmit from "./hooks/useSubmit";
 import SelectInput from "./components/SelectInput";
 import DateInput from "./components/DateInput";
+import FeedbackBox from "./components/FeedbackBox";
+import IncTypePrimaryField from "./components/IncTypePrimaryField";
 import ReactDatePicker from "react-datepicker";
-import styled from "styled-components";
-
-const FeedbackBox = styled.div`
-  margin-top: 20px;
-  padding: 10px 100px;
-  text-align: center;
-  background-color: #49ace9;
-  display: inline-block;
-`;
-
-const IncTypeOption = ({ confidence, label }) => {
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        width: "100%",
-      }}
-    >
-      <div>{label}</div>
-      <div style={{ marginLeft: "15px", color: "#999999" }}>{confidence}</div>
-    </div>
-  );
-};
+import useAutocomplete from "./hooks/useAutocomplete";
 
 function App() {
   // State variables
@@ -118,6 +95,7 @@ function App() {
     setIncidentTypePri,
     setIncidentTypePriShowAutocomplete,
     incTypesOptions,
+    sortedIncTypeOptions,
     updateOptionsFromDescription: updateIncTypesOptions,
   } = useIncTypeOptions();
 
@@ -128,195 +106,52 @@ function App() {
     services,
   } = useFormOptions();
 
-  const [submitClicked, setSubmitClicked] = useState(false);
-
-  useEffect(() => {
-    if (!immediateResponse || immediateResponse?.length === 0) {
-      const otherImmediateResponse = immediateResponses?.find((response) => {
-        if (response?.value) {
-          return response.value.toLowerCase().includes("other");
-        }
-      });
-      setImmediateResponseAutocomplete((prev) =>
-        otherImmediateResponse ? [otherImmediateResponse] : prev
-      );
-    }
-  }, [immediateResponses, immediateResponse, setImmediateResponseAutocomplete]);
-
-  // Checking functions
-  // These functions are run when the description updates and contain the logic
-  // for autocompleting the form fields.
-
-  const autocompleteSingleOption = (options) => {
-    const lowercasedDescription = description.toLowerCase();
-    return options.find((option) =>
-      (option.keywords || []).some((keyword) =>
-        lowercasedDescription.includes(keyword.toLowerCase())
-      )
-    );
-  };
-
-  const autocompleteMultipleOptions = (options) => {
-    const lowercasedDescription = description.toLowerCase();
-    const newOptions = options.filter((option) =>
-      (option.keywords || []).some((keyword) =>
-        lowercasedDescription.includes(keyword.toLowerCase())
-      )
-    );
-    return newOptions;
-  };
-
-  const checkServices = () => {
-    if (services) {
-      setServicesInvolvedAutocomplete(autocompleteMultipleOptions(services));
-    }
-  };
-
-  const checkLocation = () => {
-    if (locations) {
-      setLocationAutocomplete(autocompleteSingleOption(locations));
-    }
-  };
-
-  const checkProgram = () => {
-    if (programs) {
-      setProgramAutocomplete(autocompleteSingleOption(programs));
-    }
-  };
-
-  const checkImmediateResponse = () => {
-    if (immediateResponses) {
-      setImmediateResponseAutocomplete(
-        autocompleteMultipleOptions(immediateResponses)
-      );
-    }
-  };
-
-  const checkDate = () => {
-    const results = chrono.parse(description);
-
-    if (results && results.length) {
-      let date = results[0].start.date();
-      if (date > Date.now()) {
-        date = new Date();
-      }
-      setDateOccurredAutocomplete(date);
-    }
-  };
-
-  const checkInitials = () => {
-    const found = description.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
-    if (found && found.length) {
-      setClientInitialsAutocomplete(found[0]);
-    } else {
-      setClientInitialsAutocomplete("");
-    }
-  };
-
-  const checkRequiredFields = () => {
-    return (
-      description.length > 0 &&
-      clientInitialsValid &&
-      location !== undefined &&
-      incidentTypePri !== undefined &&
-      program !== undefined &&
-      immediateResponse.length > 0 &&
-      staffCompleting.length > 0 &&
-      supervisorReviewer.length > 0 &&
-      dateOccurred !== null &&
-      dateCompleted !== null
-    );
-  };
-
-  const warningStyle = (val) => {
-    if (
-      submitClicked &&
-      (val === null || val === undefined || val.length === 0)
-    ) {
-      return { border: "1px solid red" };
-    }
-    return {};
-  };
-
-  const checkSecondInitials = () => {
-    const found = description.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
-    if (found && found.length) {
-      for (const match of found) {
-        if (match !== clientInitials) {
-          setClientSecInitialsAutocomplete(match);
-          return;
-        }
-      }
-    }
-    setClientSecInitials("");
-  };
-
-  // run this 1000 seconds when the description is updated
-  const onDescriptionUpdate = useCallback(
-    _.throttle(() => {
-      checkLocation();
-      checkInitials();
-      checkSecondInitials();
-      checkServices();
-      checkDate();
-      updateIncTypesOptions(description);
-      checkProgram();
-      checkImmediateResponse();
-    }, 1000),
-    [checkLocation, checkInitials, checkServices, checkDate, _]
-  );
-
-  useEffect(onDescriptionUpdate, [description]);
-
-  const handleSubmit = async function (e) {
-    e.preventDefault();
-    // window.open(
-    //   "https://docs.google.com/forms/d/e/1FAIpQLScfxUsVQDwfXkUeVqfHQrhJpUv9_COL6_9bxgXEAL3M_NA5og/viewform?usp=sf_link"
-    // );
-    const formData = {
-      description,
-      client_primary: clientInitials,
-      client_secondary: clientSecInitials,
-      location,
-      location_detail: locationDetail,
-      services_involved: servicesInvolved,
-      services_involved_other: otherServices,
-      primary_staff_first_name: staffInvolvedFirst,
-      primary_staff_last_name: staffInvolvedLast,
-      occurence_time: dateOccurred,
-      incident_type_primary: incidentTypePri,
-      incident_type_secondary: incidentTypeSec,
-      child_involved: involvesChild,
-      non_client_involved: involvesNonClient,
-      program,
-      immediate_response: immediateResponse,
-      staff_name: staffCompleting,
-      program_supervisor_reviewer_name: supervisorReviewer,
-      completion_date: dateCompleted,
-    };
-    const redirectUrl = await getRedirectUrl(formData);
-    console.log(redirectUrl);
-  };
-
-  const sortedIncTypeOptions = incTypesOptions?.sort((firstEl, secondEl) => {
-    if (firstEl.confidence && secondEl.confidence) {
-      return (
-        Number.parseFloat(secondEl.confidence) -
-        Number.parseFloat(firstEl.confidence)
-      );
-    }
+  useAutocomplete({
+    description,
+    immediateResponses,
+    immediateResponse,
+    services,
+    locations,
+    programs,
+    clientInitials,
+    incTypesOptions,
+    setImmediateResponseAutocomplete,
+    setServicesInvolvedAutocomplete,
+    setLocationAutocomplete,
+    setProgramAutocomplete,
+    setDateOccurredAutocomplete,
+    setClientInitialsAutocomplete,
+    setClientSecInitialsAutocomplete,
+    updateIncTypesOptions,
   });
 
-  const numConfidenceValues = 5;
-  const reactSelectIncTypeOpts = sortedIncTypeOptions?.map((opt, i) => {
-    if (i > numConfidenceValues - 1) {
-      return {
-        ...opt,
-        confidence: "",
-      };
-    } else {
-      return opt;
-    }
+  const {
+    submitClicked,
+    setSubmitClicked,
+    submitWarningStyle,
+    handleSubmit,
+    checkRequiredFields,
+  } = useSubmit({
+    description,
+    clientInitials,
+    clientSecInitials,
+    location,
+    locationDetail,
+    servicesInvolved,
+    otherServices,
+    staffInvolvedFirst,
+    staffInvolvedLast,
+    dateOccurred,
+    incidentTypePri,
+    incidentTypeSec,
+    involvesChild,
+    involvesNonClient,
+    program,
+    immediateResponse,
+    staffCompleting,
+    supervisorReviewer,
+    dateCompleted,
+    clientInitialsValid,
   });
 
   return (
@@ -411,18 +246,16 @@ function App() {
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
       <h2>Prototype - December 1, 2020 </h2>
-
       <FormRow>
         <label>Description of Incident *</label>
         <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={7}
-          style={{ ...warningStyle(description) }}
+          style={{ ...submitWarningStyle(description) }}
           spellCheck
         ></Textarea>
       </FormRow>
-
       <HR></HR>
       <form>
         <FormRow style={{ flexDirection: "row" }}>
@@ -526,17 +359,13 @@ function App() {
         </FormRow>
 
         <FormRow style={{ flexDirection: "row" }}>
-          <SelectInput
-            label="Incident Type (Primary)"
-            value={incidentTypePri}
-            options={reactSelectIncTypeOpts}
-            setValue={setIncidentTypePri}
+          <IncTypePrimaryField
+            incidentType={incidentTypePri}
+            setIncidentType={setIncidentTypePri}
+            sortedIncTypeOptions={sortedIncTypeOptions}
             setShowAutocomplete={setIncidentTypePriShowAutocomplete}
             submitClicked={submitClicked}
-            formatOptionLabel={IncTypeOption}
-            required
-            customStyle={{ width: "95%" }}
-          ></SelectInput>
+          ></IncTypePrimaryField>
 
           <div style={{ width: "100%" }}>
             <label>Incident Type (Secondary)</label>
@@ -631,7 +460,7 @@ function App() {
             <Input
               value={staffCompleting}
               onChange={(e) => setStaffCompleting(e.target.value)}
-              style={{ width: "95%", ...warningStyle(staffCompleting) }}
+              style={{ width: "95%", ...submitWarningStyle(staffCompleting) }}
             ></Input>
           </div>
           <div style={{ width: "100%" }}>
@@ -639,7 +468,7 @@ function App() {
             <Input
               value={supervisorReviewer}
               onChange={(e) => setSupervisorReviewer(e.target.value)}
-              style={{ ...warningStyle(supervisorReviewer) }}
+              style={{ ...submitWarningStyle(supervisorReviewer) }}
             ></Input>
           </div>
         </FormRow>
@@ -678,12 +507,7 @@ function App() {
         ></input>
         <button onClick={(e) => e.preventDefault()}>Download</button>
       </form>
-      <FeedbackBox>
-        Please provide us feedback at: <br></br>
-        <a href="https://forms.gle/NxvkQafJ3h5osQDD8">
-          https://forms.gle/NxvkQafJ3h5osQDD8
-        </a>
-      </FeedbackBox>
+      <FeedbackBox />;
     </div>
   );
 }
