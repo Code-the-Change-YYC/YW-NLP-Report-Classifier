@@ -10,7 +10,6 @@ const DateInput = ({
   setShowAutocomplete,
   submitClicked,
   required,
-  noFutureDate = false,
 }) => {
   const [touched, setTouched] = useState(false);
   const [autoCompleteCheckbox, setAutoCompleteCheckbox] = useState(true);
@@ -40,11 +39,7 @@ const DateInput = ({
       <ReactDatePicker
         selected={value}
         onChange={(date) => {
-          if (noFutureDate && date > Date.now()) {
-            setValue(new Date());
-          } else {
-            setValue(date);
-          }
+          setValue(date);
           if (!touched) {
             setShowAutocomplete(false);
           }
@@ -55,9 +50,6 @@ const DateInput = ({
         style={{ padding: "5px" }}
         customInput={<Input style={style}></Input>}
         dateFormat="MMMM d, yyyy h:mm aa"
-        maxDate={noFutureDate ? new Date() : null}
-        minTime={noFutureDate ? new Date().setHours(0, 0, 0, 0) : null}
-        maxTime={noFutureDate ? new Date() : null}
       ></ReactDatePicker>
     </div>
   );
