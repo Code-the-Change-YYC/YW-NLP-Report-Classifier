@@ -17,9 +17,6 @@ clf = CNBDescriptionClf()
 credentials = Credentials()
 interceptum = InterceptumAdapter(credentials)
 
-SANITY_READ_TOKEN = 'skagnXfvkArS8Su6sEsTxpvQWB0bNBKS8X6RUr3Y6ytzOT1wg1VH6vF75EPY7JYKjZNcfMYdrCIfTIGq5DEFVBuOS8sOVus6j3ntfvcWnZ5rzFEKfsWLkApp0CU8SMUQFq6zeWKWiTGx0H0prFkP24Cud9n25B6jP9c2q1jxMpGlaS1o9pXL'
-SANITY_GQL_ENDPOINT = 'https://olnd0a1o.api.sanity.io/v1/graphql/production/default'
-
 formQuery = """
     {
         CirForm(id: "cirForm") {
@@ -31,7 +28,7 @@ formQuery = """
 headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'Authorization': f'Bearer {SANITY_READ_TOKEN}',
+    'Authorization': f'Bearer {credentials.sanity_read_token}',
 }
 
 
@@ -60,7 +57,7 @@ async def predict(predict_in: PredictIn) -> PredictOut:
         PredictMultiOut: JSON containing input text and predictions with their
         probabilities.
     """
-    inc_types = run_query(SANITY_GQL_ENDPOINT, formQuery, headers)['data']['CirForm']['primaryIncTypes']
+    inc_types = run_query(credentials.sanity_gql_endpoint, formQuery, headers)['data']['CirForm']['primaryIncTypes']
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)

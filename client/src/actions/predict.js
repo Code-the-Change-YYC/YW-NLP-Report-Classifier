@@ -1,5 +1,19 @@
 import axios from 'axios'
 
+
+/**
+ * Use sigmoid function to put confidence values on a scale of 0 to 1.
+ * 
+ * @param {Array} confidenceValues 
+ */
+function getConfidenceDisplayValues(confidenceValues) {
+  // Update this to increase/decrease the difference between the outputed
+  // confidence values
+  const scaleFactor = 10;
+  return confidenceValues.map((v) => 1 / (1 + Math.exp(-v * scaleFactor)));
+}
+
+
 /**
  * Creates an object mapping incident type option `value` keys to their object.
  * 
@@ -29,10 +43,13 @@ export const getMultiPrediction = async (description, incidentTypes) => {
     })
     if (data.predictions) {
         const incidentTypesLookup = getIncTypesLookup(incidentTypes)
+        const confValues = getConfidenceDisplayValues(
+          data.predictions.map(([_, c]) => c)
+        );
         const updatedIncTypes = Object.assign(
             incidentTypesLookup,
-            ...data.predictions.map((pred) => {
-                const [incType, confidenceVal] = pred
+            ...data.predictions.map(([incType], i) => {
+                const confidence = confValues[i];
                 const reactSelectOption =
                     incidentTypesLookup[incType.toLowerCase()]
                 const value = reactSelectOption.value
@@ -40,7 +57,7 @@ export const getMultiPrediction = async (description, incidentTypes) => {
                     [value]: {
                         label: reactSelectOption.label,
                         value,
-                        confidence: (confidenceVal * 10).toFixed(2),
+                        confidence: confidence.toFixed(2),
                     },
                 }
             })
