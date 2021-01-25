@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException
 
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
-from server.schemas.submit import SubmitOut, SubmitIn
+from server.schemas.submit import SubmitOut, SubmitIn, Form
 from server.connection import collection
 
 app = FastAPI()
