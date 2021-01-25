@@ -17,7 +17,7 @@ Once a suitable Python is installed it is recommended to create a virtual enviro
 The built-in `venv` will be used for the instructions:
 
 1. Create the virtual environment with `python -m venv .env`. Ensure the Python executable is the desired version.
-2. Activate the virtual environment in your shell. This will differ based on your system. In PowerShell the command is `.\.env\Scripts\activate`. See [here](https://docs.python.org/3/library/venv.html#creating-virtual-environments) for details.
+2. Activate the virtual environment in your shell. This will differ based on your system. In PowerShell the command is `.\.env\Scripts\activate`. On Mac/Linux, the command is `source ./.env/bin/activate`. See [here](https://docs.python.org/3/library/venv.html#creating-virtual-environments) for details.
 3. Use this environment for `python` and `pip` calls during development.
 
 ### Packages
@@ -27,7 +27,11 @@ Dependencies are split up by development environment using multiple `requirement
 - `training`: This includes training of the project's models in IPython notebooks.
 - `preprocess`: This includes the general preprocessing of the raw report data.
 
-### AWS Deployment
+### Credentials
+
+In order to use third-party libraries on the backend such as Sanity, Interceptum, and `yagmail` integration, put a `credentials.json` file in the root folder. The format of the JSON file should follow [this template](https://gist.github.com/JCayabyab/93d6a2a010096d4ae6738d492d4624d8). Send an email to [jofred.cayabyab1@ucalgary.ca](mailto:jofred.cayabyab1@ucalgary.ca) for help setting up these credentials.
+
+## AWS Deployment
 
 For updated deployment to our AWS server, run `server/deploy.sh` from the root folder. This script assumes that the necessary access permissions are granted before the script runs.
 

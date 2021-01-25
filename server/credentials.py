@@ -28,6 +28,11 @@ class Credentials:
             self._credentials = json.load(cred_file)
 
     @property
+    def PYTHON_ENV(self) -> str:
+        """Python running environment, either `'development'` or `'production'`."""
+        return self['PYTHON_ENV']
+
+    @property
     def sanity_gql_endpoint(self) -> str:
         """The Sanity GraphQL endpoint."""
         return self['sanityGqlEndpoint']
