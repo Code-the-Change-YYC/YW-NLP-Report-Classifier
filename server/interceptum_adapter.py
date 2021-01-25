@@ -1,4 +1,4 @@
-from server.credentials import Credentials
+from server.credentials import credentials, Credentials
 import xml.etree.ElementTree as ET
 
 import requests

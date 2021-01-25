@@ -68,3 +68,5 @@ class Credentials:
             raise CredentialsError(
                 f'Could not retrieve credential with key {cred_name}.')
         return self._credentials[cred_name]
+
+credentials = Credentials()
