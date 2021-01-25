@@ -78,8 +78,9 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
     Returns:
         SubmitOut: Request data alongside risk score.
     """
+    send_email: bool = credentials.PYTHON_ENV == "production"
     try:
-        risk_assessment = get_risk_assessment(form.form_fields, email_for_high_risk=False)
+        risk_assessment = get_risk_assessment(form.form_fields, email_for_high_risk=do_email)
         # NOTE: `email_for_high_risk` disabled for rn to avoid spam
     except KeyError as ke:
         raise HTTPException(
