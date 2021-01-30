@@ -38,5 +38,12 @@ export default {
             type: 'array',
             of: [{ type: 'optionWithKeywords' }],
         },
+        {
+            name: 'riskAssessmentTimeframe',
+            title: 'Risk Assessment Timeframe',
+            description: 'Time frame to be considered in risk assessment in months.',
+            type: 'number',
+            validation: Rule => Rule.integer().positive()
+        }
     ],
 }

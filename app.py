@@ -1,5 +1,3 @@
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
 import requests
 
 from server.credentials import Credentials
@@ -21,6 +19,13 @@ formQuery = """
     {
         CirForm(id: "cirForm") {
             primaryIncTypes
+        }
+    }
+"""
+timeframeQuery = """
+    {
+        CirForm(id: "cirForm") {
+             riskAssessmentTimeframe
         }
     }
 """
@@ -81,11 +86,9 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
     Returns:
         SubmitOut: Request data alongside risk score.
     """
-    query = {'client_primary': form.form_fields.client_primary, "occurence_time": {"$gte": datetime.utcnow()-relativedelta(years=1)}}
-    print("Queries matching incident initials from last year:", collection.count_documents(query))
-
+    risk_assessment_timeframe = run_query(credentials.sanity_gql_endpoint, timeframeQuery, headers)['data']['CirForm']['riskAssessmentTimeframe']
     try:
-        risk_assessment = get_risk_assessment(form.form_fields)
+        risk_assessment = get_risk_assessment(form.form_fields, timeframe=risk_assessment_timeframe)
     except KeyError as ke:
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
