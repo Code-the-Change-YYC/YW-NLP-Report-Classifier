@@ -1,6 +1,6 @@
 import requests
 
-from server.credentials import Credentials
+from server.credentials import credentials
 from server.interceptum_adapter import InterceptumAdapter
 from server.risk_scores.risk_assessment import get_risk_assessment
 from fastapi import FastAPI, HTTPException
@@ -11,7 +11,6 @@ from server.schemas.submit import Form, SubmitOut, SubmitIn
 
 app = FastAPI()
 clf = CNBDescriptionClf()
-credentials = Credentials()
 interceptum = InterceptumAdapter(credentials)
 
 formQuery = """
