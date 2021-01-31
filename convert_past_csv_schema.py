@@ -1,5 +1,5 @@
 import pandas as pd 
-from connection import collection
+from server.connection import collection
 import json
 
 past_data = pd.read_csv("data-past.csv",encoding="iso-8859-1")

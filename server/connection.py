@@ -1,8 +1,10 @@
+from server.credentials import Credentials
 from pymongo import MongoClient
 
-mongo_url_local = "mongodb://localhost:27017"
+# TODO: Update to use global `credentials` object after PR #65
+mongo_url = Credentials().mongo_url
 
-client = MongoClient(mongo_url_local)
+client = MongoClient(mongo_url)
 
 # for local connection
 db =client['YWCA_reports']
