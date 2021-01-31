@@ -30,6 +30,11 @@ assessment_ranges: List[AssessmentRange] = [
 assessment_ranges.sort(key=lambda range: range[0])
 
 def query_mongo(initials: str, timeframe: int = 12):
+    """
+    
+    Parameters:
+        timeframe: Months from the current date to look backward in time.
+    """
     query = {'client_primary': initials, "occurence_time": {"$gte": datetime.utcnow()-relativedelta(months=timeframe)}}
     print("Queries matching incident initials from last year:", collection.count_documents(query))
 

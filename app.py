@@ -15,14 +15,14 @@ clf = CNBDescriptionClf()
 credentials = Credentials()
 interceptum = InterceptumAdapter(credentials)
 
-formQuery = """
+form_query = """
     {
         CirForm(id: "cirForm") {
             primaryIncTypes
         }
     }
 """
-timeframeQuery = """
+timeframe_query = """
     {
         CirForm(id: "cirForm") {
              riskAssessmentTimeframe
@@ -67,7 +67,7 @@ async def predict(predict_in: PredictIn) -> PredictOut:
         PredictOut: JSON containing input text and predictions with their
         probabilities.
     """
-    inc_types = run_query(credentials.sanity_gql_endpoint, formQuery, headers)['data']['CirForm']['primaryIncTypes']
+    inc_types = run_query(credentials.sanity_gql_endpoint, form_query, headers)['data']['CirForm']['primaryIncTypes']
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)
@@ -86,7 +86,7 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
     Returns:
         SubmitOut: Request data alongside risk score.
     """
-    risk_assessment_timeframe = run_query(credentials.sanity_gql_endpoint, timeframeQuery, headers)['data']['CirForm']['riskAssessmentTimeframe']
+    risk_assessment_timeframe = run_query(credentials.sanity_gql_endpoint, timeframe_query, headers)['data']['CirForm']['riskAssessmentTimeframe']
     try:
         risk_assessment = get_risk_assessment(form.form_fields, timeframe=risk_assessment_timeframe)
     except KeyError as ke:
