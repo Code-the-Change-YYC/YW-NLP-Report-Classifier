@@ -19,6 +19,7 @@ The built-in `venv` will be used for the instructions:
 1. Create the virtual environment with `python -m venv .env`. Ensure the Python executable is the desired version.
 2. Activate the virtual environment in your shell. This will differ based on your system. In PowerShell the command is `.\.env\Scripts\activate`. On Mac/Linux, the command is `source ./.env/bin/activate`. See [here](https://docs.python.org/3/library/venv.html#creating-virtual-environments) for details.
 3. Use this environment for `python` and `pip` calls during development.
+4. Run `pre-commit` install to install all pre-commit hooks.
 
 ### Packages
 

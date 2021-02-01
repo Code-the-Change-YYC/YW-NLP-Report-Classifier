@@ -1,0 +1,7 @@
+.venv/
+venv/
+client/
+cms/
+model_output/
+preprocess/
+training/

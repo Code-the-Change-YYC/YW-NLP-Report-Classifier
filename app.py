@@ -1,18 +1,18 @@
+from preprocess.report_data import ReportData
 import requests
 
-from server.credentials import Credentials
+from server.credentials import credentials
 from server.interceptum_adapter import InterceptumAdapter
 from server.risk_scores.risk_assessment import get_risk_assessment
 from fastapi import FastAPI, HTTPException
 
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
-from server.schemas.submit import SubmitOut, SubmitIn, Form
+from server.schemas.submit import Form, SubmitOut, SubmitIn
 from server.connection import collection
 
 app = FastAPI()
 clf = CNBDescriptionClf()
-credentials = Credentials()
 interceptum = InterceptumAdapter(credentials)
 
 form_query = """
@@ -48,7 +48,8 @@ def run_query(uri, query, headers):
 
 def update_model(form_fields: Form):
     "Update the classifier from the form submission"
-    clf.partial_fit([form_fields.description], [form_fields.incident_type_primary])
+    clf.partial_fit([form_fields.description],
+                    [form_fields.incident_type_primary])
 
 
 @app.get("/")
@@ -67,7 +68,8 @@ async def predict(predict_in: PredictIn) -> PredictOut:
         PredictOut: JSON containing input text and predictions with their
         probabilities.
     """
-    inc_types = run_query(credentials.sanity_gql_endpoint, form_query, headers)['data']['CirForm']['primaryIncTypes']
+    inc_types = run_query(credentials.sanity_gql_endpoint, form_query,
+                          headers)['data']['CirForm']['primaryIncTypes']
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)
@@ -86,19 +88,20 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
     Returns:
         SubmitOut: Request data alongside risk score.
     """
-    risk_assessment_timeframe = run_query(credentials.sanity_gql_endpoint, timeframe_query, headers)['data']['CirForm']['riskAssessmentTimeframe']
+    risk_assessment_timeframe = run_query(
+        credentials.sanity_gql_endpoint, timeframe_query,
+        headers)['data']['CirForm']['riskAssessmentTimeframe']
     try:
-        risk_assessment = get_risk_assessment(form.form_fields, timeframe=risk_assessment_timeframe)
+        risk_assessment = get_risk_assessment(
+            form.form_fields, timeframe=risk_assessment_timeframe)
     except KeyError as ke:
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
 
-    update_model(form.form_fields)
-
     redirect_url = interceptum.call_api(form.form_fields.dict())
-    
-    #make a local copy to mongodb
-    collection.insert_one(form.form_fields.dict())
+    update_model(form.form_fields)
+    processed_form_data = ReportData().process_form_submission(form.form_fields)
+    collection.insert_one(processed_form_data.dict())
 
     return SubmitOut(form_fields=form.form_fields,
                      risk_assessment=risk_assessment.value,
