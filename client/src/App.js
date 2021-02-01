@@ -1,21 +1,24 @@
-import { useFormOptions } from "./hooks/useFormOptions";
-import { useIncTypeOptions } from "./hooks/useIncTypeOptions";
 import React, { useState } from "react";
 import logo from "./logo.jpg";
 import "./App.css";
-import Select from "react-select";
-import { FormRow, Input, Textarea, HR, ModalClose } from "./styled";
+import { FormRow, Input, Textarea, HR } from "./styled";
+
 import TextInput from "./components/TextInput";
+import Select from "react-select";
+import SelectInput from "./components/SelectInput";
+import DateInput from "./components/DateInput";
+import ReactDatePicker from "react-datepicker";
+import IncTypePrimaryField from "./components/IncTypePrimaryField";
+import ModalBox from "./components/ModalBox";
+import FeedbackBox from "./components/FeedbackBox";
+
 import useTextFieldInfo from "./hooks/useTextFieldInfo";
 import useSelectFieldInfo from "./hooks/useSelectFieldInfo";
 import useDateFieldInfo from "./hooks/useDateFieldInfo";
-import useSubmit from "./hooks/useSubmit";
-import SelectInput from "./components/SelectInput";
-import DateInput from "./components/DateInput";
-import FeedbackBox from "./components/FeedbackBox";
-import IncTypePrimaryField from "./components/IncTypePrimaryField";
-import ReactDatePicker from "react-datepicker";
+import { useFormOptions } from "./hooks/useFormOptions";
+import { useIncTypeOptions } from "./hooks/useIncTypeOptions";
 import useAutocomplete from "./hooks/useAutocomplete";
+import useSubmit from "./hooks/useSubmit";
 
 function App() {
   // State variables
@@ -106,6 +109,29 @@ function App() {
     services,
   } = useFormOptions();
 
+  const formData = {
+    description,
+    clientInitials,
+    clientSecInitials,
+    location,
+    locationDetail,
+    servicesInvolved,
+    otherServices,
+    staffInvolvedFirst,
+    staffInvolvedLast,
+    dateOccurred,
+    incidentTypePri,
+    incidentTypeSec,
+    involvesChild,
+    involvesNonClient,
+    program,
+    immediateResponse,
+    staffCompleting,
+    supervisorReviewer,
+    dateCompleted,
+    clientInitialsValid,
+  };
+
   useAutocomplete({
     description,
     immediateResponses,
@@ -131,118 +157,16 @@ function App() {
     submitWarningStyle,
     handleSubmit,
     checkRequiredFields,
-  } = useSubmit({
-    description,
-    clientInitials,
-    clientSecInitials,
-    location,
-    locationDetail,
-    servicesInvolved,
-    otherServices,
-    staffInvolvedFirst,
-    staffInvolvedLast,
-    dateOccurred,
-    incidentTypePri,
-    incidentTypeSec,
-    involvesChild,
-    involvesNonClient,
-    program,
-    immediateResponse,
-    staffCompleting,
-    supervisorReviewer,
-    dateCompleted,
-    clientInitialsValid,
-  });
+  } = useSubmit(formData);
 
   return (
     <div className="App">
-      <div
-        style={{
-          position: "fixed",
-          top: "0",
-          left: "0",
-          width: "100%",
-          bottom: "0",
-          backgroundColor: "rgba(0,0,0,0.5)",
-          zIndex: "10",
-          display: modalDisplay,
-        }}
-      >
-        <div
-          className="ModalBox"
-          style={{
-            width: "500px",
-            height: "auto",
-            backgroundColor: "#fff",
-            float: "none",
-            margin: "10% auto 0",
-            borderRadius: "7px",
-            textAlign: "left",
-            padding: "20px",
-          }}
-        >
-          <ModalClose onClick={() => setModalDisplay("none")}></ModalClose>
-          <div>
-            <b>Client Involved - Primary: </b> {clientInitials}
-          </div>
-          <div>
-            <b>Client Involved - Secondary: </b> {clientSecInitials}
-          </div>
-          <div>
-            <b>Location: </b> {location?.label}
-          </div>
-          <div>
-            <b>Location Detail: </b> {locationDetail}
-          </div>
-          <div>
-            <b>Date of Occurrence: </b> {dateOccurred?.toLocaleString()}
-          </div>
-          <div>
-            <b>Services Involved: </b>
-            {servicesInvolved?.map((o) => o.label).join(", ")}
-          </div>
-          <div>
-            <b>Other Services Involved: </b> {otherServices}
-          </div>
-          <div>
-            <b>Staff Involved: </b>
-            {`${staffInvolvedFirst} ${staffInvolvedLast}`}
-          </div>
-          <div>
-            <b>Incident Type - Primary: </b> {incidentTypePri?.label}
-          </div>
-          <div>
-            <b>Incident Type - Secondary: </b> {incidentTypeSec?.label}
-          </div>
-
-          <div>
-            <b>Immediate Response: </b>{" "}
-            {immediateResponse?.map((o) => o.label).join(", ")}
-          </div>
-
-          <div>
-            <b>Program: </b> {program?.label}
-          </div>
-
-          <div>
-            <b>Involves a Child? </b> {involvesChild?.label}
-          </div>
-          <div>
-            <b>Involves a non-client guest? </b> {involvesNonClient?.label}
-          </div>
-
-          <div>
-            <b>Staff Completing this Report: </b> {staffCompleting}
-          </div>
-          <div>
-            <b>Program Supervisor Reviewer: </b> {supervisorReviewer}
-          </div>
-
-          <div style={{ width: "100%", textAlign: "center" }}>
-            <input type="submit" value="Submit" onClick={handleSubmit}></input>
-          </div>
-        </div>
-      </div>
+      <ModalBox
+        formData={formData}
+        modalDisplay={modalDisplay}
+        setModalDisplay={setModalDisplay}
+        handleSubmit={handleSubmit}
+      ></ModalBox>
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
       <h2>Prototype - December 1, 2020 </h2>

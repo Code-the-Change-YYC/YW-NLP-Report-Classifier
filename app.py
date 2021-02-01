@@ -1,6 +1,7 @@
+from preprocess.report_data import ReportData
 import requests
 
-from server.credentials import Credentials
+from server.credentials import credentials
 from server.interceptum_adapter import InterceptumAdapter
 from server.risk_scores.risk_assessment import get_risk_assessment
 from fastapi import FastAPI, HTTPException
@@ -8,10 +9,11 @@ from fastapi import FastAPI, HTTPException
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
 from server.schemas.submit import Form, SubmitOut, SubmitIn
+from server.connection import collection
+
 
 app = FastAPI()
 clf = CNBDescriptionClf()
-credentials = Credentials()
 interceptum = InterceptumAdapter(credentials)
 
 formQuery = """
@@ -78,15 +80,21 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
     Returns:
         SubmitOut: Request data alongside risk score.
     """
+    send_email: bool = credentials.PYTHON_ENV == "production"
     try:
-        risk_assessment = get_risk_assessment(form.form_fields)
+        risk_assessment = get_risk_assessment(form.form_fields, email_for_high_risk=send_email)
+        # NOTE: `email_for_high_risk` disabled for rn to avoid spam
     except KeyError as ke:
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
 
-    update_model(form.form_fields)
-
     redirect_url = interceptum.call_api(form.form_fields.dict())
+
+    update_model(form.form_fields)
+    
+    processed_form_data = ReportData().process_form_submission(form.form_fields)
+    collection.insert_one(processed_form_data.dict())
+
     return SubmitOut(form_fields=form.form_fields,
                      risk_assessment=risk_assessment.value,
                      redirect_url=redirect_url)
