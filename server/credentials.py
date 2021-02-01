@@ -66,6 +66,10 @@ class Credentials:
     def gmail_password(self) -> str:
         """The Gmail password"""
         return self['gmailPassword']
+      
+    def mongo_url(self) -> str:
+        """The MongoDB URL."""
+        return self['mongoUrl']
 
     def __getitem__(self, cred_name: str) -> Any:
         """Gets the credential value with name `cred_name`.
@@ -78,3 +82,5 @@ class Credentials:
             raise CredentialsError(
                 f'Could not retrieve credential with key {cred_name}.')
         return self._credentials[cred_name]
+
+credentials = Credentials()

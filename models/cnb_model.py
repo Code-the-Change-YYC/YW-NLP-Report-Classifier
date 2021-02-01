@@ -1,4 +1,5 @@
-from server.credentials import Credentials
+from server import credentials
+from server.credentials import credentials
 from typing import List, Optional
 
 import numpy as np
@@ -15,7 +16,7 @@ from training.description_classification.utils import load_cnb, CNBPipeline, sav
 PROD = 'production'
 DEV = 'development'
 
-IS_DEV = Credentials().PYTHON_ENV == DEV
+IS_DEV = credentials.PYTHON_ENV == DEV
 
 class CNBDescriptionClf(Model[CNBPipeline]):
     """Complement Naive Bayes model for description classification."""
