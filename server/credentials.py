@@ -57,6 +57,11 @@ class Credentials:
         """The Interceptum password."""
         return self['password']
 
+    @property
+    def mongo_url(self) -> str:
+        """The MongoDB URL."""
+        return self['mongoUrl']
+
     def __getitem__(self, cred_name: str) -> Any:
         """Gets the credential value with name `cred_name`.
         

@@ -1,3 +1,4 @@
+from server.schemas.submit import Form
 import sys
 from os import path
 from typing import List, Type
@@ -18,14 +19,22 @@ from preprocess.spacy_scrubber.description_scrub import DescriptionScrubber
 dir_path = path.dirname(path.realpath(__file__))
 
 
+class DescriptionProcessor(Preprocessor):
+
+    def __init__(self, **processor_args):
+        self.processor_args = processor_args
+
+    def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
+        for processor in DescriptionScrubber, WordCharacterFilter, Lowercaser, NLTKLemmatizer:
+            report_data = processor(**self.processor_args).process(report_data)
+        return report_data
+
+
 class ReportData:
     pipeline: List[Type[Preprocessor]] = [
         DatetimeMapper,
-        DescriptionScrubber,
         IncidentTypesProcessor,
-        WordCharacterFilter,
-        Lowercaser,
-        NLTKLemmatizer
+        DescriptionProcessor
     ]
     in_file_path: str = path.join(dir_path, 'data', 'data-sensitive.csv')
     out_file_path: str = path.join(dir_path, 'data', 'data-processed.csv')
@@ -64,6 +73,20 @@ class ReportData:
             report_df = processor(**self._processor_args).process(report_df)
             print(f'Finished {processor.__name__}')
         return report_df
+
+    def process_form_submission(self, form_submission: Form) -> Form:
+        """
+        :return: Processed report data.
+        """
+        report_df = pd.DataFrame({
+            _ColName.DESC: [form_submission.description],
+            _ColName.CLI_PRI: [form_submission.client_primary],
+            _ColName.CLI_SEC: [form_submission.client_secondary],
+        })
+        report_df = DescriptionProcessor(**self._processor_args).process(report_df)
+        new_form_submission = form_submission.copy()
+        new_form_submission.description = report_df.at[0, _ColName.DESC]
+        return new_form_submission
 
     def create_preprocessed_csv(self):
         """Create new .csv file with scrubbed data."""
