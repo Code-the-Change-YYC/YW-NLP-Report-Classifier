@@ -11,15 +11,21 @@ from server.schemas.predict import PredictIn, PredictOut
 from server.schemas.submit import Form, SubmitOut, SubmitIn
 from server.connection import collection
 
-
 app = FastAPI()
 clf = CNBDescriptionClf()
 interceptum = InterceptumAdapter(credentials)
 
-formQuery = """
+form_query = """
     {
         CirForm(id: "cirForm") {
             primaryIncTypes
+        }
+    }
+"""
+timeframe_query = """
+    {
+        CirForm(id: "cirForm") {
+             riskAssessmentTimeframe
         }
     }
 """
@@ -42,7 +48,8 @@ def run_query(uri, query, headers):
 
 def update_model(form_fields: Form):
     "Update the classifier from the form submission"
-    clf.partial_fit([form_fields.description], [form_fields.incident_type_primary])
+    clf.partial_fit([form_fields.description],
+                    [form_fields.incident_type_primary])
 
 
 @app.get("/")
@@ -61,7 +68,8 @@ async def predict(predict_in: PredictIn) -> PredictOut:
         PredictOut: JSON containing input text and predictions with their
         probabilities.
     """
-    inc_types = run_query(credentials.sanity_gql_endpoint, formQuery, headers)['data']['CirForm']['primaryIncTypes']
+    inc_types = run_query(credentials.sanity_gql_endpoint, form_query,
+                          headers)['data']['CirForm']['primaryIncTypes']
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)
@@ -80,18 +88,18 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
     Returns:
         SubmitOut: Request data alongside risk score.
     """
-    send_email: bool = credentials.PYTHON_ENV == "production"
+    risk_assessment_timeframe = run_query(
+        credentials.sanity_gql_endpoint, timeframe_query,
+        headers)['data']['CirForm']['riskAssessmentTimeframe']
     try:
-        risk_assessment = get_risk_assessment(form.form_fields, email_for_high_risk=send_email)
-        # NOTE: `email_for_high_risk` disabled for rn to avoid spam
+        risk_assessment = get_risk_assessment(
+            form.form_fields, timeframe=risk_assessment_timeframe)
     except KeyError as ke:
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
 
     redirect_url = interceptum.call_api(form.form_fields.dict())
-
     update_model(form.form_fields)
-    
     processed_form_data = ReportData().process_form_submission(form.form_fields)
     collection.insert_one(processed_form_data.dict())
 

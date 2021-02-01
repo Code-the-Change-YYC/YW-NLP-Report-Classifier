@@ -1,8 +1,7 @@
-from server.credentials import Credentials
+from server.credentials import credentials
 from pymongo import MongoClient
 
-# TODO: Update to use global `credentials` object after PR #65
-mongo_url = Credentials().mongo_url
+mongo_url = credentials.mongo_url
 client = MongoClient(mongo_url)
 db = client['YWCA_reports']
 collection = db['test_report']
