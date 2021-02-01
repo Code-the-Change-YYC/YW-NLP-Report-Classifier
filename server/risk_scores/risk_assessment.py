@@ -4,9 +4,9 @@ from typing import List, Tuple
 import yagmail
 
 import server.risk_scores.risk_scores as risk_scores
-from server.credentials import Credentials
+from server.credentials import credentials
 
-credentials = Credentials()
+
 yag = yagmail.SMTP(credentials.gmail_username, credentials.gmail_password)
 email_format = (
     """
