@@ -58,6 +58,15 @@ class Credentials:
         return self['password']
 
     @property
+    def gmail_username(self) -> str:
+        """The Gmail username."""
+        return self['gmailUsername']
+    
+    @property
+    def gmail_password(self) -> str:
+        """The Gmail password"""
+        return self['gmailPassword']
+      
     def mongo_url(self) -> str:
         """The MongoDB URL."""
         return self['mongoUrl']
