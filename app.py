@@ -4,7 +4,7 @@ import requests
 from server.credentials import credentials
 from server.interceptum_adapter import InterceptumAdapter
 from server.risk_scores.risk_assessment import get_risk_assessment
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
@@ -52,6 +52,15 @@ def update_model(form_fields: Form):
                     [form_fields.incident_type_primary])
 
 
+report_data = ReportData()
+
+
+def background_processing(form_fields: Form):
+    update_model(form_fields)
+    processed_form_data = report_data.process_form_submission(form_fields)
+    collection.insert_one(processed_form_data.dict())
+
+
 @app.get("/")
 async def index():
     return {"Hello": "World"}
@@ -79,7 +88,8 @@ async def predict(predict_in: PredictIn) -> PredictOut:
 
 
 @app.post("/api/submit/", response_model=SubmitOut)
-async def submit_form(form: SubmitIn) -> SubmitOut:
+async def submit_form(form: SubmitIn,
+                      background_tasks: BackgroundTasks) -> SubmitOut:
     """Submit JSON form data from front end.
 
     Args:
@@ -88,6 +98,7 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
     Returns:
         SubmitOut: Request data alongside risk score.
     """
+    background_tasks.add_task(background_processing, form.form_fields)
     risk_assessment_timeframe = run_query(
         credentials.sanity_gql_endpoint, timeframe_query,
         headers)['data']['CirForm']['riskAssessmentTimeframe']
@@ -99,10 +110,6 @@ async def submit_form(form: SubmitIn) -> SubmitOut:
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
 
     redirect_url = interceptum.call_api(form.form_fields.dict())
-    update_model(form.form_fields)
-    processed_form_data = ReportData().process_form_submission(form.form_fields)
-    collection.insert_one(processed_form_data.dict())
-
     return SubmitOut(form_fields=form.form_fields,
                      risk_assessment=risk_assessment.value,
                      redirect_url=redirect_url)
