@@ -23,24 +23,30 @@ class DescriptionProcessor(Preprocessor):
 
     def __init__(self, **processor_args):
         self.processor_args = processor_args
+        self.processors = (DescriptionScrubber(**processor_args),
+                           WordCharacterFilter(**processor_args),
+                           Lowercaser(**processor_args),
+                           NLTKLemmatizer(**processor_args))
 
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
-        for processor in DescriptionScrubber, WordCharacterFilter, Lowercaser, NLTKLemmatizer:
-            report_data = processor(**self.processor_args).process(report_data)
+        for processor in self.processors:
+            report_data = processor.process(report_data)
         return report_data
 
 
 class ReportData:
     pipeline: List[Type[Preprocessor]] = [
-        DatetimeMapper,
-        IncidentTypesProcessor,
-        DescriptionProcessor
+        DatetimeMapper(),
+        IncidentTypesProcessor(),
+        DescriptionProcessor()
     ]
     in_file_path: str = path.join(dir_path, 'data', 'data-sensitive.csv')
     out_file_path: str = path.join(dir_path, 'data', 'data-processed.csv')
 
-    def __init__(self, in_file_path: str = in_file_path,
-                 out_file_path: str = out_file_path, **processor_args):
+    def __init__(self,
+                 in_file_path: str = in_file_path,
+                 out_file_path: str = out_file_path,
+                 **processor_args):
         """
         :param in_file_path:
         :param out_file_path:
@@ -49,6 +55,7 @@ class ReportData:
         self.in_file_path = in_file_path
         self.out_file_path = out_file_path
         self._processor_args = processor_args
+        self.processor = DescriptionProcessor(**processor_args)
 
     def get_raw_report_data(self) -> pd.DataFrame:
         """
@@ -57,7 +64,7 @@ class ReportData:
         report_df = pd.read_csv(self.in_file_path)
         # Add all additional columns not included in the original csv
         for processor in self.pipeline:
-            report_df = processor().add_columns(report_df)
+            report_df = processor.add_columns(report_df)
         # Use enum for column access. This works because enum's are iterable and
         # ordered.
         report_df.columns = _ColName
@@ -70,7 +77,7 @@ class ReportData:
         report_df = self.get_raw_report_data()
         for processor in self.pipeline:
             print(f'Starting {processor.__name__}')
-            report_df = processor(**self._processor_args).process(report_df)
+            report_df = self.processor.process(report_df)
             print(f'Finished {processor.__name__}')
         return report_df
 
@@ -83,7 +90,7 @@ class ReportData:
             _ColName.CLI_PRI: [form_submission.client_primary],
             _ColName.CLI_SEC: [form_submission.client_secondary],
         })
-        report_df = DescriptionProcessor(**self._processor_args).process(report_df)
+        report_df = self.processor.process(report_df)
         new_form_submission = form_submission.copy()
         new_form_submission.description = report_df.at[0, _ColName.DESC]
         return new_form_submission
@@ -105,10 +112,10 @@ class ReportData:
 # specifies output file path
 if __name__ == '__main__':
     file_names = sys.argv[1:]
-    ReportData(*file_names,
-               # Spacy scrubber
-               ent_replacement='someone',
-               # Scrubadub scrubber
-               uids_for_initials=False,
-               initials_placeholder='someone'
-               ).create_preprocessed_csv()
+    ReportData(
+        *file_names,
+    # Spacy scrubber
+        ent_replacement='someone',
+    # Scrubadub scrubber
+        uids_for_initials=False,
+        initials_placeholder='someone').create_preprocessed_csv()
