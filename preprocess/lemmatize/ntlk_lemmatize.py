@@ -4,8 +4,7 @@ import pandas as pd
 from nltk.stem import WordNetLemmatizer
 from nltk import pos_tag
 from nltk.corpus import wordnet
-next(wordnet.all_synsets()
-    )    # NOTE: ensures thread safety for lazyloading of wordnet
+next(wordnet.all_synsets()) # yapf: disable NOTE: ensures thread safety for lazyloading of wordnet
 from preprocess.report_data_d import _ColName
 
 

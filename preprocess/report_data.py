@@ -113,9 +113,7 @@ class ReportData:
 if __name__ == '__main__':
     file_names = sys.argv[1:]
     ReportData(
-        *file_names,
-    # Spacy scrubber
-        ent_replacement='someone',
-    # Scrubadub scrubber
+        *file_names,    # Spacy scrubber
+        ent_replacement='someone',    # Scrubadub scrubber
         uids_for_initials=False,
         initials_placeholder='someone').create_preprocessed_csv()
