@@ -17,7 +17,7 @@ class Credentials:
     """
     _credentials: Dict[str, Any]
 
-    def __init__(self, cred_file_path: str = 'credentials.json'):
+    def __init__(self, cred_file_path: str = 'keys/credentials.json'):
         """Creates a `Credentials` instance, reading the credential data.
         
         Params:
