@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     volumes:
-      - ./keys:/app/keys
+      - ./keys:/opt/app/keys
     ports:
       - "8000:8000"
     expose:
@@ -29,7 +29,7 @@ services:
     image: mongo:4.4.3
     container_name: mongo
     volumes:
-      - ./db:/data/db
+      - ./db/data:/data/db
     ports:
       - "27017:27017"
     expose:
