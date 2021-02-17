@@ -2,6 +2,7 @@ from typing import Optional
 import re
 
 import spacy
+spacy.prefer_gpu()
 
 
 class Scrubber:
@@ -47,33 +48,31 @@ class Scrubber:
     number_labels = {"CARDINAL"}
     # time
     time_labels = {"TIME"}
+    nlp = spacy.load("en_core_web_lg",
+                     disable=['tokenizer', 'parser', 'tagger'])
 
     def __init__(self, client_tokens, ent_replacement: str = None):
         self.replacement_method = ent_replacement
         self.client_tokens = client_tokens
 
-        spacy.prefer_gpu()
-        # load the model
-        self.nlp = spacy.load("en_core_web_lg")
-
     def scrub(self, text: str):
         scrubbed_text = ""
         # run model over the description
-        doc = self.nlp(text)
-        for token in doc:
-            if token.text.lower() in Scrubber.whitelisted_words:
-                scrubbed_text += token.text
-            elif token.text in self.client_tokens or token.ent_type_ in Scrubber.name_labels:
-                if self.replacement_method:
-                    scrubbed_text += self.replacement_method
+        for doc in self.nlp.pipe(text):
+            for token in doc:
+                if token.text.lower() in Scrubber.whitelisted_words:
+                    scrubbed_text += token.text
+                elif token.text in self.client_tokens or token.ent_type_ in Scrubber.name_labels:
+                    if self.replacement_method:
+                        scrubbed_text += self.replacement_method
+                    else:
+                        scrubbed_text += "{{NAME}}"
+                elif token.ent_type_ in Scrubber.number_labels:
+                    scrubbed_text += "{{NUMBER}}"
+                elif token.ent_type_ in Scrubber.time_labels:
+                    scrubbed_text += "{{TIME}}"
                 else:
-                    scrubbed_text += "{{NAME}}"
-            elif token.ent_type_ in Scrubber.number_labels:
-                scrubbed_text += "{{NUMBER}}"
-            elif token.ent_type_ in Scrubber.time_labels:
-                scrubbed_text += "{{TIME}}"
-            else:
-                scrubbed_text += token.text
-            scrubbed_text += " "
+                    scrubbed_text += token.text
+                scrubbed_text += " "
 
         return scrubbed_text
