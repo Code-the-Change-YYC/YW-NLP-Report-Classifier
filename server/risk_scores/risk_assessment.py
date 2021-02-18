@@ -1,10 +1,12 @@
 from enum import Enum
 
-from datetime import datetime
+from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
 import server.schemas.submit as submit_schema
 from typing import List, Tuple
 import yagmail
+
+from server.schemas.submit import Form
 
 import server.risk_scores.risk_scores as risk_scores
 from server.connection import collection
@@ -37,51 +39,54 @@ assessment_ranges: List[AssessmentRange] = [(1 / 3, RiskAssessment.LOW),
 assessment_ranges.sort(key=lambda range: range[0])
 
 
-def query_mongo(initials: str, timeframe: int = 12):
-    """
-
-    Parameters:
-        timeframe: Months from the current date to look backward in time.
-    """
-    query = {
-        'client_primary': initials,
-        "occurence_time": {
-            "$gte": datetime.utcnow() - relativedelta(months=timeframe)
-        }
-    }
-    print("Queries matching incident initials from last year:",
-          collection.count_documents(query))
-
-
-def get_incident_similarity(prev_incident, current_incident: submit_schema.Form):
+def get_incident_similarity(prev_incident: submit_schema.Form, current_incident: submit_schema.Form):
     similarity = 0
     coefficient = 1
-    for field in current_incident.keys():
-        if current_incident[field] == prev_incident[field]:
-            similarity += 1
+
+    similar_fields = {
+        'client_secondary': 1,
+        'location': 1,
+        'incident_type_primary': 2,
+        'incident_type_secondary': 1,
+        'child_involved': 1,
+        'program': 1,
+    }
+
+    for field, score in similar_fields.items():
+        if getattr(current_incident, field) == getattr(prev_incident, field):
+            similarity += score
 
     return coefficient * similarity
 
 
-def get_incident_recency(prev_incident, current_incident: submit_schema.Form, timeframe):
-    recency_of_incident = 1 - ((datetime.strptime(form.occurence_time, "%Y-%m-%d %H:%M:%S") -
-                                datetime.strptime(incident.occurence_time, "%Y-%m-%d %H:%M:%S")).days/30) / timeframe
+def get_incident_recency(prev_incident: submit_schema.Form, current_incident: submit_schema.Form, timeframe):
+    # TODO: Standardize all dates in the databse
+    prev_incident.occurence_time = prev_incident.occurence_time.replace(
+        tzinfo=timezone.utc)
+    delta = (current_incident.occurence_time -
+             prev_incident.occurence_time).days/30
+    recency_of_incident = 1 - delta/timeframe
     return recency_of_incident
 
 
 def get_previous_risk_score(form: submit_schema.Form, timeframe):
     query = {
-        'client_primary': initials,
+        "client_primary": form.client_primary,
         "occurence_time": {
-            "$gte": datetime.utcnow() - relativedelta(months=timeframe)
+            '$gte': (form.occurence_time - relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
         }
     }
     prev_incidents = collection.find(query)
     total_prev_risk_score = 0
-    for incident in prev_incidents:
+    for incident_dict in prev_incidents:
+        incident_dict = {key: (val.lower() if type(val) == str else val)
+                         for key, val in incident_dict.items()}
+
+        incident = Form(**incident_dict)
         incident_score = get_current_risk_score(incident)
         incident_similarity = get_incident_similarity(incident, form)
         incident_recency = get_incident_recency(incident, form, timeframe)
+
         total_prev_risk_score += incident_score + \
             incident_recency * incident_similarity
 
@@ -102,7 +107,6 @@ def get_current_risk_score(form: submit_schema.Form):
             len(form.immediate_response)))
 
     percent_of_max = risk_score / max_risk_score
-
     return percent_of_max
 
 
