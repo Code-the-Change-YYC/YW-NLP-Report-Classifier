@@ -93,6 +93,9 @@ for i, entry in enumerate(past_data["incident_type_secondary"].isnull()):
 past_data.drop(columns=["Form - Primary Incident Type",
                         "Form - Secondary Incident Type"], inplace=True)
 
+past_data[["child_involved", "non_client_involved"]] = past_data[[
+    "child_involved", "non_client_involved"]].replace({"Yes": True, "No": False})
+
 past_data = past_data[["description",
                        "client_primary",
                        "client_secondary",
