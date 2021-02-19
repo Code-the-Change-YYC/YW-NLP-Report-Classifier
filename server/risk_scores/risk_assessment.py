@@ -61,10 +61,10 @@ def get_incident_similarity(prev_incident: submit_schema.Form, current_incident:
 
 def get_incident_recency(prev_incident: submit_schema.Form, current_incident: submit_schema.Form, timeframe):
     # TODO: Standardize all dates in the databse
-    prev_incident.occurence_time = prev_incident.occurence_time.replace(
+    prev_incident.occurrence_time = prev_incident.occurrence_time.replace(
         tzinfo=timezone.utc)
-    delta = (current_incident.occurence_time -
-             prev_incident.occurence_time).days/30
+    delta = (current_incident.occurrence_time -
+             prev_incident.occurrence_time).days/30
     recency_of_incident = 1 - delta/timeframe
     return recency_of_incident
 
@@ -72,8 +72,8 @@ def get_incident_recency(prev_incident: submit_schema.Form, current_incident: su
 def get_previous_risk_score(form: submit_schema.Form, timeframe):
     query = {
         "client_primary": form.client_primary,
-        "occurence_time": {
-            '$gte': (form.occurence_time - relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
+        "occurrence_time": {
+            '$gte': (form.occurrence_time - relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
         }
     }
     prev_incidents = collection.find(query)

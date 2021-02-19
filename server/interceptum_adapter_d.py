@@ -113,7 +113,7 @@ field_values_dict = {
     "services_involved_other": "447827",
     "primary_staff_first_name": "447819",
     "primary_staff_last_name": "447820",
-    "occurence_time": "447816",
+    "occurrence_time": "447816",
     "incident_type_primary": "447828",
     "incident_type_secondary": "447829",
     "child_involved": "447823",

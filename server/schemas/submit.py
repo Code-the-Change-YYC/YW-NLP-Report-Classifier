@@ -14,7 +14,7 @@ class Form(BaseModel):
     services_involved_other: Optional[str] = None
     primary_staff_first_name: Optional[str] = None
     primary_staff_last_name: Optional[str] = None
-    occurence_time: datetime
+    occurrence_time: datetime
     incident_type_primary: str
     incident_type_secondary: Optional[str] = None
     child_involved: bool
@@ -37,7 +37,7 @@ class Form(BaseModel):
                 "services_involved_other": "police",
                 "primary_staff_first_name": "John",
                 "primary_staff_last_name": "Doe",
-                "occurence_time": "2008-09-15T15:53:00+05:00",
+                "occurrence_time": "2008-09-15T15:53:00+05:00",
                 "incident_type_primary": "child abandonment",
                 "incident_type_secondary": "injury",
                 "child_involved": True,
