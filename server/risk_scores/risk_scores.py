@@ -82,7 +82,7 @@ class FieldRiskScoreMap:
         Calculates the risk score for this field with the given `field_value` as
         its input.
         """
-        return self._risk_score_map[field_value]
+        return self._risk_score_map[field_value.lower()]
 
 
 class MultiValFieldRiskScoreMap(FieldRiskScoreMap):
@@ -94,7 +94,9 @@ class MultiValFieldRiskScoreMap(FieldRiskScoreMap):
         return sum(risk_scores[:value_count])
 
     def get_risk_score(self, field_value: Sequence[RiskScoreMapKey]) -> float:
-        return sum(map(self._risk_score_map.__getitem__, field_value))
+        s = sum(map(self._risk_score_map.__getitem__,
+                    [f.lower() for f in field_value]))
+        return s
 
 
 incident_type_to_risk_map = FieldRiskScoreMap(incident_type_to_risk)

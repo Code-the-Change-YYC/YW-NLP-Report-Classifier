@@ -65,7 +65,7 @@ const useSubmit = ({
       services_involved_other: otherServices,
       primary_staff_first_name: staffInvolvedFirst,
       primary_staff_last_name: staffInvolvedLast,
-      occurence_time: dateOccurred,
+      occurrence_time: dateOccurred,
       incident_type_primary: incidentTypePri,
       incident_type_secondary: incidentTypeSec,
       child_involved: involvesChild,
