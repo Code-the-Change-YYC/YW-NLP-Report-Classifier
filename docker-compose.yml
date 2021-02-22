@@ -43,6 +43,8 @@ services:
       dockerfile: Dockerfile
     image: jcayabyab/yw-nlp-cms
     container_name: cms
+    volumes:
+      - ./cms/keys:/app/keys
     ports:
       - "3333:3333"
     expose:
