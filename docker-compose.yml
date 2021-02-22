@@ -9,6 +9,7 @@ services:
     restart: always
     volumes:
       - ./keys:/opt/app/keys
+      - ./model_output:/opt/app/model_output
     ports:
       - "8000:8000"
     expose:
