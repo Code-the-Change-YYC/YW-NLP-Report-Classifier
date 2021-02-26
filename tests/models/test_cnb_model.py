@@ -1,5 +1,7 @@
 import os
+from training.description_classification.utils import save_cnb
 import unittest
+from tempfile import NamedTemporaryFile
 
 import numpy as np
 
@@ -7,8 +9,35 @@ from preprocess.incident_types.incident_types_d import IncidentType
 from models.cnb_model import CNBDescriptionClf
 from training.description_classification import model_paths
 
+test_descriptions = [
+    'a description', 'another description', 'and another description'
+]
+test_inc_types = [
+    IncidentType.CLIENT_P.value, IncidentType.CHI_ABD.value,
+    IncidentType.ABU_CLI.value
+]
+
 
 class TestCNBDescriptionClf(unittest.TestCase):
+
+    def test_create_model_integration(self):
+        """Asserts that the created model doesn't break when used in the rest of
+        the methods."""
+        with NamedTemporaryFile() as f:
+            clf = CNBDescriptionClf()
+            model = clf.create_model(test_descriptions, test_inc_types)
+            save_cnb(model, f.name)
+
+            clf = CNBDescriptionClf(model_path=f.name)
+            clf.predict(test_descriptions)
+            clf.partial_fit(test_descriptions, test_inc_types)
+            clf.predict_multiple(test_descriptions)
+
+    def test_create_model(self):
+        clf = CNBDescriptionClf()
+        model = clf.create_model(test_descriptions, test_inc_types)
+        model.predict(['a description'])
+
     def test_predictions_with_proba(self):
         clf = CNBDescriptionClf()
         classes = clf._model.classes_
