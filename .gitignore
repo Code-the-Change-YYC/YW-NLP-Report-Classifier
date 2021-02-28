@@ -156,4 +156,9 @@ node_modules
 
 **/credentials.json
 
+SANITY_TOKEN
+
+# Docker image volumes
+db/data
+
 *.dev.pickle

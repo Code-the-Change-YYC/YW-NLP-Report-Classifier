@@ -30,7 +30,7 @@ Dependencies are split up by development environment using multiple `requirement
 
 ### Credentials
 
-In order to use third-party libraries on the backend such as Sanity, Interceptum, and `yagmail` integration, put a `credentials.json` file in the root folder. The format of the JSON file should follow [this template](https://gist.github.com/JCayabyab/93d6a2a010096d4ae6738d492d4624d8). Send an email to [jofred.cayabyab1@ucalgary.ca](mailto:jofred.cayabyab1@ucalgary.ca) for help setting up these credentials.
+In order to use third-party libraries on the backend such as Sanity, Interceptum, and `yagmail` integration, put a `credentials.json` file in a `keys` folder. The format of the JSON file should follow [this template](https://gist.github.com/JCayabyab/93d6a2a010096d4ae6738d492d4624d8). Send an email to [jofred.cayabyab1@ucalgary.ca](mailto:jofred.cayabyab1@ucalgary.ca) for help setting up these credentials.
 
 ## AWS Deployment
 
