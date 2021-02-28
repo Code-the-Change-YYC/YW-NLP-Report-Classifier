@@ -4,6 +4,7 @@ import pandas as pd
 from nltk.stem import WordNetLemmatizer
 from nltk import pos_tag
 from nltk.corpus import wordnet
+next(wordnet.all_synsets()) # yapf: disable NOTE: ensures thread safety for lazyloading of wordnet
 from preprocess.report_data_d import _ColName
 
 
@@ -45,7 +46,8 @@ class NLTKLemmatizer(Preprocessor):
             # returns tuple of (token, nltk_tag)
             tokens_tagged = pos_tag(tokens)
             for i in range(len(tokens)):
-                token, token_tag = tokens_tagged[i][0], self.nltk_to_wordnet(tokens_tagged[i][1])
+                token, token_tag = tokens_tagged[i][0], self.nltk_to_wordnet(
+                    tokens_tagged[i][1])
                 if token_tag:
                     # only lemmatize if matching POS tag is found
                     tokens[i] = self.lemmatizer.lemmatize(token, token_tag)

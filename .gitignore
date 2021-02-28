@@ -160,3 +160,5 @@ SANITY_TOKEN
 
 # Docker image volumes
 db/data
+
+*.dev.pickle

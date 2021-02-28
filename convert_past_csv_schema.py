@@ -5,7 +5,7 @@ import json
 past_data = pd.read_csv("data-past.csv", encoding="iso-8859-1")
 
 rename_columns = {
-    "Form - Date and time of Occurrence": "occurence_time",
+    "Form - Date and time of Occurrence": "occurrence_time",
     "Form - Location of Incident": "location",
     "Form - Location Detail": "location_detail",
     "Form - Did this incident involve a child?": "child_involved",
@@ -93,6 +93,9 @@ for i, entry in enumerate(past_data["incident_type_secondary"].isnull()):
 past_data.drop(columns=["Form - Primary Incident Type",
                         "Form - Secondary Incident Type"], inplace=True)
 
+past_data[["child_involved", "non_client_involved"]] = past_data[[
+    "child_involved", "non_client_involved"]].replace({"Yes": True, "No": False})
+
 past_data = past_data[["description",
                        "client_primary",
                        "client_secondary",
@@ -102,7 +105,7 @@ past_data = past_data[["description",
                        "services_involved_other",
                        "primary_staff_first_name",
                        "primary_staff_last_name",
-                       "occurence_time",
+                       "occurrence_time",
                        "incident_type_primary",
                        "incident_type_secondary",
                        "child_involved",
