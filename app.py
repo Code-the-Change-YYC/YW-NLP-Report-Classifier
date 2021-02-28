@@ -1,3 +1,4 @@
+from typing import Dict
 from preprocess.report_data import ReportData
 import requests
 
@@ -113,3 +114,9 @@ async def submit_form(form: SubmitIn,
     return SubmitOut(form_fields=form.form_fields,
                      risk_assessment=risk_assessment.value,
                      redirect_url=redirect_url)
+
+
+@app.post('/api/interceptumPost', response_model=SubmitOut)
+async def interceptum_post_form(form_dict: Dict,
+                                background_tasks: BackgroundTasks) -> SubmitOut:
+    background_tasks.add_task(background_processing, form_dict)
