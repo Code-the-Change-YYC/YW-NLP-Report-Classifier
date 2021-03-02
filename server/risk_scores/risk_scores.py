@@ -72,7 +72,8 @@ class FieldRiskScoreMap:
 
     def max_risk_score(self) -> int:
         """
-        Returns the maximum possible risk score this field could receive.
+        Returns:
+            The maximum possible risk score this field could receive.
         """
         risk_scores = self._risk_score_map.values()
         return max(risk_scores)
@@ -88,7 +89,8 @@ class FieldRiskScoreMap:
 class MultiValFieldRiskScoreMap(FieldRiskScoreMap):
     def max_risk_score_with_value_count(self, value_count: int) -> int:
         """
-        :value_count: The number of values entered into the field.
+        Params:
+            value_count: The number of values entered into the field.
         """
         risk_scores = sorted(self._risk_score_map.values(), reverse=True)
         return sum(risk_scores[:value_count])

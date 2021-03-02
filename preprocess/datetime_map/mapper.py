@@ -43,17 +43,21 @@ class DatetimeMapper(Preprocessor):
     @staticmethod
     def _parse_datetime(dt_str: str) -> datetime:
         """
-        :param dt_str: String representing a datetime.
-        :return: Object representing the datetime contained in `dt_str`.
+        Params:
+            dt_str: String representing a datetime.
+
+        Returns:
+            Object representing the datetime contained in `dt_str`.
         """
         return parser().parse(dt_str)
 
     @staticmethod
     def _time_of_day(dt: datetime) -> _ColName:
         """
-        :param dt:
-        :return: Morning between 5am and noon, afternoon between noon and 5pm,
-        evening between 5pm and 9pm, night otherwise.
+        Params:
+            dt:
+
+        Returns: Morning between 5am and noon, afternoon between noon and 5pm, evening between 5pm and 9pm, night otherwise.
         """
         hour = dt.hour
         if 5 <= hour <= 11:

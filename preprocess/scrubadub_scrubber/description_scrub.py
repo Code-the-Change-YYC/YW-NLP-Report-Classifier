@@ -20,9 +20,8 @@ class DescriptionScrubber(Preprocessor):
 
     def __init__(self, uids_for_initials=True, initials_placeholder='someone'):
         """
-        :param uids_for_initials: Whether or not unique identifiers should be
-        used to replace initials. If `False`, `initials_placeholder` will be
-        used instead.
+        Params:
+            uids_for_initials: Whether or not unique identifiers should be used to replace initials. If `False`, `initials_placeholder` will be used instead.
         """
         super().__init__()
         self._uids_for_initials = uids_for_initials

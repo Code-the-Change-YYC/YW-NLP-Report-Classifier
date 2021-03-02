@@ -18,7 +18,8 @@ _nlp = None
 def get_spacy_nlp():
     """Handles lazy loading of the Spacy NLP model.
 
-    :return: The loaded Spacy model.
+    Returns: 
+        The loaded Spacy model.
     """
     global _nlp
     if _nlp is None:
@@ -62,7 +63,8 @@ def load_cnb(model_path: str, copy_from_prod: bool = True) -> CNBPipeline:
         `copy_from_prod` is `False`, in which case `model_path` is attempted to
         be loaded.
 
-    Returns: The CNB classifier.
+    Returns: 
+        The CNB classifier.
     """
     if model_path != model_paths.cnb and copy_from_prod:
         with open(model_paths.cnb, 'rb') as prod_model, open(model_path, 'wb') as model:
@@ -71,19 +73,18 @@ def load_cnb(model_path: str, copy_from_prod: bool = True) -> CNBPipeline:
             return pickle.loads(model_contents)
     else:
         with open(model_path, 'rb') as model_file:
-            return pickle.load(model_file)            
-    
+            return pickle.load(model_file)
+
 
 def save_cnb(model: CNBPipeline, model_path: str):
     """Save the CNB model.
-    
+
     Params:
         model: The model to save.
         model_path: The path of the file to save the model to.
     """
     with open(model_path, 'wb') as model_file:
         pickle.dump(model, model_file)
-
 
 
 SVMPipeline = NewType('SVMPipeline', Pipeline)
@@ -94,7 +95,8 @@ def load_svm() -> SVMPipeline:
     """Unpickles the trained SVM-C description classifier, ensuring its
     dependencies are met.
 
-    :return: The SVM-C classifier.
+    Returns: 
+        The SVM-C classifier.
     """
     with open(model_paths.svm, 'rb') as f:
         return pickle.load(f)
@@ -103,8 +105,8 @@ def load_svm() -> SVMPipeline:
 def count_weight(labels: Iterable):
     """Assigns each label class a weight according to it's frequency of appearance in the dataset.
 
-    :param labels:
-    :return: Dictionary with labels as keys and count weights as values.
+    Returns: 
+        Dictionary with labels as keys and count weights as values.
     """
     weight_dict = {lb: 0 for lb in set(labels)}
 
@@ -137,7 +139,7 @@ def show_classification_report(clf: Pipeline, X, y, sample_weight=None):
             zero_division=0
         )
     )
-    
+
     true = set(y)
     pred = set(predicted)
     display = plot_confusion_matrix(

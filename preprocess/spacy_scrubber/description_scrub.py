@@ -14,8 +14,8 @@ class DescriptionScrubber(Preprocessor):
 
     def __init__(self, ent_replacement: str = None, **kwargs):
         """
-        :param ent_replacement: Optional string to replace entities with. Will
-        be replaced with an entity placeholder if not specified.
+        Params:
+            ent_replacement: Optional string to replace entities with. Will be replaced with an entity placeholder if not specified.
         """
         super().__init__()
         self.ent_replacement = ent_replacement

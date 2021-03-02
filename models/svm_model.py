@@ -19,8 +19,11 @@ class SVMDescriptionClf(Model[SVMPipeline]):
     def predict(self, X: ArrayLike) -> np.ndarray:
         """Predict the primary incident type of the given descriptions.
 
-        :param X: 1D array-like of descriptions to classify
-        :return: 1D array of `IncidentType` predictions for the given descriptions.
+        Params:
+            X: 1D array-like of descriptions to classify
+
+        Returns:
+            1D array of `IncidentType` predictions for the given descriptions.
         """
         predictions = self._model.predict(X)
         return np.array([IncidentType(prediction) for prediction in predictions])

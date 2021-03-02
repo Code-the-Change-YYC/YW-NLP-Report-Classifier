@@ -16,8 +16,11 @@ class Model(ABC, Generic[T]):
     def predict(self, X: ArrayLike) -> np.ndarray:
         """Predict target values based an array of test vectors X.
 
-        :param X: array_like test vectors of shape (n_samples, n_features)
-        :return: `ndarray` of predicted target values for `X` of shape (n_samples,)
+        Params:
+            X: array_like test vectors of shape (n_samples, n_features)
+
+        Returns:
+            `ndarray` of predicted target values for `X` of shape (n_samples,)
         """
         ...
 
@@ -25,8 +28,9 @@ class Model(ABC, Generic[T]):
     def partial_fit(self, X: ArrayLike, y: ArrayLike, classes: ArrayLike = None) -> object:
         """Perform incremental fitting on a batch of samples given by `X`, `y`.
 
-        :param X: array_like training vectors of shape (n_samples, n_features)
-        :param y: array_like target values of shape (n_samples,)
-        :param classes: List of all classes that can appear in `y`.
+        Params:
+            X: array_like training vectors of shape (n_samples, n_features)
+            Y: array_like target values of shape (n_samples,)
+            classes: List of all classes that can appear in `y`
         """
         ...

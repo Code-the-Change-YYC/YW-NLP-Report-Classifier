@@ -10,9 +10,11 @@ class Lowercaser(Preprocessor):
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
         """Apply a pre-processing step to report_data.
 
-        :param report_data: Data to be processed. NOTE: This method can modify
-        this value.
-        :return: The data with lowercased descriptions.
+        Params:
+            report_data: Data to be processed. NOTE: This method can modify this value.
+
+        Returns:
+            The data with lowercased descriptions.
 
         """
         descriptions = report_data[_ColName.DESC]
