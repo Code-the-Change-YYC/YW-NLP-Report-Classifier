@@ -116,7 +116,7 @@ async def submit_form(form: SubmitIn,
                      redirect_url=redirect_url)
 
 
-@app.post('/api/interceptumPost', response_model=SubmitOut)
+@app.post('/api/interceptum-post', response_model=SubmitOut)
 async def interceptum_post_form(form_dict: Dict,
                                 background_tasks: BackgroundTasks) -> SubmitOut:
     background_tasks.add_task(background_processing, form_dict)
