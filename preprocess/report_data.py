@@ -48,9 +48,10 @@ class ReportData:
                  out_file_path: str = out_file_path,
                  **processor_args):
         """
-        :param in_file_path:
-        :param out_file_path:
-        :param processor_args: Arguments to be passed to the constructors of each preprocessor.
+        Params:
+            in_file_path: Input report data file path 
+            out_file_path: Output report file path
+            processor_args: Arguments to be passed to the constructors of each preprocessor.
         """
         self.in_file_path = in_file_path
         self.out_file_path = out_file_path
@@ -59,7 +60,8 @@ class ReportData:
 
     def get_raw_report_data(self) -> pd.DataFrame:
         """
-        :return: Unprocessed report data.
+        Returns:
+            Unprocessed report data.
         """
         report_df = pd.read_csv(self.in_file_path)
         # Add all additional columns not included in the original csv
@@ -72,7 +74,8 @@ class ReportData:
 
     def process_report_data(self) -> pd.DataFrame:
         """
-        :return: Processed report data.
+        Returns:
+            Processed report data.
         """
         report_df = self.get_raw_report_data()
         for processor in self.pipeline:
@@ -83,7 +86,8 @@ class ReportData:
 
     def process_form_submission(self, form_submission: Form) -> Form:
         """
-        :return: Processed report data.
+        Returns:
+            Processed report data.
         """
         report_df = pd.DataFrame({
             _ColName.DESC: [form_submission.description],
@@ -102,7 +106,8 @@ class ReportData:
     def get_processed_data(self) -> pd.DataFrame:
         """Reads processed data directly from out_file_path into a DataFrame.
 
-        :return: Processed data, indexed by the updated ColName enum.
+        Returns:
+            Processed data, indexed by the updated ColName enum.
         """
         report_df = pd.read_csv(self.out_file_path, header=0, names=ColName)
         return report_df

@@ -9,11 +9,16 @@ class ColumnMerger(Preprocessor):
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
         """Merges the old incident type columns into the new, removes the old.
 
-        :param report_data:
-        :return: The updated data.
+        Params:
+            report_data: The report data DataFrame.
+
+        Returns:
+            The updated data.
         """
-        report_data[_ColName.INC_T1] = self.merge(report_data[_ColName.INC_T1], report_data[_ColName.INC_T1_OLD])
-        report_data[_ColName.INC_T2] = self.merge(report_data[_ColName.INC_T2], report_data[_ColName.INC_T2_OLD])
+        report_data[_ColName.INC_T1] = self.merge(
+            report_data[_ColName.INC_T1], report_data[_ColName.INC_T1_OLD])
+        report_data[_ColName.INC_T2] = self.merge(
+            report_data[_ColName.INC_T2], report_data[_ColName.INC_T2_OLD])
 
         # remove old columns
         return report_data[[col for col in report_data if col not in [_ColName.INC_T1_OLD, _ColName.INC_T2_OLD]]]
@@ -28,10 +33,11 @@ class ColumnMerger(Preprocessor):
 
         If neither column contains a value, `default` is inserted.
 
-        :param primary_col:
-        :param secondary_col:
-        :param exception:
-        :param default:
+        Params:
+            primary_col:
+            secondary_col:
+            exception:
+            default:
         """
         na_val = ''
         primary_col: pd.Series = primary_col.fillna(na_val)

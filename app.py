@@ -70,7 +70,7 @@ async def index():
 async def predict(predict_in: PredictIn) -> PredictOut:
     """Predict most probable incident types from input string.
 
-    Args:
+    Params:
         predict_in (PredictIn): Input text and number of predictions to return.
 
     Returns:
@@ -92,7 +92,7 @@ async def submit_form(form: SubmitIn,
                       background_tasks: BackgroundTasks) -> SubmitOut:
     """Submit JSON form data from front end.
 
-    Args:
+    Params:
         form (SubmitIn)
 
     Returns:

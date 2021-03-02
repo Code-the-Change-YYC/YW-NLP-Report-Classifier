@@ -14,9 +14,11 @@ class NLTKLemmatizer(Preprocessor):
     @staticmethod
     def nltk_to_wordnet(nltk_tag):
         """
+        Params:
+            nltk_tag: the nltk_tag object originating from the pos_tag() function from nltk.
 
-        :param nltk_tag: the nltk_tag object originating from the pos_tag() function from nltk.
-        :return: the wordnet tag object, e.g., wordnet.NOUN
+        Returns:
+            the wordnet tag object, e.g., wordnet.NOUN
         """
 
         if nltk_tag.startswith("J"):
@@ -33,9 +35,12 @@ class NLTKLemmatizer(Preprocessor):
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
         """
 
-        :param report_data: Data to be lemmatized. Ideally, this data should have punctuation removed.
-        NOTE: This method can modify this value.
-        :return: The lemmatized data.
+        Params:
+            report_data: Data to be lemmatized. Ideally, this data should have punctuation removed.
+                        NOTE: This method can modify this value.
+
+        Returns:
+            The lemmatized data.
         """
         descriptions = report_data[_ColName.DESC]
         lemmatized_descriptions = []

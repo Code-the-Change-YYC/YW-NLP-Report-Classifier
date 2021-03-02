@@ -18,7 +18,8 @@ class IncTypeMapper(Preprocessor):
 
     def __init__(self, col_names: Iterable[str] = col_names, **kwargs):
         """
-        :param col_names: The names of the incident type columns to process
+        Params:
+            col_names: The names of the incident type columns to process
         """
         super().__init__(**kwargs)
         self.col_names = col_names
@@ -28,7 +29,8 @@ class IncTypeMapper(Preprocessor):
 
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
         for col_name in self.col_names:
-            report_data[col_name] = report_data[col_name].apply(self.normalize_inc_type)
+            report_data[col_name] = report_data[col_name].apply(
+                self.normalize_inc_type)
             report_data[col_name].replace(self.replacements, inplace=True)
 
         return report_data

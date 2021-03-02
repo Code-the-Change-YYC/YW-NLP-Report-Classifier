@@ -10,9 +10,10 @@ class WordCharacterFilter(Preprocessor):
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
         """Apply a pre-processing step to report_data.
 
-        :param report_data: Data to be processed. NOTE: This method can modify
-        this value.
-        :return: The filtered data devoid of non-word characters, including punctuation. There is a special
+        Params:
+            report_data: Data to be processed. NOTE: This method can modify this value.
+
+        Returns: The filtered data devoid of non-word characters, including punctuation. There is a special
         exception with the "*" character for spacy.io scrubbing purposes, and "{", "}" for scrubadub and token purposes.
         """
         descriptions = report_data[_ColName.DESC]
