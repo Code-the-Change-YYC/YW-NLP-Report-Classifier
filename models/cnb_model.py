@@ -1,17 +1,18 @@
 from server import credentials
 from server.credentials import credentials
-from typing import List, Optional
+from typing import List, Optional, Sequence, cast
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import ComplementNB
+from sklearn.pipeline import Pipeline, make_pipeline
 
 from training.description_classification import model_paths
 from preprocess.incident_types.incident_types_d import IncidentType
 from models.model import Model, ArrayLike
 from preprocess.report_data import ReportData
 from preprocess.report_data_d import ColName
-from training.description_classification.utils import load_cnb, CNBPipeline, save_cnb
+from training.description_classification.utils import load_cnb, CNBPipeline, save_cnb, spacy_tokenizer
 
 PROD = 'production'
 DEV = 'development'
@@ -89,6 +90,25 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         return self._predictions_with_proba(
             self._model.predict_proba(X), num_predictions
         )
+
+    def create_model(self, descriptions: Sequence[str],
+                     incident_types: Sequence[str]) -> CNBPipeline:
+        """Creates a CNB description classifier pipeline and trains it with the
+        given data.
+
+        Params:
+            descriptions: Descriptions to train on.
+            incident_types: The incident types corresponding to the descriptions.
+        """
+        word_vec = TfidfVectorizer(
+            tokenizer=spacy_tokenizer,
+            token_pattern=r"\b\w+\b",
+            ngram_range=(1, 2),
+            min_df=2,
+        )
+        cnb = make_pipeline(word_vec, ComplementNB(alpha=1.2))
+        cnb.fit(descriptions, incident_types)
+        return cast(CNBPipeline, cnb)
 
     def _predictions_with_proba(
         self, proba: ArrayLike, num_predictions: int
