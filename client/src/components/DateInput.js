@@ -7,22 +7,17 @@ const DateInput = ({
   label,
   value,
   setValue,
+  showAutocomplete,
   setShowAutocomplete,
   submitClicked,
   required,
 }) => {
   const [touched, setTouched] = useState(false);
-  const [autoCompleteCheckbox, setAutoCompleteCheckbox] = useState(true);
-
-  const toggleCheckbox = (e) => {
-    setAutoCompleteCheckbox(!autoCompleteCheckbox);
-    setShowAutocomplete();
-  };
 
   const showWarning = submitClicked && !value;
   const style = {
     // prettier-ignore
-    border: `1px solid ${ showWarning ? "red" : (autoCompleteCheckbox && !touched ? "#00adef" : "lightgrey")}`,
+    border: `1px solid ${ showWarning ? "red" : (showAutocomplete && !touched ? "#00adef" : "lightgrey")}`,
   };
 
   return (
@@ -31,8 +26,8 @@ const DateInput = ({
         {label + (required ? " *" : "")}
         <input
           type="checkbox"
-          checked={autoCompleteCheckbox}
-          onClick={toggleCheckbox}
+          checked={showAutocomplete}
+          onClick={setShowAutocomplete.bind(null, undefined)}
           style={{ marginLeft: "10px" }}
         />
       </label>
@@ -40,7 +35,6 @@ const DateInput = ({
         selected={value}
         onChange={(date) => {
           setShowAutocomplete(false);
-          setAutoCompleteCheckbox(false);
           setTouched(true);
           setValue(date);
         }}

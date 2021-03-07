@@ -4,7 +4,9 @@ const useTextFieldInfo = () => {
   const [userValue, setUserValue] = useState("");
   const [autocompleteValue, setAutocompleteValue] = useState("");
   const [useAutocomplete, setUseAutocompleteDefault] = useState(true);
-  const valid = useAutocomplete ? autocompleteValue.length > 0 : userValue.length > 0;
+  const valid = useAutocomplete
+    ? autocompleteValue.length > 0
+    : userValue.length > 0;
   const value = useAutocomplete ? autocompleteValue : userValue;
 
   function setUseAutocomplete(newValue) {
@@ -17,7 +19,14 @@ const useTextFieldInfo = () => {
     setUseAutocompleteDefault(newValue);
   }
 
-  return [value, setUserValue, setAutocompleteValue, setUseAutocomplete, valid];
-}
+  return [
+    value,
+    setUserValue,
+    setAutocompleteValue,
+    useAutocomplete,
+    setUseAutocomplete,
+    valid,
+  ];
+};
 
 export default useTextFieldInfo;

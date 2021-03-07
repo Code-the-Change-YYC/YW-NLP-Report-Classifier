@@ -28,6 +28,7 @@ function App() {
     clientInitials,
     setClientInitials,
     setClientInitialsAutocomplete,
+    clientInitialsShowAutocomplete,
     setClientInitialsShowAutocomplete,
     clientInitialsValid,
   ] = useTextFieldInfo();
@@ -35,12 +36,14 @@ function App() {
     clientSecInitials,
     setClientSecInitials,
     setClientSecInitialsAutocomplete,
+    clientSecInitialsShowAutocomplete,
     setClientSecInitialsShowAutocomplete,
   ] = useTextFieldInfo();
   const [
     location,
     setLocation,
     setLocationAutocomplete,
+    locationShowAutocomplete,
     setLocationShowAutocomplete,
   ] = useSelectFieldInfo();
 
@@ -50,6 +53,7 @@ function App() {
     servicesInvolved,
     setServicesInvolved,
     setServicesInvolvedAutocomplete,
+    servicesInvolvedShowAutocomplete,
     setServicesInvolvedShowAutocomplete,
   ] = useSelectFieldInfo();
 
@@ -60,6 +64,7 @@ function App() {
     dateOccurred,
     setDateOccurred,
     setDateOccurredAutocomplete,
+    dateOccurredShowAutocomplete,
     setDateOccurredShowAutocomplete,
   ] = useDateFieldInfo();
 
@@ -78,6 +83,7 @@ function App() {
     program,
     setProgram,
     setProgramAutocomplete,
+    programShowAutocomplete,
     setProgramShowAutocomplete,
   ] = useSelectFieldInfo();
 
@@ -85,6 +91,7 @@ function App() {
     immediateResponse,
     setImmediateResponse,
     setImmediateResponseAutocomplete,
+    immediateResponseShowAutocomplete,
     setImmediateResponseShowAutocomplete,
   ] = useSelectFieldInfo();
 
@@ -96,6 +103,7 @@ function App() {
   const {
     incidentTypePri,
     setIncidentTypePri,
+    incidentTypePriShowAutocomplete,
     setIncidentTypePriShowAutocomplete,
     incTypesOptions,
     sortedIncTypeOptions,
@@ -188,6 +196,7 @@ function App() {
             required
             value={clientInitials}
             setValue={setClientInitials}
+            showAutocomplete={clientInitialsShowAutocomplete}
             setShowAutocomplete={setClientInitialsShowAutocomplete}
             submitClicked={submitClicked}
             customStyle={{ width: "95%" }}
@@ -197,6 +206,7 @@ function App() {
             required={false}
             value={clientSecInitials}
             setValue={setClientSecInitials}
+            showAutocomplete={clientSecInitialsShowAutocomplete}
             setShowAutocomplete={setClientSecInitialsShowAutocomplete}
             submitClicked={submitClicked}
           ></TextInput>
@@ -208,6 +218,7 @@ function App() {
             options={locations}
             value={location}
             setValue={setLocation}
+            showAutocomplete={locationShowAutocomplete}
             setShowAutocomplete={setLocationShowAutocomplete}
             submitClicked={submitClicked}
             required
@@ -229,6 +240,7 @@ function App() {
             options={services}
             value={servicesInvolved}
             setValue={setServicesInvolved}
+            showAutocomplete={servicesInvolvedShowAutocomplete}
             setShowAutocomplete={setServicesInvolvedShowAutocomplete}
             submitClicked={submitClicked}
             isMulti
@@ -275,6 +287,7 @@ function App() {
             label="Date and Time of Occurrence"
             value={dateOccurred}
             setValue={setDateOccurred}
+            showAutocomplete={dateOccurredShowAutocomplete}
             setShowAutocomplete={setDateOccurredShowAutocomplete}
             required
             submitClicked={submitClicked}
@@ -286,6 +299,7 @@ function App() {
             incidentType={incidentTypePri}
             setIncidentType={setIncidentTypePri}
             sortedIncTypeOptions={sortedIncTypeOptions}
+            showAutocomplete={incidentTypePriShowAutocomplete}
             setShowAutocomplete={setIncidentTypePriShowAutocomplete}
             submitClicked={submitClicked}
           ></IncTypePrimaryField>
@@ -360,6 +374,7 @@ function App() {
             options={programs}
             value={program}
             setValue={setProgram}
+            showAutocomplete={programShowAutocomplete}
             setShowAutocomplete={setProgramShowAutocomplete}
             submitClicked={submitClicked}
             required
@@ -371,6 +386,7 @@ function App() {
             options={immediateResponses}
             value={immediateResponse}
             setValue={setImmediateResponse}
+            showAutocomplete={immediateResponseShowAutocomplete}
             setShowAutocomplete={setImmediateResponseShowAutocomplete}
             submitClicked={submitClicked}
             required
