@@ -1,6 +1,6 @@
 from enum import Enum
 
-from datetime import datetime, timezone
+from datetime import timezone
 from dateutil.relativedelta import relativedelta
 import server.schemas.submit as submit_schema
 from typing import List, Tuple
@@ -98,13 +98,16 @@ def get_current_risk_score(form: submit_schema.Form):
                   risk_scores.incident_type_to_risk_map.get_risk_score(
                       form.incident_type_primary) +
                   risk_scores.response_to_risk_map.get_risk_score(
-                      form.immediate_response))
+                      form.immediate_response) +
+                  risk_scores.occurrence_time_to_risk_map.get_risk_score(
+                      form.occurrence_time))
 
     max_risk_score = (
         risk_scores.program_to_risk_map.max_risk_score() +
         risk_scores.incident_type_to_risk_map.max_risk_score() +
         risk_scores.response_to_risk_map.max_risk_score_with_value_count(
-            len(form.immediate_response)))
+            len(form.immediate_response)) +
+        risk_scores.occurrence_time_to_risk_map.max_risk_score())
 
     percent_of_max = risk_score / max_risk_score
     return percent_of_max
