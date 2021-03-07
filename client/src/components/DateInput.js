@@ -14,7 +14,7 @@ const DateInput = ({
   const [touched, setTouched] = useState(false);
   const [autoCompleteCheckbox, setAutoCompleteCheckbox] = useState(true);
 
-  const handleClick = (e) => {
+  const toggleCheckbox = (e) => {
     setAutoCompleteCheckbox(!autoCompleteCheckbox);
     setShowAutocomplete();
   };
@@ -32,18 +32,17 @@ const DateInput = ({
         <input
           type="checkbox"
           checked={autoCompleteCheckbox}
-          onClick={handleClick}
+          onClick={toggleCheckbox}
           style={{ marginLeft: "10px" }}
         />
       </label>
       <ReactDatePicker
         selected={value}
         onChange={(date) => {
-          setValue(date);
-          if (!touched) {
-            setShowAutocomplete(false);
-          }
+          setShowAutocomplete(false);
+          setAutoCompleteCheckbox(false);
           setTouched(true);
+          setValue(date);
         }}
         showTimeSelect
         timeIntervals={15}

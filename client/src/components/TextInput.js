@@ -13,7 +13,7 @@ const TextInput = ({
   const [touched, setTouched] = useState(false);
   const [autoCompleteCheckbox, setAutoCompleteCheckbox] = useState(true);
 
-  const handleClick = (e) => {
+  const toggleCheckbox = (e) => {
     setAutoCompleteCheckbox(!autoCompleteCheckbox);
     setShowAutocomplete();
   };
@@ -35,18 +35,17 @@ const TextInput = ({
         <input
           type="checkbox"
           checked={autoCompleteCheckbox}
-          onClick={handleClick}
+          onClick={toggleCheckbox}
           style={{ marginLeft: "10px" }}
         />
       </label>
       <Input
         value={value}
         onChange={(e) => {
-          setValue(e.target.value);
-          if (!touched) {
-            setShowAutocomplete(false);
-          }
+          setShowAutocomplete(false);
+          setAutoCompleteCheckbox(false);
           setTouched(true);
+          setValue(e.target.value);
         }}
         style={style}
       ></Input>

@@ -9,10 +9,12 @@ import usePrevious from "./usePrevious";
 
 const autocompleteSingleOption = (desc, options) => {
   const lowercasedDescription = desc.toLowerCase();
-  return options.find((option) =>
-    (option.keywords || []).some((keyword) =>
-      lowercasedDescription.includes(keyword.toLowerCase())
-    )
+  return (
+    options.find((option) =>
+      (option.keywords || []).some((keyword) =>
+        lowercasedDescription.includes(keyword.toLowerCase())
+      )
+    ) || null
   );
 };
 
@@ -171,12 +173,16 @@ const useAutocomplete = ({
   const prevDescription = usePrevious(description);
 
   useEffect(() => {
-    if (
-      description !== prevDescription
-    ) {
+    if (description !== prevDescription) {
       onDescriptionUpdate(description, clientInitials, incTypesOptions);
     }
-  }, [description, prevDescription, clientInitials, incTypesOptions, onDescriptionUpdate]);
+  }, [
+    description,
+    prevDescription,
+    clientInitials,
+    incTypesOptions,
+    onDescriptionUpdate,
+  ]);
 
   return {};
 };
