@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, Sequence
 
 
@@ -63,6 +64,13 @@ response_to_risk: RiskScoreMap = {
     "other": 2,
 }
 
+# TODO: Use meaningful risk values
+time_of_day_to_risk: RiskScoreMap = {
+    "morning": 1,
+    "afternoon": 2,
+    "evening": 3,
+    "night": 4,
+}
 
 class FieldRiskScoreMap:
     _risk_score_map: RiskScoreMap
@@ -101,6 +109,24 @@ class MultiValFieldRiskScoreMap(FieldRiskScoreMap):
         return s
 
 
+class DateFieldRiskScoreMap(FieldRiskScoreMap):
+    
+    def get_risk_score(self, field_value: datetime) -> float:
+        hour = field_value.hour
+        time_of_day: RiskScoreMapKey
+        if 5 <= hour <= 11:
+            time_of_day = 'morning'
+        elif 12 <= hour <= 16:
+            time_of_day = 'afternoon'
+        elif 17 <= hour <= 20:
+            time_of_day = 'evening'
+        else:
+            time_of_day = 'night'
+        
+        return self._risk_score_map[time_of_day]
+
+
 incident_type_to_risk_map = FieldRiskScoreMap(incident_type_to_risk)
 program_to_risk_map = FieldRiskScoreMap(program_to_risk)
 response_to_risk_map = MultiValFieldRiskScoreMap(response_to_risk)
+occurrence_time_to_risk_map = DateFieldRiskScoreMap(time_of_day_to_risk)
