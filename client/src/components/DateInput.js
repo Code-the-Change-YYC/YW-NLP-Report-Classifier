@@ -27,7 +27,7 @@ const DateInput = ({
         <input
           type="checkbox"
           checked={showAutocomplete}
-          onClick={setShowAutocomplete.bind(null, undefined)}
+          onClick={() => setShowAutocomplete()}
           style={{ marginLeft: "10px" }}
         />
       </label>
