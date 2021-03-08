@@ -6,6 +6,7 @@ const SelectInput = ({
   options,
   value,
   setValue,
+  showAutocomplete,
   setShowAutocomplete,
   submitClicked,
   required = false,
@@ -14,17 +15,11 @@ const SelectInput = ({
   customStyle,
 }) => {
   const [touched, setTouched] = useState(false);
-  const [autoCompleteCheckbox, setAutoCompleteCheckbox] = useState(true);
-
-  const handleClick = (e) => {
-    setAutoCompleteCheckbox(!autoCompleteCheckbox);
-    setShowAutocomplete();
-  };
 
   const showWarning = submitClicked && !value;
   const style = {
     // prettier-ignore
-    border: `1px solid ${ showWarning ? "red" : (autoCompleteCheckbox && !touched ? "#00adef" : "lightgrey")}`,
+    border: `1px solid ${ showWarning ? "red" : (showAutocomplete && !touched ? "#00adef" : "lightgrey")}`,
   };
 
   return (
@@ -33,8 +28,8 @@ const SelectInput = ({
         {label + (required ? " *" : "")}
         <input
           type="checkbox"
-          checked={autoCompleteCheckbox}
-          onClick={handleClick}
+          checked={showAutocomplete}
+          onClick={() => setShowAutocomplete()}
           style={{ marginLeft: "10px" }}
         />
       </label>
@@ -54,11 +49,9 @@ const SelectInput = ({
         }}
         value={value}
         onChange={(e) => {
-          setValue(e);
-          if (!touched) {
-            setShowAutocomplete(false);
-          }
+          setShowAutocomplete(false);
           setTouched(true);
+          setValue(e);
         }}
         options={options}
         formatOptionLabel={formatOptionLabel}
@@ -66,30 +59,6 @@ const SelectInput = ({
       ></Select>
     </div>
   );
-
-  // return (
-  //   <div style={{ width: "100%" }}>
-  //     <label>
-  //       {label + (required ? " *" : "")}
-  //       <input
-  //         type="checkbox"
-  //         checked={autoCompleteCheckbox}
-  //         onClick={handleClick}
-  //       />
-  //     </label>
-  //     <Input
-  //       value={value}
-  //       onChange={(e) => {
-  //         setValue(e.target.value);
-  //         if (!touched) {
-  //           setShowAutocomplete(false);
-  //         }
-  //         setTouched(true);
-  //       }}
-  //       style={style}
-  //     ></Input>
-  //   </div>
-  // );
 };
 
 export default SelectInput;

@@ -8,6 +8,7 @@ export function useIncTypeOptions() {
     incidentTypePri,
     setIncidentTypePri,
     setIncidentTypePriAutocomplete,
+    incidentTypePriShowAutocomplete,
     setIncidentTypePriShowAutocomplete,
     incidentTypePriValid,
   ] = useSelectFieldInfo();
@@ -49,6 +50,7 @@ export function useIncTypeOptions() {
     incidentTypePri,
     setIncidentTypePri,
     setIncidentTypePriAutocomplete,
+    incidentTypePriShowAutocomplete,
     setIncidentTypePriShowAutocomplete,
     incidentTypePriValid,
     incTypesOptions,

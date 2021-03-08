@@ -19,11 +19,11 @@ const IncTypeOption = ({ confidence, label }) => {
 const IncTypePrimaryField = ({
   incidentType,
   setIncidentType,
+  showAutocomplete,
   setShowAutocomplete,
   sortedIncTypeOptions,
   submitClicked,
 }) => {
-
   const numConfidenceValues = 5;
   const reactSelectIncTypeOpts = sortedIncTypeOptions?.map((opt, i) => {
     if (i > numConfidenceValues - 1) {
@@ -42,11 +42,12 @@ const IncTypePrimaryField = ({
       value={incidentType}
       options={reactSelectIncTypeOpts}
       setValue={setIncidentType}
+      showAutocomplete={showAutocomplete}
       setShowAutocomplete={setShowAutocomplete}
       submitClicked={submitClicked}
       formatOptionLabel={IncTypeOption}
       required
-      customStyle={{width: "95%"}}
+      customStyle={{ width: "95%" }}
     ></SelectInput>
   );
 };

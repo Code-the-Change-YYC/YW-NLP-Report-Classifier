@@ -19,7 +19,14 @@ const useSelectFieldInfo = () => {
     setUseAutocompleteDefault(newValue);
   }
 
-  return [value, setUserValue, setAutocompleteValue, setUseAutocomplete, valid];
+  return [
+    value,
+    setUserValue,
+    setAutocompleteValue,
+    useAutocomplete,
+    setUseAutocomplete,
+    valid,
+  ];
 };
 
 export default useSelectFieldInfo;

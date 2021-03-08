@@ -7,22 +7,17 @@ const DateInput = ({
   label,
   value,
   setValue,
+  showAutocomplete,
   setShowAutocomplete,
   submitClicked,
   required,
 }) => {
   const [touched, setTouched] = useState(false);
-  const [autoCompleteCheckbox, setAutoCompleteCheckbox] = useState(true);
-
-  const handleClick = (e) => {
-    setAutoCompleteCheckbox(!autoCompleteCheckbox);
-    setShowAutocomplete();
-  };
 
   const showWarning = submitClicked && !value;
   const style = {
     // prettier-ignore
-    border: `1px solid ${ showWarning ? "red" : (autoCompleteCheckbox && !touched ? "#00adef" : "lightgrey")}`,
+    border: `1px solid ${ showWarning ? "red" : (showAutocomplete && !touched ? "#00adef" : "lightgrey")}`,
   };
 
   return (
@@ -31,19 +26,17 @@ const DateInput = ({
         {label + (required ? " *" : "")}
         <input
           type="checkbox"
-          checked={autoCompleteCheckbox}
-          onClick={handleClick}
+          checked={showAutocomplete}
+          onClick={() => setShowAutocomplete()}
           style={{ marginLeft: "10px" }}
         />
       </label>
       <ReactDatePicker
         selected={value}
         onChange={(date) => {
-          setValue(date);
-          if (!touched) {
-            setShowAutocomplete(false);
-          }
+          setShowAutocomplete(false);
           setTouched(true);
+          setValue(date);
         }}
         showTimeSelect
         timeIntervals={15}

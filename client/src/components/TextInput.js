@@ -5,18 +5,13 @@ const TextInput = ({
   label,
   value,
   setValue,
+  showAutocomplete,
   setShowAutocomplete,
   submitClicked,
   required,
   customStyle,
 }) => {
   const [touched, setTouched] = useState(false);
-  const [autoCompleteCheckbox, setAutoCompleteCheckbox] = useState(true);
-
-  const handleClick = (e) => {
-    setAutoCompleteCheckbox(!autoCompleteCheckbox);
-    setShowAutocomplete();
-  };
 
   const showWarning = submitClicked && !value;
 
@@ -24,7 +19,7 @@ const TextInput = ({
     width: "100%",
     // prettier will remove the parentheses around the second ternanry if statement:
     // prettier-ignore
-    border: `1px solid ${ showWarning ? "red" : (autoCompleteCheckbox && !touched ? "#00adef" : "lightgrey")}`,
+    border: `1px solid ${ showWarning ? "red" : (showAutocomplete && !touched ? "#00adef" : "lightgrey")}`,
     ...customStyle,
   };
 
@@ -34,19 +29,17 @@ const TextInput = ({
         {label + (required ? " *" : "")}
         <input
           type="checkbox"
-          checked={autoCompleteCheckbox}
-          onClick={handleClick}
+          checked={showAutocomplete}
+          onClick={() => setShowAutocomplete()}
           style={{ marginLeft: "10px" }}
         />
       </label>
       <Input
         value={value}
         onChange={(e) => {
-          setValue(e.target.value);
-          if (!touched) {
-            setShowAutocomplete(false);
-          }
+          setShowAutocomplete(false);
           setTouched(true);
+          setValue(e.target.value);
         }}
         style={style}
       ></Input>
