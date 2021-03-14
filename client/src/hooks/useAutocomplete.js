@@ -37,6 +37,8 @@ const useAutocomplete = ({
   programs,
   clientInitials,
   incTypesOptions,
+  involvesChildOptions,
+  involvesNonClientOptions,
   setImmediateResponseAutocomplete,
   setServicesInvolvedAutocomplete,
   setLocationAutocomplete,
@@ -45,6 +47,8 @@ const useAutocomplete = ({
   setClientInitialsAutocomplete,
   setClientSecInitialsAutocomplete,
   updateIncTypesOptions,
+  setInvolvesChildAutocomplete,
+  setInvolvesNonClientAutocomplete,
 }) => {
   // set default immediate response to "Other"
   useEffect(() => {
@@ -115,6 +119,44 @@ const useAutocomplete = ({
     [immediateResponses, setImmediateResponseAutocomplete]
   );
 
+  const checkInvolvesChild = useCallback(
+    (desc) => {
+      if (involvesChildOptions) {
+        const involvesChild = autocompleteSingleOption(
+          desc,
+          involvesChildOptions
+        );
+        if (involvesChild) {
+          setInvolvesChildAutocomplete(involvesChild);
+        } else {
+          setInvolvesChildAutocomplete(
+            involvesChildOptions.find((o) => o.value === "no")
+          );
+        }
+      }
+    },
+    [involvesChildOptions, setInvolvesChildAutocomplete]
+  );
+
+  const checkInvolvesNonClient = useCallback(
+    (desc) => {
+      if (involvesNonClientOptions) {
+        const involvesNonClient = autocompleteSingleOption(
+          desc,
+          involvesNonClientOptions
+        );
+        if (involvesNonClient) {
+          setInvolvesNonClientAutocomplete(involvesNonClient);
+        } else {
+          setInvolvesNonClientAutocomplete(
+            involvesNonClientOptions.find((o) => o.value === "no")
+          );
+        }
+      }
+    },
+    [involvesNonClientOptions, setInvolvesNonClientAutocomplete]
+  );
+
   const checkInitials = useCallback(
     (desc) => {
       const found = desc.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
@@ -157,6 +199,8 @@ const useAutocomplete = ({
       updateIncTypesOptions(desc, incTypesOptions);
       checkProgram(desc);
       checkImmediateResponse(desc);
+      checkInvolvesChild(desc);
+      checkInvolvesNonClient(desc);
     }, 500),
     [
       checkLocation,
@@ -167,6 +211,8 @@ const useAutocomplete = ({
       updateIncTypesOptions,
       checkProgram,
       checkImmediateResponse,
+      checkInvolvesChild,
+      checkInvolvesNonClient,
     ]
   );
 
