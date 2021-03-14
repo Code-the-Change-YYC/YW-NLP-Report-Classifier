@@ -70,14 +70,22 @@ function App() {
 
   const [incidentTypeSec, setIncidentTypeSec] = useState(null);
   const [otherSecIncidentType, setOtherSecIncidentType] = useState("");
-  const [involvesChild, setInvolvesChild] = useState({
-    value: "no",
-    label: "No",
-  });
-  const [involvesNonClient, setInvolvesNonClient] = useState({
-    value: "no",
-    label: "No",
-  });
+
+  const [
+    involvesChild,
+    setInvolvesChild,
+    setInvolvesChildAutocomplete,
+    involvesChildShowAutocomplete,
+    setInvolvesChildShowAutocomplete,
+  ] = useSelectFieldInfo();
+
+  const [
+    involvesNonClient,
+    setInvolvesNonClient,
+    setInvolvesNonClientAutocomplete,
+    involvesNonClientShowAutocomplete,
+    setInvolvesNonClientShowAutocomplete,
+  ] = useSelectFieldInfo();
 
   const [
     program,
@@ -115,6 +123,8 @@ function App() {
     programs,
     immediateResponses,
     services,
+    involvesChildOptions,
+    involvesNonClientOptions,
   } = useFormOptions();
 
   const formData = {
@@ -149,6 +159,8 @@ function App() {
     programs,
     clientInitials,
     incTypesOptions,
+    involvesChildOptions,
+    involvesNonClientOptions,
     setImmediateResponseAutocomplete,
     setServicesInvolvedAutocomplete,
     setLocationAutocomplete,
@@ -157,6 +169,8 @@ function App() {
     setClientInitialsAutocomplete,
     setClientSecInitialsAutocomplete,
     updateIncTypesOptions,
+    setInvolvesChildAutocomplete,
+    setInvolvesNonClientAutocomplete,
   });
 
   const {
@@ -334,38 +348,27 @@ function App() {
           </div>
         </FormRow>
         <FormRow style={{ flexDirection: "row" }}>
-          <div style={{ width: "100%" }}>
-            <label>Did this incident involve a child?</label>
-            <Select
-              styles={{
-                container: (provided) => ({
-                  ...provided,
-                  width: "95%",
-                }),
-              }}
-              value={involvesChild}
-              onChange={(option) => {
-                setInvolvesChild(option);
-              }}
-              options={[
-                { value: "no", label: "No" },
-                { value: "yes", label: "Yes" },
-              ]}
-            ></Select>
-          </div>
-          <div style={{ width: "100%" }}>
-            <label>Did this incident involve a non-client guest?</label>
-            <Select
-              value={involvesNonClient}
-              onChange={(option) => {
-                setInvolvesNonClient(option);
-              }}
-              options={[
-                { value: "no", label: "No" },
-                { value: "yes", label: "Yes" },
-              ]}
-            ></Select>
-          </div>
+          <SelectInput
+            label="Did this incident involve a child?"
+            options={involvesChildOptions}
+            value={involvesChild}
+            setValue={setInvolvesChild}
+            showAutocomplete={involvesChildShowAutocomplete}
+            setShowAutocomplete={setInvolvesChildShowAutocomplete}
+            submitClicked={submitClicked}
+            customStyle={{ width: "95%" }}
+          ></SelectInput>
+
+          <SelectInput
+            label="Did this incident involve a non-client guest?"
+            options={involvesNonClientOptions}
+            value={involvesNonClient}
+            setValue={setInvolvesNonClient}
+            showAutocomplete={involvesNonClientShowAutocomplete}
+            setShowAutocomplete={setInvolvesNonClientShowAutocomplete}
+            submitClicked={submitClicked}
+            customStyle={{ width: "100%" }}
+          ></SelectInput>
         </FormRow>
 
         <FormRow>
@@ -439,7 +442,7 @@ function App() {
         ></input>
         <button onClick={(e) => e.preventDefault()}>Download</button>
       </form>
-      <FeedbackBox />;
+      <FeedbackBox />
     </div>
   );
 }
