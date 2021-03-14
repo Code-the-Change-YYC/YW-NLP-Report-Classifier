@@ -1,12 +1,16 @@
-FROM python:3.8
+FROM python:3.6.10
 
 MAINTAINER Jofred Cayabyab <jofred.cayabyab1@ucalgary.ca>
 
-ADD . /opt/app
 WORKDIR /opt/app
+
+ADD ./requirements.txt /opt/app/requirements.txt
 
 RUN python -m pip install -r requirements.txt
 RUN python -m spacy download en_core_web_lg
+RUN python -m nltk.downloader wordnet
+
+ADD . /opt/app
 
 EXPOSE 8000
 ENV PORT=8000
