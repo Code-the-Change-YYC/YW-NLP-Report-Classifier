@@ -19,14 +19,23 @@ interceptum = InterceptumAdapter(credentials)
 form_query = """
     {
         CirForm(id: "cirForm") {
-            primaryIncTypes
+            primaryIncTypes {
+                name
+            }
         }
     }
 """
 timeframe_query = """
     {
         CirForm(id: "cirForm") {
-             riskAssessmentTimeframe
+            riskAssessmentTimeframe
+        }
+    }
+"""
+timeframe_query = """
+    {
+        CirForm(id: "cirForm") {
+            riskAssessmentTimeframe
         }
     }
 """
@@ -78,8 +87,9 @@ async def predict(predict_in: PredictIn) -> PredictOut:
         PredictOut: JSON containing input text and predictions with their
         probabilities.
     """
-    inc_types = run_query(credentials.sanity_gql_endpoint, form_query,
-                          headers)['data']['CirForm']['primaryIncTypes']
+    inc_types_obj = run_query(credentials.sanity_gql_endpoint, form_query,
+                              headers)['data']['CirForm']['primaryIncTypes']
+    inc_types = map(lambda inc_type: inc_type['name'], inc_types_obj)
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)

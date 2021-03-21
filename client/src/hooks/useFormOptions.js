@@ -24,20 +24,26 @@ const formQuery = gql`
         name
         keywords
     }
+    fragment OptionWithKeywordAndRiskFrag on OptionWithKeywordsAndRisk {
+        name
+        keywords
+    }
     {
         CirForm(id: "cirForm") {
-            primaryIncTypes
+            primaryIncTypes {
+              name
+            }
             locations {
                 ...OptionWithKeywordFrag
             }
             programs {
-                ...OptionWithKeywordFrag
+                ...OptionWithKeywordAndRiskFrag
             }
             immediateResponses {
-                ...OptionWithKeywordFrag
+                ...OptionWithKeywordAndRiskFrag
             }
             servicesInvolved {
-                ...OptionWithKeywordFrag
+                ...OptionWithKeywordAndRiskFrag
             }
         }
     }
@@ -53,38 +59,41 @@ export function useFormOptions() {
   });
 
   async function fetchFormOptions() {
-      const res = await fetch(process.env.REACT_APP_SANITY_GRAPHQL_ENDPOINT, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-              Authorization: `Bearer ${process.env.REACT_APP_SANITY_READ_TOKEN}`,
-          },
-          body: JSON.stringify({ query: formQuery }),
-      })
-      const { data } = await res.json()
-      const incTypes = data?.CirForm?.primaryIncTypes
-      const locations = data?.CirForm?.locations
-      const programs = data?.CirForm?.programs
-      const immediateResponses = data?.CirForm?.immediateResponses
-      const services = data?.CirForm?.servicesInvolved
+    const res = await fetch(process.env.REACT_APP_SANITY_GRAPHQL_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${process.env.REACT_APP_SANITY_READ_TOKEN}`,
+      },
+      body: JSON.stringify({ query: formQuery }),
+    })
 
-      if (!incTypes) {
-          return
-      }
-      const newFormOptions = {
-          incTypes: incTypes.map((incType) => ({
-              value: incType.toLowerCase(),
-              label: incType,
-          })),
-          locations: sanityOptionsToReactSelectOptions(locations),
-          programs: sanityOptionsToReactSelectOptions(programs),
-          immediateResponses: sanityOptionsToReactSelectOptions(
-              immediateResponses
-          ),
-          services: sanityOptionsToReactSelectOptions(services),
-      }
-      setFormOptions(newFormOptions)
+    const { data } = await res.json()
+    const incTypes = data?.CirForm?.primaryIncTypes
+    const locations = data?.CirForm?.locations
+    const programs = data?.CirForm?.programs
+    const immediateResponses = data?.CirForm?.immediateResponses
+    const services = data?.CirForm?.servicesInvolved
+
+    console.log({ data })
+
+    if (!incTypes) {
+      return
+    }
+    const newFormOptions = {
+      incTypes: incTypes.map((incType) => ({
+        value: incType.name.toLowerCase(),
+        label: incType.name,
+      })),
+      locations: sanityOptionsToReactSelectOptions(locations),
+      programs: sanityOptionsToReactSelectOptions(programs),
+      immediateResponses: sanityOptionsToReactSelectOptions(
+        immediateResponses
+      ),
+      services: sanityOptionsToReactSelectOptions(services),
+    }
+    setFormOptions(newFormOptions)
   }
 
   // Fetch options only on component load
