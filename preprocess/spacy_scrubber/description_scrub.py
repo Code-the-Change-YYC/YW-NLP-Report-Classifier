@@ -26,7 +26,7 @@ class DescriptionScrubber(Preprocessor):
         for series in (client_primary, client_secondary):
             for name in series:
                 # if typeof name is float, then ignore (empty cells in excel are converted to NaN)
-                if isinstance(name, float):
+                if not name or isinstance(name, float):
                     continue
                 # remove spaces
                 no_spaces_name = name.replace(" ", "")
