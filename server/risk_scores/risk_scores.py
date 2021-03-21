@@ -7,26 +7,26 @@ RiskScoreMapValue = int
 RiskScoreMap = Dict[RiskScoreMapKey, RiskScoreMapValue]
 
 incident_type_to_risk: RiskScoreMap = {
-    "child abandonment": 1,
-    "client aggression towards another person": 1,
+    "child abandonment": 3,
+    "client aggression towards another person": 3,
     "client aggression towards property": 3,
-    "client death (offsite)": 1,
-    "client death (onsite)": 4,
-    "client missing": 4,
+    "client death (offsite)": 0,
+    "client death (onsite)": 0,
+    "client missing": 3,
     "concern for welfare of a child": 4,
     "covid-19 confirmed": 5,
     "exposure": 1,
-    "homicide (threat or attempt)": 3,
-    "illegal activity on premises": 5,
-    "injury": 2,
-    "media/3rd party contact": 3,
+    "homicide (threat or attempt)": 6,
+    "illegal activity on premises": 6,
+    "injury": 1,
+    "media/3rd party contact": 1,
     "medical emergency": 2,
     "mental health emergency": 2,
     "security concern": 1,
-    "suicide attempt": 3,
+    "suicide attempt": 6,
     "suspected or actual breach of privacy": 3,
-    "suspicion/allegation of abuse towards or against client": 3,
-    "suspicion/allegation of child abuse - child is not a client": 4,
+    "suspicion/allegation of abuse towards or against client": 5,
+    "suspicion/allegation of child abuse - child is not a client": 5,
     "other": 1,
 }
 
@@ -54,13 +54,13 @@ program_to_risk: RiskScoreMap = {
 response_to_risk: RiskScoreMap = {
     "called child welfare": 5,
     "evacution": 4,
-    "first-aid provided": 4,
+    "first-aid provided": 3,
     "infection prevention protocol": 2,
     "mental health assessment": 5,
-    "naloxone administered": 5,
+    "naloxone administered": 6,
     "person barred/access restricted": 2,
-    "safety assessment": 5,
-    "safety planning": 5,
+    "safety assessment": 4,
+    "safety planning": 3,
     "other": 2,
 }
 
@@ -71,6 +71,7 @@ time_of_day_to_risk: RiskScoreMap = {
     "evening": 3,
     "night": 4,
 }
+
 
 class FieldRiskScoreMap:
     _risk_score_map: RiskScoreMap
@@ -110,7 +111,6 @@ class MultiValFieldRiskScoreMap(FieldRiskScoreMap):
 
 
 class DateFieldRiskScoreMap(FieldRiskScoreMap):
-    
     def get_risk_score(self, field_value: datetime) -> float:
         hour = field_value.hour
         time_of_day: RiskScoreMapKey
@@ -122,7 +122,7 @@ class DateFieldRiskScoreMap(FieldRiskScoreMap):
             time_of_day = 'evening'
         else:
             time_of_day = 'night'
-        
+
         return self._risk_score_map[time_of_day]
 
 
