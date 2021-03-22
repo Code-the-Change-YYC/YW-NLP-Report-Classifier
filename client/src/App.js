@@ -123,10 +123,12 @@ function App() {
     programs,
     immediateResponses,
     services,
-    involvesChildOptions,
-    involvesNonClientOptions,
+    childInvolvedOptions,
+    guestInvolvedOptions,
   } = useFormOptions();
 
+  //involvesChildOptions,
+  //involvesNonClientOptions,
   const formData = {
     description,
     clientInitials,
@@ -159,8 +161,8 @@ function App() {
     programs,
     clientInitials,
     incTypesOptions,
-    involvesChildOptions,
-    involvesNonClientOptions,
+    childInvolvedOptions,
+    guestInvolvedOptions,
     setImmediateResponseAutocomplete,
     setServicesInvolvedAutocomplete,
     setLocationAutocomplete,
@@ -350,7 +352,7 @@ function App() {
         <FormRow style={{ flexDirection: "row" }}>
           <SelectInput
             label="Did this incident involve a child?"
-            options={involvesChildOptions}
+            options={childInvolvedOptions}
             value={involvesChild}
             setValue={setInvolvesChild}
             showAutocomplete={involvesChildShowAutocomplete}
@@ -361,7 +363,7 @@ function App() {
 
           <SelectInput
             label="Did this incident involve a non-client guest?"
-            options={involvesNonClientOptions}
+            options={guestInvolvedOptions}
             value={involvesNonClient}
             setValue={setInvolvesNonClient}
             showAutocomplete={involvesNonClientShowAutocomplete}
