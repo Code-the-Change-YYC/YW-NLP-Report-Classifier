@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
-from server.schemas.submit import Form, SubmitOut, SubmitIn
+from server.schemas.submit import Form, SanityUpdate, SubmitOut, SubmitIn
 from server.connection import collection
 
 app = FastAPI()
@@ -130,3 +130,9 @@ async def submit_form(form: SubmitIn,
 async def interceptum_post_form(form_dict: Dict,
                                 background_tasks: BackgroundTasks) -> SubmitOut:
     background_tasks.add_task(background_processing, form_dict)
+
+
+@app.post("/api/sanity-update/")
+async def sanity_update(sanity_update_in: SanityUpdate):
+    print(sanity_update_in)
+
