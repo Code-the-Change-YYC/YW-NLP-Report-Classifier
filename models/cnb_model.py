@@ -47,7 +47,8 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         :return: 1D array of `IncidentType` predictions for the given descriptions.
         """
         predictions = self._model.predict(X)
-        return np.array([IncidentType(prediction) for prediction in predictions])
+        return np.array(
+            [IncidentType(prediction) for prediction in predictions])
 
     def partial_fit(self, X: ArrayLike, y: List[str]):
         """Update the model and save the updates.
@@ -68,7 +69,9 @@ class CNBDescriptionClf(Model[CNBPipeline]):
 
         return self
 
-    def predict_multiple(self, X: ArrayLike, num_predictions: int = None) -> np.ndarray:
+    def predict_multiple(self,
+                         X: ArrayLike,
+                         num_predictions: int = None) -> np.ndarray:
         """Give the top `num_predictions` predictions for each sample with their
         confidences, ordered by confidence.
 
@@ -85,15 +88,10 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         num_classes = len(self._model.classes_)
         if not num_predictions or num_predictions > num_classes:
             num_predictions = num_classes
-        # elif num_predictions > num_classes:
-        #     num_predictions = num_classes
         print(f'n_classes {num_classes}')
 
-        # self._model.predict_proba(X)
-        # return self._predictions_with_proba(
-        #     self._model.predict_proba(X), num_predictions
-        # )
-        return [{}]
+        return self._predictions_with_proba(self._model.predict_proba(X),
+                                            num_predictions)
 
     def create_model(self, descriptions: Sequence[str],
                      incident_types: Sequence[str]) -> CNBPipeline:
@@ -114,9 +112,8 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         cnb.fit(descriptions, incident_types)
         return cast(CNBPipeline, cnb)
 
-    def _predictions_with_proba(
-        self, proba: ArrayLike, num_predictions: int
-    ) -> np.ndarray:
+    def _predictions_with_proba(self, proba: ArrayLike,
+                                num_predictions: int) -> np.ndarray:
         """Utility for joining probabilities with their incident type
         predictions and ordering them.
 
@@ -129,13 +126,12 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         array with the `IncidentType` prediction as the first element and the
         confidence as the second.
         """
-        top_indices: np.ndarray = proba.argsort(
-        )[:, -1: -(num_predictions + 1): -1]
+        top_indices: np.ndarray = proba.argsort()[:,
+                                                  -1:-(num_predictions + 1):-1]
         top_proba: np.ndarray = np.take_along_axis(proba, top_indices, axis=1)
         predictions: np.ndarray = self._model.classes_[top_indices]
-        incident_types = np.array([IncidentType(p) for p in predictions.flat]).reshape(
-            predictions.shape
-        )
+        incident_types = np.array([IncidentType(p) for p in predictions.flat
+                                  ]).reshape(predictions.shape)
         return np.dstack((incident_types, top_proba))
 
     def _get_classes(self, labels: List[str]) -> Optional[List[str]]:
