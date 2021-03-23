@@ -8,7 +8,7 @@ export default {
             title: 'Primary Incident Types',
             description: 'The values for the primary incident type dropdown.',
             type: 'array',
-            of: [{ type: 'string' }],
+            of: [{ type: 'optionWithRisk' }],
         },
         {
             name: 'locations',
@@ -22,21 +22,21 @@ export default {
             title: 'Programs',
             description: 'The values for the program dropdown.',
             type: 'array',
-            of: [{ type: 'optionWithKeywords' }],
+            of: [{ type: 'optionWithKeywordsAndRisk' }],
         },
         {
             name: 'immediateResponses',
             title: 'Immediate Responses',
             description: 'The values for the immediate response dropdown.',
             type: 'array',
-            of: [{ type: 'optionWithKeywords' }],
+            of: [{ type: 'optionWithKeywordsAndRisk' }],
         },
         {
             name: 'servicesInvolved',
             title: 'Services Involved',
             description: 'The values for the services involved dropdown.',
             type: 'array',
-            of: [{ type: 'optionWithKeywords' }],
+            of: [{ type: 'optionWithKeywordsAndRisk' }],
         },
         {
             name: 'riskAssessmentTimeframe',

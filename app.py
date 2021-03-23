@@ -26,14 +26,23 @@ interceptum = InterceptumAdapter(credentials)
 form_query = """
     {
         CirForm(id: "cirForm") {
-            primaryIncTypes
+            primaryIncTypes {
+                name
+            }
         }
     }
 """
 timeframe_query = """
     {
         CirForm(id: "cirForm") {
-             riskAssessmentTimeframe
+            riskAssessmentTimeframe
+        }
+    }
+"""
+timeframe_query = """
+    {
+        CirForm(id: "cirForm") {
+            riskAssessmentTimeframe
         }
     }
 """
@@ -87,11 +96,9 @@ async def predict(predict_in: PredictIn):
         PredictOut: JSON containing input text and predictions with their
         probabilities.
     """
-    print('HERE!')
-    print(credentials.sanity_gql_endpoint)
-    inc_types = run_query(credentials.sanity_gql_endpoint, form_query,
-                          headers)['data']['CirForm']['primaryIncTypes']
-    print(inc_types)
+    inc_types_obj = run_query(credentials.sanity_gql_endpoint, form_query,
+                              headers)['data']['CirForm']['primaryIncTypes']
+    inc_types = map(lambda inc_type: inc_type['name'], inc_types_obj)
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)
@@ -128,8 +135,7 @@ async def predict(predict_in: PredictIn):
 #                      risk_assessment=risk_assessment.value,
 #                      redirect_url=redirect_url)
 
-
 # @app.post('/api/interceptum-post', response_model=SubmitOut)
 # async def interceptum_post_form(form_dict: Dict,
 #                                 background_tasks: BackgroundTasks) -> SubmitOut:
-    # background_tasks.add_task(background_processing, form_dict)
+# background_tasks.add_task(background_processing, form_dict)
