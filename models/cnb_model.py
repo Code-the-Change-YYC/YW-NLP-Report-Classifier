@@ -87,7 +87,6 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         num_classes = len(self._model.classes_)
         if not num_predictions or num_predictions > num_classes:
             num_predictions = num_classes
-        print(f'n_classes {num_classes}')
 
         return self._predictions_with_proba(self._model.predict_proba(X),
                                             num_predictions)
@@ -130,7 +129,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         top_proba: np.ndarray = np.take_along_axis(proba, top_indices, axis=1)
         predictions: np.ndarray = self._model.classes_[top_indices]
         incident_types = np.array([IncidentType(p) for p in predictions.flat
-                                   ]).reshape(predictions.shape)
+                                  ]).reshape(predictions.shape)
         return np.dstack((incident_types, top_proba))
 
     def _get_classes(self, labels: List[str]) -> Optional[List[str]]:
