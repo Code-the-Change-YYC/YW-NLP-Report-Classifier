@@ -1,10 +1,13 @@
 # Node only used for building
 FROM node:12 as build
 
+COPY package.json /app/package.json
 WORKDIR /app
-COPY . /app
 
 RUN npm install
+
+COPY . /app
+
 RUN npm run build
 
 FROM nginx:alpine

@@ -89,7 +89,7 @@ async def predict(predict_in: PredictIn) -> PredictOut:
     """
     inc_types_obj = run_query(credentials.sanity_gql_endpoint, form_query,
                               headers)['data']['CirForm']['primaryIncTypes']
-    inc_types = map(lambda inc_type: inc_type['name'], inc_types_obj)
+    inc_types = list(map(lambda inc_type: inc_type['name'], inc_types_obj))
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)

@@ -19,6 +19,7 @@ DEV = 'development'
 
 IS_DEV = credentials.PYTHON_ENV == DEV
 
+
 class CNBDescriptionClf(Model[CNBPipeline]):
     """Complement Naive Bayes model for description classification."""
 
@@ -38,7 +39,6 @@ class CNBDescriptionClf(Model[CNBPipeline]):
             self._model_path = model_paths.cnb_dev if IS_DEV else model_paths.cnb
             self._model = load_cnb(self._model_path, copy_from_prod=True)
 
-
     def predict(self, X: ArrayLike) -> np.ndarray:
         """Predict the primary incident type of the given descriptions.
 
@@ -46,11 +46,12 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         :return: 1D array of `IncidentType` predictions for the given descriptions.
         """
         predictions = self._model.predict(X)
-        return np.array([IncidentType(prediction) for prediction in predictions])
+        return np.array(
+            [IncidentType(prediction) for prediction in predictions])
 
     def partial_fit(self, X: ArrayLike, y: List[str]):
         """Update the model and save the updates.
-        
+
         Params:
             X: Input descriptions.
             y: Incident types to use as labels for each description.
@@ -67,7 +68,9 @@ class CNBDescriptionClf(Model[CNBPipeline]):
 
         return self
 
-    def predict_multiple(self, X: ArrayLike, num_predictions: int = None) -> np.ndarray:
+    def predict_multiple(self,
+                         X: ArrayLike,
+                         num_predictions: int = None) -> np.ndarray:
         """Give the top `num_predictions` predictions for each sample with their
         confidences, ordered by confidence.
 
@@ -84,12 +87,9 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         num_classes = len(self._model.classes_)
         if not num_predictions or num_predictions > num_classes:
             num_predictions = num_classes
-        # elif num_predictions > num_classes:
-        #     num_predictions = num_classes
 
-        return self._predictions_with_proba(
-            self._model.predict_proba(X), num_predictions
-        )
+        return self._predictions_with_proba(self._model.predict_proba(X),
+                                            num_predictions)
 
     def create_model(self, descriptions: Sequence[str],
                      incident_types: Sequence[str]) -> CNBPipeline:
@@ -110,9 +110,8 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         cnb.fit(descriptions, incident_types)
         return cast(CNBPipeline, cnb)
 
-    def _predictions_with_proba(
-        self, proba: ArrayLike, num_predictions: int
-    ) -> np.ndarray:
+    def _predictions_with_proba(self, proba: ArrayLike,
+                                num_predictions: int) -> np.ndarray:
         """Utility for joining probabilities with their incident type
         predictions and ordering them.
 
@@ -125,14 +124,14 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         array with the `IncidentType` prediction as the first element and the
         confidence as the second.
         """
-        top_indices: np.ndarray = proba.argsort()[:, -1 : -(num_predictions + 1) : -1]
+        top_indices: np.ndarray = proba.argsort()[:,
+                                                  -1:-(num_predictions + 1):-1]
         top_proba: np.ndarray = np.take_along_axis(proba, top_indices, axis=1)
         predictions: np.ndarray = self._model.classes_[top_indices]
-        incident_types = np.array([IncidentType(p) for p in predictions.flat]).reshape(
-            predictions.shape
-        )
+        incident_types = np.array([IncidentType(p) for p in predictions.flat
+                                  ]).reshape(predictions.shape)
         return np.dstack((incident_types, top_proba))
-    
+
     def _get_classes(self, labels: List[str]) -> Optional[List[str]]:
         """Returns the classes each label in `labels` was determined to
         most likely correspond to based on similarity, or `None` if a likely
@@ -149,18 +148,18 @@ class CNBDescriptionClf(Model[CNBPipeline]):
                 if transformed_label == all_classes[i].lower():
                     class_index = i
                 i += 1
-                
+
             if class_index is None:
                 return None
             else:
-                label_class = all_classes[class_index] 
-            
+                label_class = all_classes[class_index]
+
             label_classes.append(label_class)
-        
+
         return label_classes
 
     def _get_estimator(self) -> ComplementNB:
-        return self._model.steps[-1][1]       
+        return self._model.steps[-1][1]
 
 
 if __name__ == "__main__":

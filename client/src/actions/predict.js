@@ -62,6 +62,7 @@ export const getMultiPrediction = async (description, incidentTypes) => {
                 }
             })
         )
+
         return {
             updatedIncTypes,
             topIncType: updatedIncTypes[data.predictions[0][0].toLowerCase()],

@@ -14,7 +14,7 @@ services:
       - "8000:8000"
     expose:
       - "8000"
-    command: uvicorn app:app --reload --port 8000 --host 0.0.0.0
+    command: uvicorn app:app --reload --port 8000 --host 0.0.0.0 --log-level debug
 
   nginx:
     depends_on:
