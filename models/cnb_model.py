@@ -110,6 +110,17 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         cnb.fit(descriptions, incident_types)
         return cast(CNBPipeline, cnb)
 
+    def retrain_model(self, descriptions: Sequence[str],
+                      incident_types: Sequence[str]):
+        """Retrain current model with new data, save old model. 
+
+        Args:
+            descriptions (Sequence[str]): Descriptions to train on. 
+            incident_types (Sequence[str]): The incident types for descriptions. 
+        """
+        save_cnb(self._model, model_path=model_paths.cnb_backup_file_name)
+        self._model = self.create_model(descriptions, incident_types)
+
     def _predictions_with_proba(self, proba: ArrayLike,
                                 num_predictions: int) -> np.ndarray:
         """Utility for joining probabilities with their incident type
