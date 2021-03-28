@@ -7,6 +7,8 @@ import usePrevious from "./usePrevious";
 // These functions are run when the description updates and contain the logic
 // for autocompleting the form fields.
 
+const NO_OPTION = { value: "no", label: "No" };
+
 const autocompleteSingleOption = (desc, options) => {
   const lowercasedDescription = desc.toLowerCase();
   return (
@@ -129,9 +131,7 @@ const useAutocomplete = ({
         if (involvesChild) {
           setInvolvesChildAutocomplete(involvesChild);
         } else {
-          setInvolvesChildAutocomplete(
-            childInvolvedOptions.find((o) => o.value === "no")
-          );
+          setInvolvesChildAutocomplete(NO_OPTION);
         }
       }
     },
@@ -148,9 +148,7 @@ const useAutocomplete = ({
         if (involvesNonClient) {
           setInvolvesNonClientAutocomplete(involvesNonClient);
         } else {
-          setInvolvesNonClientAutocomplete(
-            guestInvolvedOptions.find((o) => o.value === "no")
-          );
+          setInvolvesNonClientAutocomplete(NO_OPTION);
         }
       }
     },

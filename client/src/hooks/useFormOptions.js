@@ -86,8 +86,6 @@ export function useFormOptions() {
     const childInvolvedOptions = data?.CirForm?.childInvolved;
     const guestInvolvedOptions = data?.CirForm?.guestInvolved;
 
-    console.log({ data });
-
     if (!incTypes) {
       return;
     }
