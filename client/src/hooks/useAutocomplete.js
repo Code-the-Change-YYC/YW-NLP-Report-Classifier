@@ -37,8 +37,8 @@ const useAutocomplete = ({
   programs,
   clientInitials,
   incTypesOptions,
-  involvesChildOptions,
-  involvesNonClientOptions,
+  childInvolvedOptions,
+  guestInvolvedOptions,
   setImmediateResponseAutocomplete,
   setServicesInvolvedAutocomplete,
   setLocationAutocomplete,
@@ -121,40 +121,40 @@ const useAutocomplete = ({
 
   const checkInvolvesChild = useCallback(
     (desc) => {
-      if (involvesChildOptions) {
+      if (childInvolvedOptions) {
         const involvesChild = autocompleteSingleOption(
           desc,
-          involvesChildOptions
+          childInvolvedOptions
         );
         if (involvesChild) {
           setInvolvesChildAutocomplete(involvesChild);
         } else {
           setInvolvesChildAutocomplete(
-            involvesChildOptions.find((o) => o.value === "no")
+            childInvolvedOptions.find((o) => o.value === "no")
           );
         }
       }
     },
-    [involvesChildOptions, setInvolvesChildAutocomplete]
+    [childInvolvedOptions, setInvolvesChildAutocomplete]
   );
 
   const checkInvolvesNonClient = useCallback(
     (desc) => {
-      if (involvesNonClientOptions) {
+      if (guestInvolvedOptions) {
         const involvesNonClient = autocompleteSingleOption(
           desc,
-          involvesNonClientOptions
+          guestInvolvedOptions
         );
         if (involvesNonClient) {
           setInvolvesNonClientAutocomplete(involvesNonClient);
         } else {
           setInvolvesNonClientAutocomplete(
-            involvesNonClientOptions.find((o) => o.value === "no")
+            guestInvolvedOptions.find((o) => o.value === "no")
           );
         }
       }
     },
-    [involvesNonClientOptions, setInvolvesNonClientAutocomplete]
+    [guestInvolvedOptions, setInvolvesNonClientAutocomplete]
   );
 
   const checkInitials = useCallback(

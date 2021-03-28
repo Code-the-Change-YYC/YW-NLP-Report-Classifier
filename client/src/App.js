@@ -127,8 +127,6 @@ function App() {
     guestInvolvedOptions,
   } = useFormOptions();
 
-  //involvesChildOptions,
-  //involvesNonClientOptions,
   const formData = {
     description,
     clientInitials,

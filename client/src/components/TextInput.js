@@ -13,7 +13,7 @@ const TextInput = ({
 }) => {
   const [touched, setTouched] = useState(false);
 
-  const showWarning = submitClicked && !value;
+  const showWarning = required && submitClicked && !value;
 
   const style = {
     width: "100%",

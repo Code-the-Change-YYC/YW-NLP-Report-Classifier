@@ -77,7 +77,6 @@ const useSubmit = ({
       completion_date: dateCompleted,
     };
     const redirectUrl = await getRedirectUrl(formData);
-    // TODO: replace with open in new tab or show button
     console.log(redirectUrl);
     window.location.replace(redirectUrl);
   };
