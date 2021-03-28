@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "../App.css";
 import { ModalClose } from "../styled";
 
@@ -26,6 +26,7 @@ const ModalBox = ({
   setModalDisplay,
   handleSubmit,
 }) => {
+  const [loading, setLoading] = useState(false);
   return (
     <div className="ModalContainer" style={{ display: modalDisplay }}>
       <div className="ModalBox">
@@ -87,7 +88,20 @@ const ModalBox = ({
         </div>
 
         <div style={{ width: "100%", textAlign: "center" }}>
-          <input type="submit" value="Submit" onClick={handleSubmit}></input>
+          <input
+            type="submit"
+            value="Submit"
+            onClick={(e) => {
+              setLoading(true);
+              handleSubmit(e);
+            }}
+          ></input>
+          <div
+            className="loadingText"
+            style={{ display: loading ? "block" : "none" }}
+          >
+            <b>Redirecting...</b>
+          </div>
         </div>
       </div>
     </div>

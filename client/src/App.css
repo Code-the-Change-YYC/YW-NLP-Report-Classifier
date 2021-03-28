@@ -89,3 +89,7 @@ form input[type="submit"] {
 .ModalBox > div {
   margin-top: 6px;
 }
+
+.ModalBox .loadingText {
+  margin-top: 10px;
+}
