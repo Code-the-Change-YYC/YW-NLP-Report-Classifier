@@ -20,34 +20,40 @@ function sanityOptionsToReactSelectOptions(sanityOptions) {
 }
 
 const formQuery = gql`
-    fragment OptionWithKeywordFrag on OptionWithKeywords {
+  fragment OptionWithKeywordFrag on OptionWithKeywords {
+    name
+    keywords
+  }
+  fragment OptionWithKeywordAndRiskFrag on OptionWithKeywordsAndRisk {
+    name
+    keywords
+  }
+  {
+    CirForm(id: "cirForm") {
+      primaryIncTypes {
         name
-        keywords
+      }
+      locations {
+        ...OptionWithKeywordFrag
+      }
+      programs {
+        ...OptionWithKeywordAndRiskFrag
+      }
+      immediateResponses {
+        ...OptionWithKeywordAndRiskFrag
+      }
+      servicesInvolved {
+        ...OptionWithKeywordAndRiskFrag
+      }
+      childInvolved {
+        ...OptionWithKeywordFrag
+      }
+      guestInvolved {
+        ...OptionWithKeywordFrag
+      }
     }
-    fragment OptionWithKeywordAndRiskFrag on OptionWithKeywordsAndRisk {
-        name
-        keywords
-    }
-    {
-        CirForm(id: "cirForm") {
-            primaryIncTypes {
-              name
-            }
-            locations {
-                ...OptionWithKeywordFrag
-            }
-            programs {
-                ...OptionWithKeywordAndRiskFrag
-            }
-            immediateResponses {
-                ...OptionWithKeywordAndRiskFrag
-            }
-            servicesInvolved {
-                ...OptionWithKeywordAndRiskFrag
-            }
-        }
-    }
-`
+  }
+`;
 
 export function useFormOptions() {
   const [formOptions, setFormOptions] = useState({
@@ -56,30 +62,32 @@ export function useFormOptions() {
     programs: null,
     immediateResponses: null,
     services: null,
+    childInvolved: null,
+    guestInvolved: null,
   });
 
   async function fetchFormOptions() {
     const res = await fetch(process.env.REACT_APP_SANITY_GRAPHQL_ENDPOINT, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
         Authorization: `Bearer ${process.env.REACT_APP_SANITY_READ_TOKEN}`,
       },
       body: JSON.stringify({ query: formQuery }),
-    })
+    });
 
-    const { data } = await res.json()
-    const incTypes = data?.CirForm?.primaryIncTypes
-    const locations = data?.CirForm?.locations
-    const programs = data?.CirForm?.programs
-    const immediateResponses = data?.CirForm?.immediateResponses
-    const services = data?.CirForm?.servicesInvolved
-
-    console.log({ data })
+    const { data } = await res.json();
+    const incTypes = data?.CirForm?.primaryIncTypes;
+    const locations = data?.CirForm?.locations;
+    const programs = data?.CirForm?.programs;
+    const immediateResponses = data?.CirForm?.immediateResponses;
+    const services = data?.CirForm?.servicesInvolved;
+    const childInvolvedOptions = data?.CirForm?.childInvolved;
+    const guestInvolvedOptions = data?.CirForm?.guestInvolved;
 
     if (!incTypes) {
-      return
+      return;
     }
     const newFormOptions = {
       incTypes: incTypes.map((incType) => ({
@@ -88,12 +96,16 @@ export function useFormOptions() {
       })),
       locations: sanityOptionsToReactSelectOptions(locations),
       programs: sanityOptionsToReactSelectOptions(programs),
-      immediateResponses: sanityOptionsToReactSelectOptions(
-        immediateResponses
-      ),
+      immediateResponses: sanityOptionsToReactSelectOptions(immediateResponses),
       services: sanityOptionsToReactSelectOptions(services),
-    }
-    setFormOptions(newFormOptions)
+      childInvolvedOptions: sanityOptionsToReactSelectOptions(
+        childInvolvedOptions
+      ),
+      guestInvolvedOptions: sanityOptionsToReactSelectOptions(
+        guestInvolvedOptions
+      ),
+    };
+    setFormOptions(newFormOptions);
   }
 
   // Fetch options only on component load
