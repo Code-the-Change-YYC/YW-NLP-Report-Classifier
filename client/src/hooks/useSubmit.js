@@ -78,7 +78,7 @@ const useSubmit = ({
     };
     const redirectUrl = await getRedirectUrl(formData);
     console.log(redirectUrl);
-    window.location.replace(redirectUrl);
+    window.location.href = redirectUrl;
   };
 
   return {
