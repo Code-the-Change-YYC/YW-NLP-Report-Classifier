@@ -1,76 +1,43 @@
 from datetime import datetime
 from typing import Dict, Sequence
 
+from server.credentials import credentials
+from server.sanity_utils import risk_scores_query, headers, run_query
 
 RiskScoreMapKey = str
 RiskScoreMapValue = int
 RiskScoreMap = Dict[RiskScoreMapKey, RiskScoreMapValue]
 
-incident_type_to_risk: RiskScoreMap = {
-    "child abandonment": 3,
-    "client aggression towards another person": 3,
-    "client aggression towards property": 3,
-    "client death (offsite)": 0,
-    "client death (onsite)": 0,
-    "client missing": 3,
-    "concern for welfare of a child": 4,
-    "covid-19 confirmed": 5,
-    "exposure": 1,
-    "homicide (threat or attempt)": 6,
-    "illegal activity on premises": 6,
-    "injury": 1,
-    "media/3rd party contact": 1,
-    "medical emergency": 2,
-    "mental health emergency": 2,
-    "security concern": 1,
-    "suicide attempt": 6,
-    "suspected or actual breach of privacy": 3,
-    "suspicion/allegation of abuse towards or against client": 5,
-    "suspicion/allegation of child abuse - child is not a client": 5,
-    "other": 1,
-}
 
-program_to_risk: RiskScoreMap = {
-    "child care (hub)": 5,
-    "child support": 5,
-    "compass": 1,
-    "counselling and personal development": 1,
-    "croydon (community housing)": 4,
-    "dcrt": 3,
-    "drop-in child care": 3,
-    "employment resource center": 1,
-    "family access": 2,
-    "family resource network": 3,
-    "intensive case management": 5,
-    "linc": 2,
-    "mindful moments": 4,
-    "outreach counselling": 3,
-    "providence (community housing)": 4,
-    "sheriff king home": 1,
-    "the maple (community housing)": 4,
-    "transitional housing": 1,
-}
+class RiskScoreData:
+    def __init__(self):
+        cirForm = run_query(credentials.sanity_gql_endpoint, risk_scores_query,
+                            headers)['data']['CirForm']
+        self.incident_type_to_risk = self.map_array_to_dict(
+            cirForm['primaryIncTypes'], 'name')
+        self.program_to_risk = self.map_array_to_dict(
+            cirForm['programs'], 'name')
+        self.response_to_risk = self.map_array_to_dict(
+            cirForm['immediateResponses'], 'name')
+        # hardcoded for now - adjusting these values seems lower value, might be an improvement
+        # in the future
+        self.time_of_day_to_risk = {
+            "morning": 1,
+            "afternoon": 2,
+            "evening": 3,
+            "night": 4,
+        }
 
-response_to_risk: RiskScoreMap = {
-    "called child welfare": 5,
-    "evacution": 4,
-    "first-aid provided": 3,
-    "infection prevention protocol": 2,
-    "mental health assessment": 5,
-    "naloxone administered": 6,
-    "person barred/access restricted": 2,
-    "safety assessment": 4,
-    "safety planning": 3,
-    "other": 2,
-}
+    def map_array_to_dict(self, arr, key_name) -> RiskScoreMap:
+        return {entry[key_name].lower(): int(entry['risk_weighting']) for entry in arr}
 
-# TODO: Use meaningful risk values
-time_of_day_to_risk: RiskScoreMap = {
-    "morning": 1,
-    "afternoon": 2,
-    "evening": 3,
-    "night": 4,
-}
+    def get_maps(self):
+        return [self.incident_type_to_risk, self.program_to_risk, self.response_to_risk, self.time_of_day_to_risk]
+
+
+risk_scores = RiskScoreData()
+[incident_type_to_risk, program_to_risk, response_to_risk,
+    time_of_day_to_risk] = risk_scores.get_maps()
 
 
 class FieldRiskScoreMap:
@@ -102,7 +69,7 @@ class MultiValFieldRiskScoreMap(FieldRiskScoreMap):
             value_count: The number of values entered into the field.
         """
         risk_scores = sorted(self._risk_score_map.values(), reverse=True)
-        return sum(risk_scores[:value_count])
+        return sum(risk_scores[: value_count])
 
     def get_risk_score(self, field_value: Sequence[RiskScoreMapKey]) -> float:
         s = sum(map(self._risk_score_map.__getitem__,

@@ -1,6 +1,5 @@
 from typing import Dict
 from preprocess.report_data import ReportData
-import requests
 
 from server.credentials import credentials
 from server.interceptum_adapter import InterceptumAdapter
@@ -11,49 +10,11 @@ from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
 from server.schemas.submit import Form, SanityUpdate, SubmitOut, SubmitIn
 from server.connection import collection
+from server.sanity_utils import form_query, timeframe_query, headers, run_query
 
 app = FastAPI()
 clf = CNBDescriptionClf()
 interceptum = InterceptumAdapter(credentials)
-
-form_query = """
-    {
-        CirForm(id: "cirForm") {
-            primaryIncTypes {
-                name
-            }
-        }
-    }
-"""
-timeframe_query = """
-    {
-        CirForm(id: "cirForm") {
-            riskAssessmentTimeframe
-        }
-    }
-"""
-timeframe_query = """
-    {
-        CirForm(id: "cirForm") {
-            riskAssessmentTimeframe
-        }
-    }
-"""
-
-headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'Authorization': f'Bearer {credentials.sanity_read_token}',
-}
-
-
-def run_query(uri, query, headers):
-    request = requests.post(uri, json={'query': query}, headers=headers)
-    if request.status_code == 200:
-        return request.json()
-    else:
-        raise Exception(
-            f"Unexpected status code returned: {request.status_code}")
 
 
 def update_model(form_fields: Form):

@@ -86,7 +86,7 @@
     },
     "immediate_response": {
       "called child welfare": "1",
-      "evacution": "2",
+      "evacuation": "2",
       "first-aid provided": "3",
       "infection prevention protocol": "4",
       "mental health assessment": "5",

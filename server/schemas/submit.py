@@ -44,7 +44,7 @@ class Form(BaseModel):
                 "non_client_involved": False,
                 "program": "compass",
                 "immediate_response":
-                ["evacution", "mental health assessment"],
+                ["evacuation", "mental health assessment"],
                 "staff_name": "John man",
                 "program_supervisor_reviewer_name": "another john",
                 "completion_date": "2008-09-15T15:53:00+05:00",
