@@ -14,7 +14,7 @@ const DateInput = ({
 }) => {
   const [touched, setTouched] = useState(false);
 
-  const showWarning = submitClicked && !value;
+  const showWarning = required && submitClicked && !value;
   const style = {
     // prettier-ignore
     border: `1px solid ${ showWarning ? "red" : (showAutocomplete && !touched ? "#00adef" : "lightgrey")}`,

@@ -447,5 +447,33 @@ commands are run.
       "name": "Other",
       "risk_weighting": "2"
     }
+  ],
+  "childInvolved": [
+    {
+      "_key": "no",
+      "_type": "optionWithKeywords",
+      "keywords": [],
+      "name": "No"
+    },
+    {
+      "_key": "yes",
+      "_type": "optionWithKeywords",
+      "keywords": ["child"],
+      "name": "Yes"
+    }
+  ],
+  "guestInvolved": [
+    {
+      "_key": "no",
+      "_type": "optionWithKeywords",
+      "keywords": [],
+      "name": "No"
+    },
+    {
+      "_key": "yes",
+      "_type": "optionWithKeywords",
+      "keywords": ["guest", "non-client"],
+      "name": "Yes"
+    }
   ]
 }
