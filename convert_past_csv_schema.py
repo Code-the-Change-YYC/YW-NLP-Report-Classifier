@@ -25,7 +25,7 @@ rename_columns = {
     "Form - Other Services Involved (select all that apply) - Outreach (DOAP/PACT)": "outreach (doap/pact)",
     "Form - Other Services Involved (select all that apply) - Police": "police",
     "Form - What was the immediate response to the incident? Select all that apply - Called Child Welfare": "called child welfare",
-    "Form - What was the immediate response to the incident? Select all that apply - Evacution": "evacution",
+    "Form - What was the immediate response to the incident? Select all that apply - Evacution": "evacuation",
     "Form - What was the immediate response to the incident? Select all that apply - First-aid provided": "first-aid provided",
     "Form - What was the immediate response to the incident? Select all that apply - Infection prevention protocol": "infection prevention protocol",
     "Form - What was the immediate response to the incident? Select all that apply - Mental health assessment": "mental health assessment",
