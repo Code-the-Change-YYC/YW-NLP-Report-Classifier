@@ -29,7 +29,7 @@ class RiskScoreData:
         }
 
     def map_array_to_dict(self, arr, key_name) -> RiskScoreMap:
-        return dict((entry[key_name].lower(), int(entry['risk_weighting'])) for entry in arr)
+        return {entry[key_name].lower(): int(entry['risk_weighting']) for entry in arr}
 
     def get_maps(self):
         return [self.incident_type_to_risk, self.program_to_risk, self.response_to_risk, self.time_of_day_to_risk]
@@ -69,7 +69,7 @@ class MultiValFieldRiskScoreMap(FieldRiskScoreMap):
             value_count: The number of values entered into the field.
         """
         risk_scores = sorted(self._risk_score_map.values(), reverse=True)
-        return sum(risk_scores[:value_count])
+        return sum(risk_scores[: value_count])
 
     def get_risk_score(self, field_value: Sequence[RiskScoreMapKey]) -> float:
         s = sum(map(self._risk_score_map.__getitem__,
