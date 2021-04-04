@@ -34,6 +34,12 @@ def background_processing(form_fields: Form):
     collection.insert_one(processed_form_data.dict())
 
 
+def get_incident_types_from_sanity():
+    inc_types_obj = run_query(credentials.sanity_gql_endpoint, form_query,
+                              headers)['data']['CirForm']['primaryIncTypes']
+    return list(map(lambda inc_type: inc_type['name'], inc_types_obj))
+
+
 @app.get("/")
 async def index():
     return {"Hello": "World"}
@@ -50,9 +56,7 @@ async def predict(predict_in: PredictIn) -> PredictOut:
         PredictOut: JSON containing input text and predictions with their
         probabilities.
     """
-    inc_types_obj = run_query(credentials.sanity_gql_endpoint, form_query,
-                              headers)['data']['CirForm']['primaryIncTypes']
-    inc_types = list(map(lambda inc_type: inc_type['name'], inc_types_obj))
+    inc_types = get_incident_types_from_sanity()
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)
@@ -102,19 +106,12 @@ async def sanity_update(sanity_update_in: SanityUpdate):
     Assumes all data in the database has undergone preprocessing.
     """
     all_incidents_query = collection.find(projection=['description', 'incident_type_primary'])
-    all_incidents = pd.DataFrame(list(all_incidents_query))
-    # get all from database, map into DataFrame
-    # pass into training function that receives DataFrame
-    # in preprocessing step of training function, filter out training examples
-    # with obsolete incident types
-    # TODO: Check if "cirForm" is in this array, only update model if it is.
-    sanity_update_in.ids.all
-    # for incident in all_incidents:
-    #     print(incident)
-    # print(sanity_update_in)
-    # clf.retrain_model(all_incidents['description'], all_incidents['incident_type_primary'])
-
-# Need to filter out past incident types that have been deleted
+    all_incidents = pd.DataFrame(list(all_incidents_query)).dropna()
+    if 'cirForm' in sanity_update_in.ids.all:
+        inc_types = get_incident_types_from_sanity()
+        clf.retrain_model(all_incidents['description'],
+                          all_incidents['incident_type_primary'],
+                          all_incident_types=inc_types)
 
 
 @app.post('/api/retrain')

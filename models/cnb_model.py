@@ -96,9 +96,9 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         given data.
 
         Params:
-            descriptions: Descriptions to train on.
+            descriptions: Descriptions to train on. Must not contains missing values.
 
-            incident_types: The incident types corresponding to the descriptions.
+            incident_types: The incident types corresponding to the descriptions. Must not contains missing values.
 
             all_incident_types: All possible incident types which the model
             might receive. If this is not given, the unique values from
@@ -134,6 +134,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         """
         save_cnb(self._model, model_path=model_paths.cnb_backup_file_name)
         self._model = self.create_model(descriptions, incident_types, all_incident_types=all_incident_types)
+        save_cnb(self._model, model_path=self._model_path)
 
     def _predictions_with_proba(self, proba: ArrayLike,
                                 num_predictions: int) -> np.ndarray:
