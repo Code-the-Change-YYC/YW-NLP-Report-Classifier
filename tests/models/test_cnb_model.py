@@ -47,8 +47,8 @@ class TestCNBDescriptionClf(unittest.TestCase):
         result = clf._predictions_with_proba(proba, 3)
         for prediction_set in result:
             for i, prediction_with_proba in enumerate(prediction_set):
-                self.assertEqual(prediction_with_proba[0], IncidentType(classes[i]))
-                self.assertEqual(prediction_with_proba[1], single_proba[i])
+                self.assertEqual(prediction_with_proba[0], classes[i])
+                self.assertEqual(float(prediction_with_proba[1]), single_proba[i])
 
     def test_partial_fit_handles_new_classes(self):
         # Create a copy of the model to use for testing

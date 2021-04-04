@@ -81,7 +81,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         each description, where each row of `Y` is a list of predictions ordered
         by confidence, and each prediction is an 2 length array with the
         `IncidentType` prediction as the first element and the confidence as the
-        second.
+        second. The confidence values are represented as strings.
         """
         num_classes = len(self._model.classes_)
         if not num_predictions or num_predictions > num_classes:
@@ -132,7 +132,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         for each row of probabilities, where each row of `Y` is a list of
         predictions ordered by confidence, and each prediction is an 2 length
         array with the `IncidentType` prediction as the first element and the
-        confidence as the second.
+        confidence as the second. The confidence values are represented as strings.
         """
         top_indices: np.ndarray = proba.argsort()[:,
                                                   -1:-(num_predictions + 1):-1]

@@ -1,5 +1,4 @@
 from typing import Dict
-
 from preprocess.report_data import ReportData
 import requests
 import pandas as pd
@@ -57,7 +56,7 @@ async def predict(predict_in: PredictIn) -> PredictOut:
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)
-    predictions = [(pred[0], pred[1]) for pred in predictions]
+    predictions = [(pred[0], float(pred[1])) for pred in predictions]
     predictions = list(filter(lambda pred: pred[0] in inc_types, predictions))
     return PredictOut(input_text=input_string, predictions=predictions)
 
@@ -98,7 +97,24 @@ async def interceptum_post_form(form_dict: Dict,
 
 @app.post("/api/sanity-update/")
 async def sanity_update(sanity_update_in: SanityUpdate):
-    print(sanity_update_in)
+    """Endpoint for retraining the model when relevant changes to the form
+    fields occur in Sanity.
+    Assumes all data in the database has undergone preprocessing.
+    """
+    all_incidents_query = collection.find(projection=['description', 'incident_type_primary'])
+    all_incidents = pd.DataFrame(list(all_incidents_query))
+    # get all from database, map into DataFrame
+    # pass into training function that receives DataFrame
+    # in preprocessing step of training function, filter out training examples
+    # with obsolete incident types
+    # TODO: Check if "cirForm" is in this array, only update model if it is.
+    sanity_update_in.ids.all
+    # for incident in all_incidents:
+    #     print(incident)
+    # print(sanity_update_in)
+    # clf.retrain_model(all_incidents['description'], all_incidents['incident_type_primary'])
+
+# Need to filter out past incident types that have been deleted
 
 
 @app.post('/api/retrain')
