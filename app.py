@@ -54,7 +54,7 @@ async def predict(predict_in: PredictIn) -> PredictOut:
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)
-    predictions = [(pred[0].value, pred[1]) for pred in predictions]
+    predictions = [(pred[0], pred[1]) for pred in predictions]
     predictions = list(filter(lambda pred: pred[0] in inc_types, predictions))
     return PredictOut(input_text=input_string, predictions=predictions)
 

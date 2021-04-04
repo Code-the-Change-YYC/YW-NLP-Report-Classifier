@@ -8,7 +8,6 @@ from sklearn.naive_bayes import ComplementNB
 from sklearn.pipeline import Pipeline, make_pipeline
 
 from training.description_classification import model_paths
-from preprocess.incident_types.incident_types_d import IncidentType
 from models.model import Model, ArrayLike
 from preprocess.report_data import ReportData
 from preprocess.report_data_d import ColName
@@ -47,7 +46,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         """
         predictions = self._model.predict(X)
         return np.array(
-            [IncidentType(prediction) for prediction in predictions])
+            [prediction for prediction in predictions])
 
     def partial_fit(self, X: ArrayLike, y: List[str]):
         """Update the model and save the updates.
@@ -128,7 +127,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
                                                   -1:-(num_predictions + 1):-1]
         top_proba: np.ndarray = np.take_along_axis(proba, top_indices, axis=1)
         predictions: np.ndarray = self._model.classes_[top_indices]
-        incident_types = np.array([IncidentType(p) for p in predictions.flat
+        incident_types = np.array([p for p in predictions.flat
                                   ]).reshape(predictions.shape)
         return np.dstack((incident_types, top_proba))
 
@@ -175,5 +174,5 @@ if __name__ == "__main__":
         print(X[i])
         for prediction_with_proba in prediction_set:
             print(
-                f"We predict {prediction_with_proba[0].value} with {prediction_with_proba[1]:.2f}% confidence"
+                f"We predict {prediction_with_proba[0]} with {prediction_with_proba[1]:.2f}% confidence"
             )
