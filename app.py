@@ -1,10 +1,13 @@
 from typing import Dict
+
 from preprocess.report_data import ReportData
+import requests
+import pandas as pd
 
 from server.credentials import credentials
 from server.interceptum_adapter import InterceptumAdapter
 from server.risk_scores.risk_assessment import get_risk_assessment
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
 
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
@@ -97,3 +100,12 @@ async def interceptum_post_form(form_dict: Dict,
 async def sanity_update(sanity_update_in: SanityUpdate):
     print(sanity_update_in)
 
+
+@app.post('/api/retrain')
+async def retrain_model(csv_file: UploadFile = File(..., media_type='text/csv'),
+                        descriptions_column: str = None,
+                        types_column: str = None):
+    dataframe = pd.read_csv(csv_file.file)
+    descriptions = dataframe[descriptions_column].to_numpy()
+    types = dataframe[types_column].to_numpy()
+    clf.retrain_model(descriptions, types)
