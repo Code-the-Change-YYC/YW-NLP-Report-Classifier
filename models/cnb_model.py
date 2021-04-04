@@ -63,7 +63,6 @@ class CNBDescriptionClf(Model[CNBPipeline]):
             vectors = word_vec.transform(X)
             est.partial_fit(vectors, label_classes)
             save_cnb(self._model, self._model_path)
-        # TODO: Handle new labels
 
         return self
 
@@ -91,13 +90,21 @@ class CNBDescriptionClf(Model[CNBPipeline]):
                                             num_predictions)
 
     def create_model(self, descriptions: Sequence[str],
-                     incident_types: Sequence[str]) -> CNBPipeline:
+                     incident_types: Sequence[str],
+                     all_incident_types: Sequence[str] = None) -> CNBPipeline:
         """Creates a CNB description classifier pipeline and trains it with the
         given data.
 
         Params:
             descriptions: Descriptions to train on.
+
             incident_types: The incident types corresponding to the descriptions.
+
+            all_incident_types: All possible incident types which the model
+            might receive. If this is not given, the unique values from
+            `incident_types` will be used instead. This parameter should be used
+            to ensure the model does not fail on incident types which are not in
+            `incident_types`, but may appear later during partial fitting.
         """
         word_vec = TfidfVectorizer(
             tokenizer=spacy_tokenizer,
@@ -105,20 +112,28 @@ class CNBDescriptionClf(Model[CNBPipeline]):
             ngram_range=(1, 2),
             min_df=2,
         )
-        cnb = make_pipeline(word_vec, ComplementNB(alpha=1.2))
-        cnb.fit(descriptions, incident_types)
+        model = ComplementNB(alpha=1.2)
+        cnb = make_pipeline(word_vec, model)
+        if all_incident_types is not None:
+            vectors = word_vec.fit_transform(descriptions)
+            model.partial_fit(vectors, incident_types, classes=all_incident_types)
+        else:
+            cnb.fit(descriptions, incident_types)
+            
         return cast(CNBPipeline, cnb)
 
     def retrain_model(self, descriptions: Sequence[str],
-                      incident_types: Sequence[str]):
+                      incident_types: Sequence[str],
+                      all_incident_types: Sequence[str] = None):
         """Retrain current model with new data, save old model. 
 
         Args:
             descriptions (Sequence[str]): Descriptions to train on. 
             incident_types (Sequence[str]): The incident types for descriptions. 
+            all_incident_types: See `create_model`.
         """
         save_cnb(self._model, model_path=model_paths.cnb_backup_file_name)
-        self._model = self.create_model(descriptions, incident_types)
+        self._model = self.create_model(descriptions, incident_types, all_incident_types=all_incident_types)
 
     def _predictions_with_proba(self, proba: ArrayLike,
                                 num_predictions: int) -> np.ndarray:
