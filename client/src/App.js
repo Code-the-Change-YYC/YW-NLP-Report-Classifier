@@ -222,7 +222,6 @@ function App() {
           ></TextInput>
           <TextInput
             label="Client Involved - Secondary (Initials)"
-            required={false}
             value={clientSecInitials}
             setValue={setClientSecInitials}
             showAutocomplete={clientSecInitialsShowAutocomplete}
@@ -355,6 +354,7 @@ function App() {
         <FormRow style={{ flexDirection: "row" }}>
           <SelectInput
             label="Did this incident involve a child?"
+            required
             options={childInvolvedOptions}
             value={involvesChild}
             setValue={setInvolvesChild}
