@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import styled from 'styled-components';
 import logo from "./logo.jpg";
 import "./App.css";
 import { FormRow, Input, Textarea, HR } from "./styled";
@@ -19,6 +20,10 @@ import { useFormOptions } from "./hooks/useFormOptions";
 import { useIncTypeOptions } from "./hooks/useIncTypeOptions";
 import useAutocomplete from "./hooks/useAutocomplete";
 import useSubmit from "./hooks/useSubmit";
+
+const LastUpdated = styled.h2`
+  font-size: 12pt;
+`
 
 function App() {
   // State variables
@@ -66,7 +71,7 @@ function App() {
     setDateOccurredAutocomplete,
     dateOccurredShowAutocomplete,
     setDateOccurredShowAutocomplete,
-  ] = useDateFieldInfo();
+  ] = useDateFieldInfo(false);
 
   const [incidentTypeSec, setIncidentTypeSec] = useState(null);
   const [otherSecIncidentType, setOtherSecIncidentType] = useState("");
@@ -191,7 +196,7 @@ function App() {
       ></ModalBox>
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
-      <h2>Prototype - December 1, 2020 </h2>
+      <LastUpdated>Last updated: April 13, 2021</LastUpdated>
       <FormRow>
         <label>Description of Incident *</label>
         <Textarea
@@ -217,7 +222,6 @@ function App() {
           ></TextInput>
           <TextInput
             label="Client Involved - Secondary (Initials)"
-            required={false}
             value={clientSecInitials}
             setValue={setClientSecInitials}
             showAutocomplete={clientSecInitialsShowAutocomplete}
@@ -350,6 +354,7 @@ function App() {
         <FormRow style={{ flexDirection: "row" }}>
           <SelectInput
             label="Did this incident involve a child?"
+            required
             options={childInvolvedOptions}
             value={involvesChild}
             setValue={setInvolvesChild}
