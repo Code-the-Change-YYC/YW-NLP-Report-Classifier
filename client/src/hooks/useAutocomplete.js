@@ -9,6 +9,11 @@ import usePrevious from "./usePrevious";
 
 const NO_OPTION = { value: "no", label: "No" };
 
+const findStaffInitials = desc => new Set(
+  (desc.match(/\b[Ss]taff (?!AM|PM)([A-Z]{2})\b/g) || [])
+    .map(match => match.split(' ')[1])
+);
+
 const autocompleteSingleOption = (desc, options) => {
   const lowercasedDescription = desc.toLowerCase();
   return (
@@ -158,7 +163,8 @@ const useAutocomplete = ({
   const checkInitials = useCallback(
     (desc) => {
       const found = desc.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
-      if (found && found.length) {
+      const staff = findStaffInitials(desc);
+      if (found && found.length && !staff.has(found[0])) {
         setClientInitialsAutocomplete(found[0]);
       } else {
         setClientInitialsAutocomplete("");
@@ -173,9 +179,13 @@ const useAutocomplete = ({
         return;
       }
       const found = desc.match(/\b(?!AM|PM)([A-Z]{2})\b/g);
+      const staff = new Set(
+        (desc.match(/\b[Ss]taff (?!AM|PM)([A-Z]{2})\b/g) || [])
+          .map(match => match.split(' ')[1])
+      );
       if (found && found.length) {
         for (const match of found) {
-          if (match !== clientInitials) {
+          if (match !== clientInitials && !staff.has(match)) {
             setClientSecInitialsAutocomplete(match);
             return;
           }
