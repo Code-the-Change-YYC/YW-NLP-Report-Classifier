@@ -35,7 +35,7 @@ class Credentials:
     @property
     def USE_WEBHOOK(self) -> str:
         """If True, retrain the model and update the database on incoming webhook requests. Otherwise, train on /api/submit."""
-        return bool(self['mongoUrl'])
+        return bool(self['USE_WEBHOOK']) if self['USE_WEBHOOK'] else False
 
     @property
     def sanity_gql_endpoint(self) -> str:
