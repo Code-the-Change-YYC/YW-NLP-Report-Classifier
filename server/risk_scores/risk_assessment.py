@@ -65,7 +65,7 @@ def get_incident_similarity(prev_incident: submit_schema.Form, current_incident:
     return similarity
 
 
-def get_incident_recency(prev_incident: submit_schema.Form, current_incident: submit_schema.Form, timeframe: Number):
+def get_incident_recency(prev_incident: submit_schema.Form, current_incident: submit_schema.Form, timeframe: int):
     """
     Returns a value between min_value and 1 depending on the previous incident type's recency scaled by the timeframe.
     """
@@ -80,11 +80,11 @@ def get_incident_recency(prev_incident: submit_schema.Form, current_incident: su
     return max(min_value, incident_recency)
 
 
-def previous_risk_score_func(incident_score: Number, incident_recency: Number, incident_similarity: Number) -> Number:
+def previous_risk_score_func(incident_score: float, incident_recency: float, incident_similarity: float) -> float:
     return incident_score * incident_recency * incident_similarity
 
 
-def get_previous_incident_risk_score(curr_incident: submit_schema.Form, prev_incident: submit_schema.Form, timeframe: Number):
+def get_previous_incident_risk_score(curr_incident: submit_schema.Form, prev_incident: submit_schema.Form, timeframe: int):
     incident_score = get_current_risk_score(prev_incident)
     incident_similarity = get_incident_similarity(prev_incident, curr_incident)
     incident_recency = get_incident_recency(
@@ -93,7 +93,7 @@ def get_previous_incident_risk_score(curr_incident: submit_schema.Form, prev_inc
     return previous_risk_score_func(incident_score, incident_recency, incident_similarity)
 
 
-def normalize_previous_risk_score(total_prev_risk_score: Number):
+def normalize_previous_risk_score(total_prev_risk_score: float):
     """
     Normalizes the total_prev_risk_score by the maximum potential risk score of incidents, returning a value between 0 and 1.
     Params:
@@ -112,7 +112,7 @@ def normalize_previous_risk_score(total_prev_risk_score: Number):
     return total_prev_risk_score / max_total_prev_risk_score
 
 
-def normalize_current_risk_score(risk_score: Number):
+def normalize_current_risk_score(risk_score: float):
     """
     Normalizes the risk_score by the maximum potential incident risk score, returning a value between 0 and 1.
     Params:
@@ -121,7 +121,7 @@ def normalize_current_risk_score(risk_score: Number):
     return risk_score / risk_scores.max_risk_score
 
 
-def get_previous_risk_score(form: submit_schema.Form, timeframe: Number):
+def get_previous_risk_score(form: submit_schema.Form, timeframe: int):
     """
     Returns a risk score number between 0 and 1 based on the last MAX_PREVIOUS_INCIDENTS by that client
     with the same primary initials in the database.
@@ -163,7 +163,7 @@ def get_current_risk_score(form: submit_schema.Form):
     return normalize_current_risk_score(risk_score)
 
 
-def get_risk_assessment(form: submit_schema.Form, timeframe: Number) -> RiskAssessment:
+def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessment:
     total_risk_score = get_current_risk_score(form)
     + get_previous_risk_score(form, timeframe)
 
