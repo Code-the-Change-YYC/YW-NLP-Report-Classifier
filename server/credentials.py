@@ -9,7 +9,7 @@ class CredentialsError(Exception):
 
 class Credentials:
     """Handles reading and supplying application credentials.
-    
+
     Example:
         ```
         interceptum_pw = Credentials().password
@@ -19,7 +19,7 @@ class Credentials:
 
     def __init__(self, cred_file_path: str = 'keys/credentials.json'):
         """Creates a `Credentials` instance, reading the credential data.
-        
+
         Params:
             cred_file_path: Path to the credential file. Default reads from a
             `credentials.json` file in the folder the app was started from.
@@ -31,6 +31,11 @@ class Credentials:
     def PYTHON_ENV(self) -> str:
         """Python running environment, either `'development'` or `'production'`."""
         return self['PYTHON_ENV']
+
+    @property
+    def USE_WEBHOOK(self) -> str:
+        """If True, retrain the model and update the database on incoming webhook requests. Otherwise, train on /api/submit."""
+        return bool(self['mongoUrl'])
 
     @property
     def sanity_gql_endpoint(self) -> str:
@@ -61,12 +66,12 @@ class Credentials:
     def gmail_username(self) -> str:
         """The Gmail username."""
         return self['gmailUsername']
-    
+
     @property
     def gmail_password(self) -> str:
         """The Gmail password"""
         return self['gmailPassword']
-    
+
     @property
     def mongo_url(self) -> str:
         """The MongoDB URL."""
@@ -74,7 +79,7 @@ class Credentials:
 
     def __getitem__(self, cred_name: str) -> Any:
         """Gets the credential value with name `cred_name`.
-        
+
         Raises:
             CredentialsError: if credential with name `cred_name` could not be
             retrieved.
@@ -83,5 +88,6 @@ class Credentials:
             raise CredentialsError(
                 f'Could not retrieve credential with key {cred_name}.')
         return self._credentials[cred_name]
+
 
 credentials = Credentials()
