@@ -70,7 +70,6 @@ async def submit_form(form: SubmitIn,
     Returns:
         SubmitOut: Request data alongside risk score.
     """
-    background_tasks.add_task(background_processing, form.form_fields)
     risk_assessment_timeframe = run_query(
         credentials.sanity_gql_endpoint, timeframe_query,
         headers)['data']['CirForm']['riskAssessmentTimeframe']
@@ -82,7 +81,7 @@ async def submit_form(form: SubmitIn,
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
 
     if not credentials.USE_WEBHOOK:
-        background_tasks.add_task(background_processing, form)
+        background_tasks.add_task(background_processing, form.form_fields)
 
     redirect_url = interceptum.call_api(form.form_fields.dict())
     return SubmitOut(form_fields=form.form_fields,
