@@ -93,7 +93,15 @@ class DateFieldRiskScoreMap(FieldRiskScoreMap):
         return self._risk_score_map[time_of_day]
 
 
+def calc_max_risk_score(incident_map, program_map, response_map, occurrence_time_map):
+    single_val_maps = [incident_map, program_map, occurrence_time_map]
+    # assumes that no more than 3 services will be involved on average
+    return sum([risk_map.max_risk_score() for risk_map in single_val_maps] + [response_map.max_risk_score_with_value_count(3)])
+
+
 incident_type_to_risk_map = FieldRiskScoreMap(incident_type_to_risk)
 program_to_risk_map = FieldRiskScoreMap(program_to_risk)
 response_to_risk_map = MultiValFieldRiskScoreMap(response_to_risk)
 occurrence_time_to_risk_map = DateFieldRiskScoreMap(time_of_day_to_risk)
+max_risk_score = calc_max_risk_score(
+    incident_type_to_risk_map, program_to_risk_map, response_to_risk_map, occurrence_time_to_risk_map)

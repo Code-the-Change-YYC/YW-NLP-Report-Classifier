@@ -1,6 +1,6 @@
 from enum import Enum
 
-from datetime import timezone
+from datetime import timezone, datetime
 from dateutil.relativedelta import relativedelta
 import server.schemas.submit as submit_schema
 from typing import List, Tuple
@@ -18,6 +18,7 @@ email_format = ("""
     Contents of report form:
     {form_values}
     """)
+MAX_PREVIOUS_INCIDENTS = 3
 
 
 class RiskAssessment(Enum):
@@ -40,8 +41,11 @@ assessment_ranges.sort(key=lambda range: range[0])
 
 
 def get_incident_similarity(prev_incident: submit_schema.Form, current_incident: submit_schema.Form):
-    similarity = 0
-    coefficient = 1
+    """
+    Returns a value between min_value and 1 depending on the previous incident type's similarity to the current incident type.
+    """
+    min_value = 0.2
+    similarity = min_value
 
     similar_fields = {
         'client_secondary': 1,
@@ -52,45 +56,99 @@ def get_incident_similarity(prev_incident: submit_schema.Form, current_incident:
         'program': 1,
     }
 
+    total_field_sum = sum(similar_fields.values())
+
     for field, score in similar_fields.items():
         if getattr(current_incident, field) == getattr(prev_incident, field):
-            similarity += score
+            similarity += score / total_field_sum
 
-    return coefficient * similarity
+    return similarity
 
 
-def get_incident_recency(prev_incident: submit_schema.Form, current_incident: submit_schema.Form, timeframe):
+def get_incident_recency(prev_incident: submit_schema.Form, current_incident: submit_schema.Form, timeframe: Number):
+    """
+    Returns a value between min_value and 1 depending on the previous incident type's recency scaled by the timeframe.
+    """
+    min_value = 0.3
     # TODO: Standardize all dates in the databse
     prev_incident.occurrence_time = prev_incident.occurrence_time.replace(
         tzinfo=timezone.utc)
     delta = (current_incident.occurrence_time -
              prev_incident.occurrence_time).days/30
-    recency_of_incident = 1 - delta/timeframe
-    return recency_of_incident
+    incident_recency = 1 - (1 - min_value) * (delta/timeframe)
+    # avoid potential off-by-one month errors by dividing by 30
+    return max(min_value, incident_recency)
 
 
-def get_previous_risk_score(form: submit_schema.Form, timeframe):
+def previous_risk_score_func(incident_score: Number, incident_recency: Number, incident_similarity: Number) -> Number:
+    return incident_score * incident_recency * incident_similarity
+
+
+def get_previous_incident_risk_score(curr_incident: submit_schema.Form, prev_incident: submit_schema.Form, timeframe: Number):
+    incident_score = get_current_risk_score(prev_incident)
+    incident_similarity = get_incident_similarity(prev_incident, curr_incident)
+    incident_recency = get_incident_recency(
+        prev_incident, curr_incident, timeframe)
+
+    return previous_risk_score_func(incident_score, incident_recency, incident_similarity)
+
+
+def normalize_previous_risk_score(total_prev_risk_score: Number):
+    """
+    Normalizes the total_prev_risk_score by the maximum potential risk score of incidents, returning a value between 0 and 1.
+    Params:
+        total_prev_risk_score: Risk score based on a past Critical Incident Report.
+    """
+    # Submitting the same form twice guarantees maximum similarity and recency
+    same_form = submit_schema.Form(description='', client_primary='', client_secondary='', location='', services_involved=[], occurrence_time=datetime.utcfromtimestamp(
+        0), incident_type_primary='incident-type', incident_type_secondary='incident-type', child_involved=False, program='program', immediate_response=[], staff_name='staff', program_supervisor_reviewer_name='reviewer')
+    incident_similarity = get_incident_similarity(same_form, same_form)
+    incident_recency = get_incident_recency(
+        same_form, same_form, timeframe=1)
+    max_prev_risk_score = previous_risk_score_func(
+        risk_scores.max_risk_score, incident_recency, incident_similarity)
+
+    max_total_prev_risk_score = max_prev_risk_score * MAX_PREVIOUS_INCIDENTS
+    return total_prev_risk_score / max_total_prev_risk_score
+
+
+def normalize_current_risk_score(risk_score: Number):
+    """
+    Normalizes the risk_score by the maximum potential incident risk score, returning a value between 0 and 1.
+    Params:
+        risk_score: Risk score based on the Critical Incident Report.
+    """
+    return risk_score / risk_scores.max_risk_score
+
+
+def get_previous_risk_score(form: submit_schema.Form, timeframe: Number):
+    """
+    Returns a risk score number between 0 and 1 based on the last MAX_PREVIOUS_INCIDENTS by that client
+    with the same primary initials in the database.
+
+    Params:
+        form: Data submitted in through the endpoint.
+        timeframe: Number of months to search over, i.e., months before previous incidents become irrelevant.
+    """
     query = {
         "client_primary": form.client_primary,
         "occurrence_time": {
-            '$gte': (form.occurrence_time - relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
+            "$gte": (form.occurrence_time - relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
         }
     }
-    prev_incidents = collection.find(query)
+    sort_order = {"occurrence_time": 1}
+    prev_incidents = list(collection.find(query).sort(
+        sort_order))[-MAX_PREVIOUS_INCIDENTS:]
     total_prev_risk_score = 0
     for incident_dict in prev_incidents:
         incident_dict = {key: (val.lower() if type(val) == str else val)
                          for key, val in incident_dict.items()}
 
         incident = Form(**incident_dict)
-        incident_score = get_current_risk_score(incident)
-        incident_similarity = get_incident_similarity(incident, form)
-        incident_recency = get_incident_recency(incident, form, timeframe)
+        total_prev_risk_score += get_previous_incident_risk_score(
+            form, incident, 1)
 
-        total_prev_risk_score += incident_score + \
-            incident_recency * incident_similarity
-
-    return total_prev_risk_score
+    return normalize_previous_risk_score(total_prev_risk_score)
 
 
 def get_current_risk_score(form: submit_schema.Form):
@@ -102,18 +160,10 @@ def get_current_risk_score(form: submit_schema.Form):
                   risk_scores.occurrence_time_to_risk_map.get_risk_score(
                       form.occurrence_time))
 
-    max_risk_score = (
-        risk_scores.program_to_risk_map.max_risk_score() +
-        risk_scores.incident_type_to_risk_map.max_risk_score() +
-        risk_scores.response_to_risk_map.max_risk_score_with_value_count(
-            len(form.immediate_response)) +
-        risk_scores.occurrence_time_to_risk_map.max_risk_score())
-
-    percent_of_max = risk_score / max_risk_score
-    return percent_of_max
+    return normalize_current_risk_score(risk_score)
 
 
-def get_risk_assessment(form: submit_schema.Form, timeframe) -> RiskAssessment:
+def get_risk_assessment(form: submit_schema.Form, timeframe: Number) -> RiskAssessment:
     total_risk_score = get_current_risk_score(form)
     + get_previous_risk_score(form, timeframe)
 
