@@ -17,16 +17,42 @@ export function useIncTypeOptions() {
 
   const [incTypesOptions, setIncTypesOptions] = useState();
 
+  const covidKeywords = ["covid19","covid","coronavirus"];
+
+  const covidException = (desc, keywords) => {
+    const lowercasedDescription = desc.toLowerCase();
+    return (
+      keywords.find((keyword) =>
+          lowercasedDescription.includes(keyword.toLowerCase()
+          )
+      ) || null
+    );
+  };
+
   const updateOptionsFromDescription = useCallback(
     async (description, options) => {
+       // specialcase to be handled for Covid keywords
+
       if (options) {
+        if(covidException(description,covidKeywords)!= null){
+        
+          setIncTypesOptions(Object.values(options));
+          setIncidentTypePriAutocomplete({label: "COVID-19 Confirmed", 
+                                          value: "COVID-19 Confirmed", 
+                                          confidence: "1"});
+         
+          }
+        else{
         const { updatedIncTypes, topIncType } = await getMultiPrediction(
           description,
           options
         );
+        
         setIncTypesOptions(Object.values(updatedIncTypes));
         setIncidentTypePriAutocomplete(topIncType);
+        }
       }
+    
     },
     [setIncTypesOptions, setIncidentTypePriAutocomplete]
   );
