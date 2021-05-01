@@ -6,6 +6,8 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import ComplementNB
 from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.metrics import log_loss
 
 from training.description_classification import model_paths
 from preprocess.incident_types.incident_types_d import IncidentType
@@ -36,8 +38,10 @@ class CNBDescriptionClf(Model[CNBPipeline]):
             self._model_path = model_path
             self._model = load_cnb(self._model_path, copy_from_prod=False)
         else:
-            self._model_path = model_paths.cnb_dev if IS_DEV else model_paths.cnb
-            self._model = load_cnb(self._model_path, copy_from_prod=True)
+            # self._model_path = model_paths.cnb_dev if IS_DEV else model_paths.cnb
+            # temporially set model_path to cnb_cli calibrated model
+            self._model_path = model_paths.cnb_cli
+            self._model = load_cnb(self._model_path, copy_from_prod=False)
 
     def predict(self, X: ArrayLike) -> np.ndarray:
         """Predict the primary incident type of the given descriptions.
@@ -163,12 +167,14 @@ class CNBDescriptionClf(Model[CNBPipeline]):
 
 
 if __name__ == "__main__":
+
     clf = CNBDescriptionClf()
     df = ReportData().get_processed_data()
     X = df[ColName.DESC][:5]
     y = df[ColName.INC_T1][:5]
-    clf.partial_fit(X, y, list(set(y)))
+
     print(clf.predict(X))
+
     multi_predict = clf.predict_multiple(X, 5)
     for i, prediction_set in enumerate(multi_predict):
         print("For description")
