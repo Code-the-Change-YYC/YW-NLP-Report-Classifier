@@ -20,7 +20,8 @@ export function useIncTypeOptions() {
   const checkCovidSpecialCase = (desc, keywords) => {
     const lowercasedDescription = desc.toLowerCase();
     return (
-      keywords.find((keyword) => lowercasedDescription.includes(keyword.toLowerCase())
+      keywords.find((keyword) =>
+        lowercasedDescription.includes(keyword.toLowerCase())
       ) || null
     );
   };
@@ -31,19 +32,19 @@ export function useIncTypeOptions() {
       const covidKeywords = ["covid", "coronavirus"];
 
       if (options) {
-        const covidOptionExist = options.filter((type) =>
+        const covidOptionIfExists = options.find((type) =>
           type["label"].toLowerCase().includes("covid-19 confirmed")
         );
 
         if (
           checkCovidSpecialCase(description, covidKeywords) != null &&
-          covidOptionExist != null
+          covidOptionIfExists
         ) {
-          const covidInc = covidOptionExist[0];
-          covidInc["confidence"] = "1.0";
-
           setIncTypesOptions(Object.values(options));
-          setIncidentTypePriAutocomplete(covidInc);
+          setIncidentTypePriAutocomplete({
+            ...covidOptionIfExists,
+            confidence: 1.0,
+          });
         } else {
           const { updatedIncTypes, topIncType } = await getMultiPrediction(
             description,
