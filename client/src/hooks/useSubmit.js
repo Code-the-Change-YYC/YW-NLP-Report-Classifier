@@ -45,6 +45,7 @@ const useSubmit = ({
       immediateResponse.length > 0 &&
       staffCompleting.length > 0 &&
       supervisorReviewer.length > 0 &&
+      involvesChild !== null &&
       dateOccurred !== null &&
       dateCompleted !== null
     );

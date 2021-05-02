@@ -1,9 +1,9 @@
 import { useState } from "react";
 
-const useDateFieldInfo = () => {
-  const [userValue, setUserValue] = useState(new Date());
-  const [autocompleteValue, setAutocompleteValue] = useState(new Date());
-  const [useAutocomplete, setUseAutocompleteDefault] = useState(true);
+const useDateFieldInfo = (initiallyAutocomplete = true) => {
+  const [userValue, setUserValue] = useState(null);
+  const [autocompleteValue, setAutocompleteValue] = useState(null);
+  const [useAutocomplete, setUseAutocompleteDefault] = useState(initiallyAutocomplete);
   const valid = useAutocomplete ? autocompleteValue : userValue;
   const value = useAutocomplete ? autocompleteValue : userValue;
 
