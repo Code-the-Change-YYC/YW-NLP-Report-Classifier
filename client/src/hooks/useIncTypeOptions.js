@@ -33,7 +33,7 @@ export function useIncTypeOptions() {
 
       if (options) {
         const covidOptionIfExists = options.find((type) =>
-          type["label"].toLowerCase().includes("covid-19 confirmed")
+          type.label.toLowerCase().includes("covid-19 confirmed")
         );
 
         if (
