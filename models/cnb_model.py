@@ -38,10 +38,8 @@ class CNBDescriptionClf(Model[CNBPipeline]):
             self._model_path = model_path
             self._model = load_cnb(self._model_path, copy_from_prod=False)
         else:
-            # self._model_path = model_paths.cnb_dev if IS_DEV else model_paths.cnb
-            # temporially set model_path to cnb_cli calibrated model
-            self._model_path = model_paths.cnb_cli
-            self._model = load_cnb(self._model_path, copy_from_prod=False)
+            self._model_path = model_paths.cnb_dev if IS_DEV else model_paths.cnb
+            self._model = load_cnb(self._model_path, copy_from_prod=True)
 
     def predict(self, X: ArrayLike) -> np.ndarray:
         """Predict the primary incident type of the given descriptions.
@@ -110,7 +108,9 @@ class CNBDescriptionClf(Model[CNBPipeline]):
             ngram_range=(1, 2),
             min_df=2,
         )
-        cnb = make_pipeline(word_vec, ComplementNB(alpha=1.2))
+        cnb = make_pipeline(
+            word_vec,
+            CalibratedClassifierCV(ComplementNB(alpha=1.2), method="sigmoid"))
         cnb.fit(descriptions, incident_types)
         return cast(CNBPipeline, cnb)
 
