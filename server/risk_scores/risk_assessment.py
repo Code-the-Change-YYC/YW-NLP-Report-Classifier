@@ -11,6 +11,7 @@ from server.schemas.submit import Form
 import server.risk_scores.risk_scores as risk_scores
 from server.connection import collection
 from server.credentials import credentials
+from server.sanity_utils import run_query, headers, minimum_email_score_query
 
 yag = yagmail.SMTP(credentials.gmail_username, credentials.gmail_password)
 email_format = ("""
@@ -37,6 +38,18 @@ assessment_ranges: List[AssessmentRange] = [(1 / 3, RiskAssessment.LOW),
                                             (1 / 3 * 2, RiskAssessment.MEDIUM),
                                             (1, RiskAssessment.HIGH)]
 assessment_ranges.sort(key=lambda range: range[0])
+
+
+minimum_email_score = run_query(
+    credentials.sanity_gql_endpoint,
+    minimum_email_score_query,
+    headers)['data']['CirForm']['minimumEmailRiskScore'].upper()
+
+minimum_email_score_index = 0
+
+for i, (max_percent, assessment) in enumerate(assessment_ranges):
+    if assessment == RiskAssessment[minimum_email_score]:
+        minimum_email_score_index = i
 
 
 def get_incident_similarity(prev_incident: submit_schema.Form, current_incident: submit_schema.Form):
@@ -117,10 +130,11 @@ def get_risk_assessment(form: submit_schema.Form, timeframe) -> RiskAssessment:
     total_risk_score = get_current_risk_score(form)
     + get_previous_risk_score(form, timeframe)
 
-    for max_percent, assessment in assessment_ranges:
+    for i, (max_percent, assessment) in enumerate(assessment_ranges):
         if total_risk_score <= max_percent:
-            if assessment == RiskAssessment.HIGH and credentials.PYTHON_ENV != "development":
-                email_high_risk_alert(form.dict())    # TODO: make async
+            # check if risk score is above the required minimum to send an email 
+            if i >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
+                email_high_risk_alert(form.dict()) # TODO: make async
             return assessment
     else:
         return RiskAssessment.UNDEFINED
