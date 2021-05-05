@@ -76,7 +76,8 @@ def get_incident_recency(prev_incident: submit_schema.Form, current_incident: su
              prev_incident.occurrence_time).days/30
     # Calculate recency scaled by min_value. If delta == timeframe, incident_recency = min_value.
     # If delta ~= 0 (the previous incident occurred recently), incident_recency ~= 1.
-    incident_recency = 1 - (1 - min_value) * (delta/timeframe)
+    scale = 1 - min_value
+    incident_recency = 1 - scale * (delta/timeframe)
     # Avoid potential off-by-one month errors by dividing by 30
     return max(min_value, incident_recency)
 
