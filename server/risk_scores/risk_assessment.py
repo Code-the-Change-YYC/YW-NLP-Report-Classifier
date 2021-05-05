@@ -101,7 +101,7 @@ def normalize_previous_risk_score(total_prev_risk_score: float):
     """
     # Submitting the same form twice guarantees maximum similarity and recency
     same_form = submit_schema.Form(description='', client_primary='', client_secondary='', location='', services_involved=[], occurrence_time=datetime.utcfromtimestamp(
-        0), incident_type_primary='incident-type', incident_type_secondary='incident-type', child_involved=False, program='program', immediate_response=[], staff_name='staff', program_supervisor_reviewer_name='reviewer')
+        0), incident_type_primary='incident-type', incident_type_secondary='incident-type', child_involved=False, non_client_involved=False, program='program', immediate_response=[], staff_name='staff', program_supervisor_reviewer_name='reviewer', completion_date=datetime.utcfromtimestamp(0))
     incident_similarity = get_incident_similarity(same_form, same_form)
     incident_recency = get_incident_recency(
         same_form, same_form, timeframe=1)
@@ -136,7 +136,7 @@ def get_previous_risk_score(form: submit_schema.Form, timeframe: int):
             "$gte": (form.occurrence_time - relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
         }
     }
-    sort_order = {"occurrence_time": 1}
+    sort_order = [("occurrence_time", 1)]
     prev_incidents = list(collection.find(query).sort(
         sort_order))[-MAX_PREVIOUS_INCIDENTS:]
     total_prev_risk_score = 0
@@ -164,8 +164,9 @@ def get_current_risk_score(form: submit_schema.Form):
 
 
 def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessment:
-    total_risk_score = get_current_risk_score(form)
-    + get_previous_risk_score(form, timeframe)
+    score_from_current_incident = get_current_risk_score(form) * 0.5
+    score_from_prev_incidents = get_previous_risk_score(form, timeframe) * 0.5
+    total_risk_score = score_from_current_incident + score_from_prev_incidents
 
     for max_percent, assessment in assessment_ranges:
         if total_risk_score <= max_percent:

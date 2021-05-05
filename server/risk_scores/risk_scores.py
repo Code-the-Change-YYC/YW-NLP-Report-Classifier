@@ -35,11 +35,6 @@ class RiskScoreData:
         return [self.incident_type_to_risk, self.program_to_risk, self.response_to_risk, self.time_of_day_to_risk]
 
 
-risk_scores = RiskScoreData()
-[incident_type_to_risk, program_to_risk, response_to_risk,
-    time_of_day_to_risk] = risk_scores.get_maps()
-
-
 class FieldRiskScoreMap:
     _risk_score_map: RiskScoreMap
 
@@ -69,7 +64,7 @@ class MultiValFieldRiskScoreMap(FieldRiskScoreMap):
             value_count: The number of values entered into the field.
         """
         risk_scores = sorted(self._risk_score_map.values(), reverse=True)
-        return sum(risk_scores[: value_count])
+        return sum(risk_scores[:value_count])
 
     def get_risk_score(self, field_value: Sequence[RiskScoreMapKey]) -> float:
         s = sum(map(self._risk_score_map.__getitem__,
@@ -97,6 +92,11 @@ def calc_max_risk_score(incident_map, program_map, response_map, occurrence_time
     single_val_maps = [incident_map, program_map, occurrence_time_map]
     # assumes that no more than 3 services will be involved on average
     return sum([risk_map.max_risk_score() for risk_map in single_val_maps] + [response_map.max_risk_score_with_value_count(3)])
+
+
+risk_scores = RiskScoreData()
+[incident_type_to_risk, program_to_risk, response_to_risk,
+    time_of_day_to_risk] = risk_scores.get_maps()
 
 
 incident_type_to_risk_map = FieldRiskScoreMap(incident_type_to_risk)
