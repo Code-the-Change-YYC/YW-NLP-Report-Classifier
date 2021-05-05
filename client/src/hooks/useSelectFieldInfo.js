@@ -5,8 +5,8 @@ const useSelectFieldInfo = () => {
   const [autocompleteValue, setAutocompleteValue] = useState(null);
   const [useAutocomplete, setUseAutocompleteDefault] = useState(true);
   const valid = useAutocomplete
-    ? autocompleteValue !== undefined
-    : userValue !== undefined;
+    ? Boolean(autocompleteValue)
+    : Boolean(userValue);
   const value = useAutocomplete ? autocompleteValue : userValue;
 
   function setUseAutocomplete(newValue) {
