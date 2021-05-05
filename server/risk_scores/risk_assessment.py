@@ -9,6 +9,7 @@ import yagmail
 from server.schemas.submit import Form
 
 import server.risk_scores.risk_scores as risk_scores
+from server.risk_scores.risk_scores import MAX_PREVIOUS_INCIDENTS
 from server.connection import collection
 from server.credentials import credentials
 
@@ -18,7 +19,6 @@ email_format = ("""
     Contents of report form:
     {form_values}
     """)
-MAX_PREVIOUS_INCIDENTS = 3
 
 
 class RiskAssessment(Enum):

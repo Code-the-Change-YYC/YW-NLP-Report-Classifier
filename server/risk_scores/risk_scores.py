@@ -8,6 +8,8 @@ RiskScoreMapKey = str
 RiskScoreMapValue = int
 RiskScoreMap = Dict[RiskScoreMapKey, RiskScoreMapValue]
 
+MAX_PREVIOUS_INCIDENTS = 3
+
 
 class RiskScoreData:
     def __init__(self):
@@ -91,7 +93,7 @@ class DateFieldRiskScoreMap(FieldRiskScoreMap):
 def calc_max_risk_score(incident_map, program_map, response_map, occurrence_time_map):
     single_val_maps = [incident_map, program_map, occurrence_time_map]
     # assumes that no more than 3 services will be involved on average
-    return sum([risk_map.max_risk_score() for risk_map in single_val_maps] + [response_map.max_risk_score_with_value_count(3)])
+    return sum([risk_map.max_risk_score() for risk_map in single_val_maps] + [response_map.max_risk_score_with_value_count(MAX_PREVIOUS_INCIDENTS)])
 
 
 risk_scores = RiskScoreData()
