@@ -69,7 +69,7 @@ def get_incident_recency(prev_incident: submit_schema.Form, current_incident: su
     """
     Returns a value between min_value and 1 depending on the previous incident type's recency scaled by the timeframe.
     """
-    min_value = 0.3
+    min_value = 0.4
     prev_incident.occurrence_time = prev_incident.occurrence_time.replace(
         tzinfo=timezone.utc)
     delta = (current_incident.occurrence_time -
