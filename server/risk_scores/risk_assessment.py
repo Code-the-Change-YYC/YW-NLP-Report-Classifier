@@ -34,9 +34,9 @@ The first value indicates the maximum percentage (inclusive) of the maximum
 possible risk score for which a risk score could be classified as the second
 value.
 """
-assessment_ranges: List[AssessmentRange] = [(1 / 3, RiskAssessment.LOW),
-                                            (1 / 3 * 2, RiskAssessment.MEDIUM),
-                                            (1, RiskAssessment.HIGH)]
+assessment_ranges: List[AssessmentRange] = [(0.3, RiskAssessment.LOW),
+                                            (0.7, RiskAssessment.MEDIUM),
+                                            (1.0, RiskAssessment.HIGH)]
 assessment_ranges.sort(key=lambda range: range[0])
 
 
