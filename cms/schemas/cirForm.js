@@ -59,5 +59,20 @@ export default {
       type: "number",
       validation: (Rule) => Rule.integer().positive(),
     },
+    {
+      name: "minimumEmailRiskScore",
+      title: "Minimum Risk Score to send an Email",
+      description:
+        "The minimum assessed risk score for an incident in order to send an email notifcation",
+      type: "string",
+      options: {
+        list: [
+          { title: "Low", value: "low" },
+          { title: "Medium", value: "medium" },
+          { title: "High", value: "high" },
+        ],
+        layout: "radio",
+      },
+    },
   ],
 };
