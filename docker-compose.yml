@@ -4,7 +4,7 @@ services:
     container_name: backend
     build:
       context: .
-      dockerfile: Dockerfile   
+      dockerfile: Dockerfile
     image: jcayabyab/yw-nlp-backend
     restart: always
     volumes:
@@ -34,7 +34,7 @@ services:
       - "${NGINX_PORT}:${NGINX_PORT}"
     expose:
       - "${NGINX_PORT}"
-    command: /bin/bash -c "envsubst < /etc/nginx/templates/form.template > /etc/nginx/conf.d/default.conf && cat /etc/nginx/conf.d/default.conf && find /etc/nginx -print && nginx -g 'daemon off;'"
+    command: /bin/bash -c "envsubst < /etc/nginx/templates/form.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
 
   db:
     image: mongo:4.4.3
