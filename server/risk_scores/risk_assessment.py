@@ -97,7 +97,7 @@ def get_previous_incident_risk_score(curr_incident: submit_schema.Form, prev_inc
 
 def normalize_previous_risk_score(total_prev_risk_score: float):
     """
-    Normalizes the total_prev_risk_score by the maximum potential risk score of incidents, returning a value between 0 and 1.
+    Normalizes the total_prev_risk_score by the maximum potential risk score of an incident, returning a value between 0 and 1.
     Params:
         total_prev_risk_score: Risk score based on a past Critical Incident Report.
     """
@@ -110,7 +110,7 @@ def normalize_previous_risk_score(total_prev_risk_score: float):
     max_prev_risk_score = previous_risk_score_func(
         risk_scores.max_risk_score, incident_recency, incident_similarity)
 
-    max_total_prev_risk_score = max_prev_risk_score * MAX_PREVIOUS_INCIDENTS
+    max_total_prev_risk_score = max_prev_risk_score
     return total_prev_risk_score / max_total_prev_risk_score
 
 
@@ -123,7 +123,23 @@ def normalize_current_risk_score(risk_score: float):
     return risk_score / risk_scores.max_risk_score
 
 
-def get_previous_risk_score(form: submit_schema.Form, timeframe: int):
+def calculate_previous_risk_score_weightings() -> List[float]:
+    """
+    Creates a risk score weighting distribution of size MAX_PREVIOUS_INCIDENTS such that the distribution
+    is a decreasing linear series that sums to 1. For example, with MAX_PREVIOUS_INCIDENTS == 3,
+    this function returns [0.5, 0.333..., 0.166...], or [3/6, 2/6. 1/6].
+
+    This is designed to put more weighting on the first most recent incident types, as well
+    as lessen the difference between the number of incident types a client has.
+    """
+    mpi = MAX_PREVIOUS_INCIDENTS
+    # arithmetic sum formula
+    denominator = mpi * (mpi+1) / 2
+
+    return [(mpi-i)/denominator for i in range(len(mpi))]
+
+
+def get_previous_incidents_risk_score(form: submit_schema.Form, timeframe: int):
     """
     Returns a risk score number between 0 and 1 based on the last MAX_PREVIOUS_INCIDENTS by that client
     with the same primary initials in the database.
@@ -141,16 +157,18 @@ def get_previous_risk_score(form: submit_schema.Form, timeframe: int):
     sort_order = [("occurrence_time", 1)]
     prev_incidents = list(collection.find(query).sort(
         sort_order))[-MAX_PREVIOUS_INCIDENTS:]
+
+    previous_risk_score_weightings = calculate_previous_risk_score_weightings()
+
     total_prev_risk_score = 0
-    for incident_dict in prev_incidents:
+    for i, incident_dict in enumerate(prev_incidents):
         incident_dict = {key: (val.lower() if type(val) == str else val)
                          for key, val in incident_dict.items()}
-
         incident = Form(**incident_dict)
-        total_prev_risk_score += get_previous_incident_risk_score(
-            form, incident, 1)
+        total_prev_risk_score += normalize_previous_risk_score(get_previous_incident_risk_score(
+            form, incident, 1)) * previous_risk_score_weightings[i]
 
-    return normalize_previous_risk_score(total_prev_risk_score)
+    return total_prev_risk_score
 
 
 def get_current_risk_score(form: submit_schema.Form):
@@ -167,7 +185,8 @@ def get_current_risk_score(form: submit_schema.Form):
 
 def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessment:
     score_from_current_incident = get_current_risk_score(form) * 0.5
-    score_from_prev_incidents = get_previous_risk_score(form, timeframe) * 0.5
+    score_from_prev_incidents = get_previous_incidents_risk_score(
+        form, timeframe) * 0.5
     total_risk_score = score_from_current_incident + score_from_prev_incidents
 
     for max_percent, assessment in assessment_ranges:
