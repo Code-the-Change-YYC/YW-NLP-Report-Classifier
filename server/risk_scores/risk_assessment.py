@@ -136,7 +136,7 @@ def calculate_previous_risk_score_weightings() -> List[float]:
     # arithmetic sum formula
     denominator = mpi * (mpi+1) / 2
 
-    return [(mpi-i)/denominator for i in range(len(mpi))]
+    return [(mpi-i)/denominator for i in range(mpi)]
 
 
 def get_previous_incidents_risk_score(form: submit_schema.Form, timeframe: int):
