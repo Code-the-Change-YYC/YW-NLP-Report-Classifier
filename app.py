@@ -34,7 +34,7 @@ def background_processing(form_fields: Form):
 
 @app.get("/")
 async def index():
-    return {"Hello": "World"}
+    return {"Server status": "Healthy"}
 
 
 @app.post("/api/predict/", response_model=PredictOut)
@@ -70,7 +70,6 @@ async def submit_form(form: SubmitIn,
     Returns:
         SubmitOut: Request data alongside risk score.
     """
-    background_tasks.add_task(background_processing, form.form_fields)
     risk_assessment_timeframe = run_query(
         credentials.sanity_gql_endpoint, timeframe_query,
         headers)['data']['CirForm']['riskAssessmentTimeframe']
@@ -81,6 +80,9 @@ async def submit_form(form: SubmitIn,
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
 
+    if not credentials.USE_WEBHOOK:
+        background_tasks.add_task(background_processing, form.form_fields)
+
     redirect_url = interceptum.call_api(form.form_fields.dict())
     return SubmitOut(form_fields=form.form_fields,
                      risk_assessment=risk_assessment.value,
@@ -90,4 +92,7 @@ async def submit_form(form: SubmitIn,
 @app.post('/api/interceptum-post', response_model=SubmitOut)
 async def interceptum_post_form(form_dict: Dict,
                                 background_tasks: BackgroundTasks) -> SubmitOut:
-    background_tasks.add_task(background_processing, form_dict)
+    """Currently unusable."""
+    # TODO: Map interceptum input to background task input
+    if credentials.USE_WEBHOOK:
+        background_tasks.add_task(background_processing, form_dict)

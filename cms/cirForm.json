@@ -19,78 +19,106 @@ commands are run.
 {
   "_createdAt": "2020-11-14T17:31:40Z",
   "_id": "cirForm",
-  "_rev": "olIRCNAu3EGotpd6howInw",
+  "_rev": "jF33EuwumlGuwav2FLJaDs",
   "_type": "cirForm",
-  "_updatedAt": "2021-03-21T05:08:21Z",
+  "_updatedAt": "2021-05-02T21:13:47Z",
+  "childInvolved": [
+    {
+      "_key": "no",
+      "_type": "optionWithKeywords",
+      "keywords": [],
+      "name": "No"
+    },
+    {
+      "_key": "yes",
+      "_type": "optionWithKeywords",
+      "keywords": ["child"],
+      "name": "Yes"
+    }
+  ],
+  "guestInvolved": [
+    {
+      "_key": "no",
+      "_type": "optionWithKeywords",
+      "keywords": [],
+      "name": "No"
+    },
+    {
+      "_key": "yes",
+      "_type": "optionWithKeywords",
+      "keywords": ["guest", "non-client"],
+      "name": "Yes"
+    }
+  ],
   "immediateResponses": [
     {
       "_key": "called child welfare",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["child welfare"],
       "name": "Called Child Welfare",
-      "risk_weighting": "5"
+      "risk_weighting": 5
     },
     {
       "_key": "evacuation",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["evacuation", "evacuate", "evacuated"],
       "name": "Evacuation",
-      "risk_weighting": "4"
+      "risk_weighting": 4
     },
     {
       "_key": "first-aid provided",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["first-aid", "first aid"],
       "name": "First-aid provided",
-      "risk_weighting": "3"
+      "risk_weighting": 3
     },
     {
       "_key": "infection prevention protocol",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["infection prevention protocol", "infection protocol"],
       "name": "Infection prevention protocol",
-      "risk_weighting": "2"
+      "risk_weighting": 2
     },
     {
       "_key": "mental health assessment",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["mental health assessment", "mental assessment"],
       "name": "Mental health assessment",
-      "risk_weighting": "5"
+      "risk_weighting": 5
     },
     {
       "_key": "naloxone administered",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["naloxone"],
       "name": "Naloxone administered",
-      "risk_weighting": "6"
+      "risk_weighting": 6
     },
     {
       "_key": "person barred/access restricted",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["barred", "access restricted"],
       "name": "Person barred/access restricted",
-      "risk_weighting": "2"
+      "risk_weighting": 2
     },
     {
       "_key": "safety assessment",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["safety assessment"],
       "name": "Safety assessment",
-      "risk_weighting": "4"
+      "risk_weighting": 4
     },
     {
       "_key": "safety planning",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["safety planning"],
       "name": "Safety planning",
-      "risk_weighting": "3"
+      "risk_weighting": 3
     },
     {
       "_key": "other",
       "_type": "optionWithKeywordsAndRisk",
       "name": "Other",
-      "risk_weighting": "2"
+      "risk_weighting": 2
     }
   ],
   "locations": [
@@ -137,138 +165,145 @@ commands are run.
       "name": "YW Sheriff King"
     }
   ],
+  "minimumEmailRiskScore": "high",
   "primaryIncTypes": [
     {
       "_key": "d36571e599e2",
       "_type": "optionWithRisk",
       "name": "Client aggression towards another person",
-      "risk_weighting": "3"
+      "risk_weighting": 3
     },
     {
       "_key": "b13df7eeaa55",
       "_type": "optionWithRisk",
       "name": "Client aggression towards property",
-      "risk_weighting": "3"
+      "risk_weighting": 3
     },
     {
       "_key": "407c70ba21b0",
       "_type": "optionWithRisk",
       "name": "Concern for welfare of a child",
-      "risk_weighting": "4"
+      "risk_weighting": 4
     },
     {
       "_key": "a761a20cf785",
       "_type": "optionWithRisk",
       "name": "Homicide (Threat or attempt)",
-      "risk_weighting": "6"
+      "risk_weighting": 6
     },
     {
       "_key": "0ea8f88eab52",
       "_type": "optionWithRisk",
       "name": "Medical emergency",
-      "risk_weighting": "2"
+      "risk_weighting": 2
     },
     {
       "_key": "a8d8467a6ba4",
       "_type": "optionWithRisk",
       "name": "Mental health emergency",
-      "risk_weighting": "2"
+      "risk_weighting": 2
     },
     {
       "_key": "86eadbfd5377",
       "_type": "optionWithRisk",
       "name": "Other",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     },
     {
       "_key": "b57c8b5015ea",
       "_type": "optionWithRisk",
       "name": "Security concern",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     },
     {
       "_key": "ebf6435d8ddc",
       "_type": "optionWithRisk",
       "name": "Suicide attempt",
-      "risk_weighting": "6"
+      "risk_weighting": 6
     },
     {
       "_key": "5ed337c7b47f",
       "_type": "optionWithRisk",
       "name": "Suspicion/allegation of child abuse - child is not a client",
-      "risk_weighting": "5"
+      "risk_weighting": 5
     },
     {
       "_key": "3a35b1b63559",
       "_type": "optionWithRisk",
       "name": "Suspicion/allegation of abuse towards or against client",
-      "risk_weighting": "5"
+      "risk_weighting": 5
     },
     {
       "_key": "31d72a802df3",
       "_type": "optionWithRisk",
       "name": "Suspected or actual breach of privacy",
-      "risk_weighting": "3"
+      "risk_weighting": 3
     },
     {
       "_key": "354d9d90d428",
       "_type": "optionWithRisk",
       "name": "Media/3rd party contact",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     },
     {
       "_key": "6e8af63420bb",
       "_type": "optionWithRisk",
       "name": "Injury",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     },
     {
       "_key": "d57822f75e67",
       "_type": "optionWithRisk",
       "name": "Illegal activity on premises",
-      "risk_weighting": "6"
+      "risk_weighting": 6
     },
     {
       "_key": "cf9757fa3b08",
       "_type": "optionWithRisk",
       "name": "Exposure",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     },
     {
       "_key": "333836f59e23",
       "_type": "optionWithRisk",
       "name": "COVID-19 Confirmed",
-      "risk_weighting": "5"
+      "risk_weighting": 5
     },
     {
       "_key": "5ed0faa845df",
       "_type": "optionWithRisk",
       "name": "Refusal to isolate for COVID-19",
-      "risk_weighting": "3"
+      "risk_weighting": 3
     },
     {
       "_key": "89b4768b8657",
       "_type": "optionWithRisk",
       "name": "Client missing",
-      "risk_weighting": "3"
+      "risk_weighting": 3
     },
     {
       "_key": "c8fb236f208e",
       "_type": "optionWithRisk",
       "name": "Client death (onsite)",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     },
     {
       "_key": "958e0db7cb2f",
       "_type": "optionWithRisk",
       "name": "Client death (offsite)",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     },
     {
       "_key": "06ee06c95979",
       "_type": "optionWithRisk",
       "name": "Child abandonment",
-      "risk_weighting": "3"
+      "risk_weighting": 3
+    },
+    {
+      "_key": "a966908e288e",
+      "_type": "optionWithRisk",
+      "name": "test",
+      "risk_weighting": 2
     }
   ],
   "programs": [
@@ -277,126 +312,126 @@ commands are run.
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["child care"],
       "name": "Child Care (Hub)",
-      "risk_weighting": "5"
+      "risk_weighting": 5
     },
     {
       "_key": "child support",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["child support"],
       "name": "Child Support",
-      "risk_weighting": "5"
+      "risk_weighting": 5
     },
     {
       "_key": "compass",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["compass"],
       "name": "Compass",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     },
     {
       "_key": "counselling",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["counselling"],
       "name": "Counselling and Personal Development",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     },
     {
       "_key": "croydon",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["croydon"],
       "name": "Croydon (Community Housing)",
-      "risk_weighting": "4"
+      "risk_weighting": 4
     },
     {
       "_key": "DCRT",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["DCRT"],
       "name": "DCRT",
-      "risk_weighting": "3"
+      "risk_weighting": 3
     },
     {
       "_key": "dropin child care",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["Drop-In Child Care", "drop in child care", "drop in"],
       "name": "Drop-In Child Care",
-      "risk_weighting": "3"
+      "risk_weighting": 3
     },
     {
       "_key": "employment resource center",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["employment resource center"],
       "name": "Employment Resource Center",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     },
     {
       "_key": "family access",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["family access"],
       "name": "Family Access",
-      "risk_weighting": "2"
+      "risk_weighting": 2
     },
     {
       "_key": "family resource network",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["family resource network"],
       "name": "Family Resource Network",
-      "risk_weighting": "3"
+      "risk_weighting": 3
     },
     {
       "_key": "intensive case management",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["intensive case management"],
       "name": "Intensive Case Management",
-      "risk_weighting": "5"
+      "risk_weighting": 5
     },
     {
       "_key": "LINC",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["LINC"],
       "name": "LINC",
-      "risk_weighting": "2"
+      "risk_weighting": 2
     },
     {
       "_key": "mindful moments",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["mindful moments"],
       "name": "Mindful Moments",
-      "risk_weighting": "4"
+      "risk_weighting": 4
     },
     {
       "_key": "outreach counselling",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["outreach counselling"],
       "name": "Outreach Counselling",
-      "risk_weighting": "3"
+      "risk_weighting": 3
     },
     {
       "_key": "providence (community housing)",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["providence"],
       "name": "Providence (Community Housing)",
-      "risk_weighting": "4"
+      "risk_weighting": 4
     },
     {
       "_key": "sheriff king home",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["sheriff king home"],
       "name": "Sheriff King Home",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     },
     {
       "_key": "the maple (community housing)",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["the maple"],
       "name": "The Maple (Community Housing)",
-      "risk_weighting": "4"
+      "risk_weighting": 4
     },
     {
       "_key": "transitional housing",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["transitional housing"],
       "name": "Transitional Housing",
-      "risk_weighting": "1"
+      "risk_weighting": 1
     }
   ],
   "riskAssessmentTimeframe": 12,
@@ -406,21 +441,21 @@ commands are run.
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["child welfare", "cfs"],
       "name": "Child Welfare (CFS)",
-      "risk_weighting": "4"
+      "risk_weighting": 4
     },
     {
       "_key": "ems",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["ems", "ambulance"],
       "name": "EMS",
-      "risk_weighting": "4"
+      "risk_weighting": 4
     },
     {
       "_key": "police",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["police", "arrested", "arrest", "arresting"],
       "name": "Police",
-      "risk_weighting": "5"
+      "risk_weighting": 5
     },
     {
       "_key": "fire",
@@ -432,48 +467,20 @@ commands are run.
         "fire services"
       ],
       "name": "Fire",
-      "risk_weighting": "4"
+      "risk_weighting": 4
     },
     {
       "_key": "doap/pact",
       "_type": "optionWithKeywordsAndRisk",
       "keywords": ["doap", "pact"],
       "name": "Outreach (DOAP/PACT)",
-      "risk_weighting": "2"
+      "risk_weighting": 2
     },
     {
       "_key": "other",
       "_type": "optionWithKeywordsAndRisk",
       "name": "Other",
-      "risk_weighting": "2"
-    }
-  ],
-  "childInvolved": [
-    {
-      "_key": "no",
-      "_type": "optionWithKeywords",
-      "keywords": [],
-      "name": "No"
-    },
-    {
-      "_key": "yes",
-      "_type": "optionWithKeywords",
-      "keywords": ["child"],
-      "name": "Yes"
-    }
-  ],
-  "guestInvolved": [
-    {
-      "_key": "no",
-      "_type": "optionWithKeywords",
-      "keywords": [],
-      "name": "No"
-    },
-    {
-      "_key": "yes",
-      "_type": "optionWithKeywords",
-      "keywords": ["guest", "non-client"],
-      "name": "Yes"
+      "risk_weighting": 2
     }
   ]
 }
