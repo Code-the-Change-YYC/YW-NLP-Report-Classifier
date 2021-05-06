@@ -9,7 +9,7 @@ import yagmail
 from server.schemas.submit import Form
 
 import server.risk_scores.risk_scores as risk_scores
-from server.risk_scores.risk_scores import MAX_PREVIOUS_INCIDENTS
+from server.risk_scores.risk_scores import MAX_PREVIOUS_INCIDENTS, risk_score_combiner
 from server.connection import collection
 from server.credentials import credentials
 from server.sanity_utils import run_query, headers, minimum_email_score_query
@@ -29,16 +29,9 @@ class RiskAssessment(Enum):
     HIGH = 'HIGH'
 
 
-AssessmentRange = Tuple[float, RiskAssessment]
-"""
-The first value indicates the maximum percentage (inclusive) of the maximum
-possible risk score for which a risk score could be classified as the second
-value.
-"""
-assessment_ranges: List[AssessmentRange] = [(0.3, RiskAssessment.LOW),
-                                            (0.7, RiskAssessment.MEDIUM),
-                                            (1.0, RiskAssessment.HIGH)]
-assessment_ranges.sort(key=lambda range: range[0])
+assessment_ranges: List[RiskAssessment] = [RiskAssessment.LOW,
+                                           RiskAssessment.MEDIUM,
+                                           RiskAssessment.HIGH]
 
 
 minimum_email_score = run_query(
@@ -48,7 +41,7 @@ minimum_email_score = run_query(
 
 minimum_email_score_index = 0
 
-for i, (max_percent, assessment) in enumerate(assessment_ranges):
+for i, assessment in enumerate(assessment_ranges):
     if assessment == RiskAssessment[minimum_email_score]:
         minimum_email_score_index = i
 
@@ -197,19 +190,15 @@ def get_current_risk_score(form: submit_schema.Form):
 
 
 def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessment:
-    score_from_current_incident = get_current_risk_score(form) * 0.5
+    score_from_current_incident = get_current_risk_score(form)
     score_from_prev_incidents = get_previous_incidents_risk_score(
-        form, timeframe) * 0.5
-    total_risk_score = score_from_current_incident + score_from_prev_incidents
+        form, timeframe)
+    risk_assessment = risk_score_combiner.combine_risk_scores(
+        score_from_current_incident, score_from_prev_incidents)
 
-    for i, (max_percent, assessment) in enumerate(assessment_ranges):
-        if total_risk_score <= max_percent:
-            # check if risk score is above the required minimum to send an email 
-            if i >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
-                email_high_risk_alert(form.dict()) # TODO: make async
-            return assessment
-    else:
-        return RiskAssessment.UNDEFINED
+    if risk_assessment >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
+        email_high_risk_alert(form.dict())  # TODO: make async
+    return assessment_ranges[risk_assessment]
 
 
 def email_high_risk_alert(form_values: dict):
