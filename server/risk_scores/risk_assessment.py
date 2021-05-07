@@ -167,9 +167,9 @@ def get_previous_incidents_risk_score(form: submit_schema.Form, timeframe: int):
             "$gte": (form.occurrence_time - relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
         }
     }
-    sort_order = [("occurrence_time", 1)]
+    sort_order = [("occurrence_time", -1)]
     prev_incidents = list(collection.find(query).sort(
-        sort_order))[-MAX_PREVIOUS_INCIDENTS:]
+        sort_order))[:MAX_PREVIOUS_INCIDENTS]
 
     previous_risk_score_weightings = calculate_previous_risk_score_weightings()
 
@@ -204,9 +204,9 @@ def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessm
 
     for i, (max_percent, assessment) in enumerate(assessment_ranges):
         if total_risk_score <= max_percent:
-            # check if risk score is above the required minimum to send an email 
+            # check if risk score is above the required minimum to send an email
             if i >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
-                email_high_risk_alert(form.dict()) # TODO: make async
+                email_high_risk_alert(form.dict())  # TODO: make async
             return assessment
     else:
         return RiskAssessment.UNDEFINED
