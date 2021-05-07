@@ -6,6 +6,8 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import ComplementNB
 from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.metrics import log_loss
 
 from training.description_classification import model_paths
 from preprocess.incident_types.incident_types_d import IncidentType
@@ -106,7 +108,9 @@ class CNBDescriptionClf(Model[CNBPipeline]):
             ngram_range=(1, 2),
             min_df=2,
         )
-        cnb = make_pipeline(word_vec, ComplementNB(alpha=1.2))
+        cnb = make_pipeline(
+            word_vec,
+            CalibratedClassifierCV(ComplementNB(alpha=1.2), method="sigmoid"))
         cnb.fit(descriptions, incident_types)
         return cast(CNBPipeline, cnb)
 
@@ -163,12 +167,14 @@ class CNBDescriptionClf(Model[CNBPipeline]):
 
 
 if __name__ == "__main__":
+
     clf = CNBDescriptionClf()
     df = ReportData().get_processed_data()
     X = df[ColName.DESC][:5]
     y = df[ColName.INC_T1][:5]
-    clf.partial_fit(X, y, list(set(y)))
+
     print(clf.predict(X))
+
     multi_predict = clf.predict_multiple(X, 5)
     for i, prediction_set in enumerate(multi_predict):
         print("For description")
