@@ -1,3 +1,4 @@
+from preprocess.report_data_d import _ColName
 from typing import Dict
 from preprocess.report_data import ReportData
 import requests
@@ -5,7 +6,7 @@ import pandas as pd
 
 from server.credentials import credentials
 from server.interceptum_adapter import InterceptumAdapter
-from server.risk_scores.risk_assessment import get_risk_assessment
+from server.risk_scores.risk_assessment import RiskAssessment, get_risk_assessment
 from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
 
 from models.cnb_model import CNBDescriptionClf
@@ -120,10 +121,9 @@ async def sanity_update(sanity_update_in: SanityUpdate):
 
 
 @app.post('/api/retrain')
-async def retrain_model(csv_file: UploadFile = File(..., media_type='text/csv'),
-                        descriptions_column: str = None,
-                        types_column: str = None):
-    dataframe = pd.read_csv(csv_file.file)
-    descriptions = dataframe[descriptions_column].to_numpy()
-    types = dataframe[types_column].to_numpy()
+async def retrain_model(csv_file: UploadFile = File(..., media_type='text/csv')):
+    report_data = ReportData()
+    dataframe = report_data.process_report_data(csv_file.file)
+    descriptions = dataframe[_ColName.DESC].to_numpy()
+    types = dataframe[_ColName.INC_T1].to_numpy()
     clf.retrain_model(descriptions, types)

@@ -1,7 +1,7 @@
 from server.schemas.submit import Form
 import sys
 from os import path
-from typing import List, Type
+from typing import IO, List, Optional, Any, cast
 
 import pandas as pd
 
@@ -35,11 +35,7 @@ class DescriptionProcessor(Preprocessor):
 
 
 class ReportData:
-    pipeline: List[Type[Preprocessor]] = [
-        DatetimeMapper(),
-        IncidentTypesProcessor(),
-        DescriptionProcessor()
-    ]
+    pipeline: Optional[List[Preprocessor]] = None
     in_file_path: str = path.join(dir_path, 'data', 'data-sensitive.csv')
     out_file_path: str = path.join(dir_path, 'data', 'data-processed.csv')
 
@@ -55,15 +51,25 @@ class ReportData:
         """
         self.in_file_path = in_file_path
         self.out_file_path = out_file_path
-        self._processor_args = processor_args
-        self.processor = DescriptionProcessor(**processor_args)
+        self.desc_processor = DescriptionProcessor(**processor_args)
+        if ReportData.pipeline is None:
+            ReportData.pipeline = [
+                DatetimeMapper(**processor_args),
+                IncidentTypesProcessor(**processor_args),
+                self.desc_processor
+            ]
+            
 
-    def get_raw_report_data(self) -> pd.DataFrame:
+    def get_raw_report_data(self, file_spec: Any = None) -> pd.DataFrame:
         """
+        Params:
+            file_spec: Type as passed to pd.read_csv
         Returns:
             Unprocessed report data.
         """
-        report_df = pd.read_csv(self.in_file_path)
+        if file_spec is None:
+            file_spec = self.in_file_path
+        report_df = cast(pd.DataFrame, pd.read_csv(file_spec))
         # Add all additional columns not included in the original csv
         for processor in self.pipeline:
             report_df = processor.add_columns(report_df)
@@ -72,16 +78,18 @@ class ReportData:
         report_df.columns = _ColName
         return report_df
 
-    def process_report_data(self) -> pd.DataFrame:
+    def process_report_data(self, file_spec = None) -> pd.DataFrame:
         """
+        Params:
+            file_spec: see `get_raw_report_data`
         Returns:
             Processed report data.
         """
-        report_df = self.get_raw_report_data()
+        report_df = self.get_raw_report_data(file_spec)
         for processor in self.pipeline:
-            print(f'Starting {processor.__name__}')
-            report_df = self.processor.process(report_df)
-            print(f'Finished {processor.__name__}')
+            print(f'Starting {processor.__class__.__name__}')
+            report_df = processor.process(report_df)
+            print(f'Finished {processor.__class__.__name__}')
         return report_df
 
     def process_form_submission(self, form_submission: Form) -> Form:
@@ -94,7 +102,7 @@ class ReportData:
             _ColName.CLI_PRI: [form_submission.client_primary],
             _ColName.CLI_SEC: [form_submission.client_secondary],
         })
-        report_df = self.processor.process(report_df)
+        report_df = self.desc_processor.process(report_df)
         new_form_submission = form_submission.copy()
         new_form_submission.description = report_df.at[0, _ColName.DESC]
         return new_form_submission
