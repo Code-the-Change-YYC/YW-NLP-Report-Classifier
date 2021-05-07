@@ -6,9 +6,7 @@ const useDateFieldInfo = (initiallyAutocomplete = true) => {
   const [useAutocomplete, setUseAutocompleteDefault] = useState(
     initiallyAutocomplete
   );
-  const valid = useAutocomplete
-    ? Boolean(autocompleteValue)
-    : Boolean(userValue);
+  const valid = Boolean(useAutocomplete ? autocompleteValue : userValue);
   const value = useAutocomplete ? autocompleteValue : userValue;
 
   function setUseAutocomplete(newValue) {
