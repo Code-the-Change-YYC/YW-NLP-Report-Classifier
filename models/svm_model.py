@@ -1,7 +1,6 @@
 import numpy as np
 from sklearn.pipeline import Pipeline
 
-from preprocess.incident_types.incident_types_d import IncidentType
 from models.model import Model, ArrayLike
 from preprocess.report_data import ReportData
 from preprocess.report_data_d import ColName
@@ -26,7 +25,7 @@ class SVMDescriptionClf(Model[SVMPipeline]):
             1D array of `IncidentType` predictions for the given descriptions.
         """
         predictions = self._model.predict(X)
-        return np.array([IncidentType(prediction) for prediction in predictions])
+        return np.array([prediction for prediction in predictions])
 
     def partial_fit(self, X: ArrayLike, y: ArrayLike, classes: ArrayLike = None) -> object:
         pass
