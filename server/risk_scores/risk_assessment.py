@@ -2,6 +2,7 @@ from enum import Enum
 
 from datetime import timezone
 from dateutil.relativedelta import relativedelta
+from os.path import dirname
 import server.schemas.submit as submit_schema
 from typing import List, Tuple
 import yagmail
@@ -39,10 +40,8 @@ assessment_ranges: List[AssessmentRange] = [(1 / 3, RiskAssessment.LOW),
                                             (1, RiskAssessment.HIGH)]
 assessment_ranges.sort(key=lambda range: range[0])
 
-
 minimum_email_score = run_query(
-    credentials.sanity_gql_endpoint,
-    minimum_email_score_query,
+    credentials.sanity_gql_endpoint, minimum_email_score_query,
     headers)['data']['CirForm']['minimumEmailRiskScore'].upper()
 
 minimum_email_score_index = 0
@@ -52,7 +51,8 @@ for i, (max_percent, assessment) in enumerate(assessment_ranges):
         minimum_email_score_index = i
 
 
-def get_incident_similarity(prev_incident: submit_schema.Form, current_incident: submit_schema.Form):
+def get_incident_similarity(prev_incident: submit_schema.Form,
+                            current_incident: submit_schema.Form):
     similarity = 0
     coefficient = 1
 
@@ -72,13 +72,14 @@ def get_incident_similarity(prev_incident: submit_schema.Form, current_incident:
     return coefficient * similarity
 
 
-def get_incident_recency(prev_incident: submit_schema.Form, current_incident: submit_schema.Form, timeframe):
+def get_incident_recency(prev_incident: submit_schema.Form,
+                         current_incident: submit_schema.Form, timeframe):
     # TODO: Standardize all dates in the databse
     prev_incident.occurrence_time = prev_incident.occurrence_time.replace(
         tzinfo=timezone.utc)
     delta = (current_incident.occurrence_time -
-             prev_incident.occurrence_time).days/30
-    recency_of_incident = 1 - delta/timeframe
+             prev_incident.occurrence_time).days / 30
+    recency_of_incident = 1 - delta / timeframe
     return recency_of_incident
 
 
@@ -86,14 +87,18 @@ def get_previous_risk_score(form: submit_schema.Form, timeframe):
     query = {
         "client_primary": form.client_primary,
         "occurrence_time": {
-            '$gte': (form.occurrence_time - relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
+            '$gte':
+                (form.occurrence_time -
+                 relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
         }
     }
     prev_incidents = collection.find(query)
     total_prev_risk_score = 0
     for incident_dict in prev_incidents:
-        incident_dict = {key: (val.lower() if type(val) == str else val)
-                         for key, val in incident_dict.items()}
+        incident_dict = {
+            key: (val.lower() if type(val) == str else val)
+            for key, val in incident_dict.items()
+        }
 
         incident = Form(**incident_dict)
         incident_score = get_current_risk_score(incident)
@@ -126,23 +131,38 @@ def get_current_risk_score(form: submit_schema.Form):
     return percent_of_max
 
 
+required_email_form_fields = {'staff_name', 'client_primary'}
+
+
 def get_risk_assessment(form: submit_schema.Form, timeframe) -> RiskAssessment:
     total_risk_score = get_current_risk_score(form)
-    + get_previous_risk_score(form, timeframe)
+    +get_previous_risk_score(form, timeframe)
 
-    for i, (max_percent, assessment) in enumerate(assessment_ranges):
+    for (max_percent, assessment) in assessment_ranges:
         if total_risk_score <= max_percent:
-            # check if risk score is above the required minimum to send an email 
-            if i >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
-                email_high_risk_alert(form.dict()) # TODO: make async
+            email_dict = {
+                k: v
+                for k, v in form.dict().items()
+                if k in required_email_form_fields
+            }
+            email_dict.update({
+                'risk_score': assessment.value,
+                'risk_score_raw': total_risk_score
+            })
+            email_high_risk_alert(email_dict)
             return assessment
     else:
         return RiskAssessment.UNDEFINED
 
 
-def email_high_risk_alert(form_values: dict):
-    form_values = (
-        f"<b>{field}</b>: {value}" for field, value in form_values.items())
+html_template_filename = "/.template.html"
+
+with open(dirname(__file__) + html_template_filename) as f:
+    html_template = f.read()
+
+
+def email_high_risk_alert(email_values: dict):
+    email_contents = html_template.format(**email_values)
     yag.send(credentials.gmail_username,
-             subject="Recent high risk assessment",
-             contents=email_format.format(form_values="\n".join(form_values)))
+             subject="CIR Risk Assessment",
+             contents=email_contents)
