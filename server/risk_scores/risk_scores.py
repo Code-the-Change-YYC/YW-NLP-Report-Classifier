@@ -19,6 +19,9 @@ class RiskScoreData:
             cirForm['programs'], 'name')
         self.response_to_risk = self.map_array_to_dict(
             cirForm['immediateResponses'], 'name')
+        self.services_to_risk = self.map_array_to_dict(
+            cirForm['servicesInvolved'], 'name')
+
         # hardcoded for now - adjusting these values seems lower value, might be an improvement
         # in the future
         self.time_of_day_to_risk = {
@@ -32,12 +35,12 @@ class RiskScoreData:
         return {entry[key_name].lower(): int(entry['risk_weighting']) for entry in arr}
 
     def get_maps(self):
-        return [self.incident_type_to_risk, self.program_to_risk, self.response_to_risk, self.time_of_day_to_risk]
+        return [self.incident_type_to_risk, self.program_to_risk, self.response_to_risk, self.time_of_day_to_risk, self.services_to_risk]
 
 
 risk_scores = RiskScoreData()
 [incident_type_to_risk, program_to_risk, response_to_risk,
-    time_of_day_to_risk] = risk_scores.get_maps()
+    time_of_day_to_risk, services_to_risk] = risk_scores.get_maps()
 
 
 class FieldRiskScoreMap:
@@ -94,6 +97,7 @@ class DateFieldRiskScoreMap(FieldRiskScoreMap):
 
 
 incident_type_to_risk_map = FieldRiskScoreMap(incident_type_to_risk)
+services_to_risk_map = MultiValFieldRiskScoreMap()
 program_to_risk_map = FieldRiskScoreMap(program_to_risk)
 response_to_risk_map = MultiValFieldRiskScoreMap(response_to_risk)
 occurrence_time_to_risk_map = DateFieldRiskScoreMap(time_of_day_to_risk)

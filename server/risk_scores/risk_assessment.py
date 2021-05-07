@@ -112,6 +112,8 @@ def get_current_risk_score(form: submit_schema.Form):
                       form.incident_type_primary) +
                   risk_scores.response_to_risk_map.get_risk_score(
                       form.immediate_response) +
+                  risk_scores.services_to_risk_map.get_risk_score(
+                      form.services_involved) +
                   risk_scores.occurrence_time_to_risk_map.get_risk_score(
                       form.occurrence_time))
 
@@ -120,6 +122,8 @@ def get_current_risk_score(form: submit_schema.Form):
         risk_scores.incident_type_to_risk_map.max_risk_score() +
         risk_scores.response_to_risk_map.max_risk_score_with_value_count(
             len(form.immediate_response)) +
+        risk_scores.services_to_risk_map.max_risk_score_with_value_count(
+            len(form.services_involved)) +
         risk_scores.occurrence_time_to_risk_map.max_risk_score())
 
     percent_of_max = risk_score / max_risk_score
@@ -132,9 +136,9 @@ def get_risk_assessment(form: submit_schema.Form, timeframe) -> RiskAssessment:
 
     for i, (max_percent, assessment) in enumerate(assessment_ranges):
         if total_risk_score <= max_percent:
-            # check if risk score is above the required minimum to send an email 
+            # check if risk score is above the required minimum to send an email
             if i >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
-                email_high_risk_alert(form.dict()) # TODO: make async
+                email_high_risk_alert(form.dict())  # TODO: make async
             return assessment
     else:
         return RiskAssessment.UNDEFINED

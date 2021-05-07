@@ -35,6 +35,10 @@ risk_scores_query = """
                 name
                 risk_weighting
             }
+            servicesInvolved {
+                name
+                risk_weighting
+            }
         }
     }
 """
