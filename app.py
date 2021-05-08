@@ -96,7 +96,7 @@ async def submit_form(form: SubmitIn,
                      redirect_url=redirect_url)
 
 
-@app.post('/api/interceptum-post', response_model=SubmitOut)
+@app.post('/webhook/interceptum-post', response_model=SubmitOut)
 async def interceptum_post_form(form_dict: Dict,
                                 background_tasks: BackgroundTasks) -> SubmitOut:
     """Currently unusable."""
@@ -105,7 +105,7 @@ async def interceptum_post_form(form_dict: Dict,
         background_tasks.add_task(background_processing, form_dict)
 
 
-@app.post("/api/sanity-update/")
+@app.post("/webhook/sanity-update/")
 async def sanity_update(sanity_update_in: SanityUpdate):
     """Endpoint for retraining the model when relevant changes to the form
     fields occur in Sanity.
