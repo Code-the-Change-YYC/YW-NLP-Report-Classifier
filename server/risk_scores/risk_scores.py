@@ -1,3 +1,5 @@
+import warnings
+
 from datetime import datetime
 from typing import List, Dict, Sequence
 from math import floor
@@ -115,10 +117,13 @@ class RiskScoreCombiner:
         1 = MEDIUM
         2 = HIGH
         """
-        if score_from_current_incident > 1:
-            raise ValueError('Risk score from incident > 1')
-        if score_from_prev_incidents > 1:
-            raise ValueError('Risk score from previous incidents > 1')
+        if score_from_current_incident > 1 or score_from_prev_incidents > 1:
+            warnings.warn(
+                f'''Current or previous risk score > 1:\n
+                    Current: {score_from_current_incident}\n
+                    Previous: {score_from_prev_incidents}'''
+            )
+            return 2
         curr_score, prev_score = floor(
             score_from_current_incident * 100), floor(score_from_prev_incidents * 100)
         return self._mapping[curr_score][prev_score]
