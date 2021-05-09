@@ -52,6 +52,7 @@ def get_incident_similarity(prev_incident: submit_schema.Form, current_incident:
     """
     min_value = 0.2
     similarity = min_value
+    scale = 1 - min_value
 
     similar_fields = {
         'client_secondary': 1,
@@ -66,7 +67,7 @@ def get_incident_similarity(prev_incident: submit_schema.Form, current_incident:
 
     for field, score in similar_fields.items():
         if getattr(current_incident, field) == getattr(prev_incident, field):
-            similarity += score / total_field_sum
+            similarity += score / total_field_sum * scale
 
     return similarity
 
@@ -104,6 +105,9 @@ def get_previous_incident_risk_score(curr_incident: submit_schema.Form, prev_inc
 def normalize_previous_risk_score(total_prev_risk_score: float):
     """
     Normalizes the total_prev_risk_score by the maximum potential risk score of an incident, returning a value between 0 and 1.
+    NOTE: in the case where more than risk_scores.MAX_RESPONSES_FOR_RISK_SCORE responses are included in the CIR, then there's
+    a case where the normalized score may be >1. We accept this case and check for it when classifying the final risk level of
+    the CIR.
     Params:
         total_prev_risk_score: Risk score based on a past Critical Incident Report.
     """
@@ -113,10 +117,9 @@ def normalize_previous_risk_score(total_prev_risk_score: float):
     incident_similarity = get_incident_similarity(same_form, same_form)
     incident_recency = get_incident_recency(
         same_form, same_form, timeframe=1)
-    max_prev_risk_score = previous_risk_score_func(
+    max_total_prev_risk_score = previous_risk_score_func(
         risk_scores.max_risk_score, incident_recency, incident_similarity)
 
-    max_total_prev_risk_score = max_prev_risk_score
     return total_prev_risk_score / max_total_prev_risk_score
 
 
@@ -160,9 +163,9 @@ def get_previous_incidents_risk_score(form: submit_schema.Form, timeframe: int):
             "$gte": (form.occurrence_time - relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
         }
     }
-    sort_order = [("occurrence_time", 1)]
+    sort_order = [("occurrence_time", -1)]
     prev_incidents = list(collection.find(query).sort(
-        sort_order))[-MAX_PREVIOUS_INCIDENTS:]
+        sort_order))[:MAX_PREVIOUS_INCIDENTS]
 
     previous_risk_score_weightings = calculate_previous_risk_score_weightings()
 
@@ -172,7 +175,7 @@ def get_previous_incidents_risk_score(form: submit_schema.Form, timeframe: int):
                          for key, val in incident_dict.items()}
         incident = Form(**incident_dict)
         total_prev_risk_score += normalize_previous_risk_score(get_previous_incident_risk_score(
-            form, incident, 1)) * previous_risk_score_weightings[i]
+            form, incident, timeframe)) * previous_risk_score_weightings[i]
 
     return total_prev_risk_score
 

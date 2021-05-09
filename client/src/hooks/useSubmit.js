@@ -22,6 +22,11 @@ const useSubmit = ({
   supervisorReviewer,
   dateCompleted,
   clientInitialsValid,
+  locationValid,
+  dateOccurredValid,
+  involvesChildValid,
+  programValid,
+  incidentTypePriValid,
 }) => {
   const [submitClicked, setSubmitClicked] = useState(false);
 
@@ -37,17 +42,16 @@ const useSubmit = ({
 
   const checkRequiredFields = () => {
     return (
-      description.length > 0 &&
+      description &&
       clientInitialsValid &&
-      location !== undefined &&
-      incidentTypePri !== undefined &&
-      program !== undefined &&
-      immediateResponse.length > 0 &&
-      staffCompleting.length > 0 &&
-      supervisorReviewer.length > 0 &&
-      involvesChild !== null &&
-      dateOccurred !== null &&
-      dateCompleted !== null
+      locationValid &&
+      dateOccurredValid &&
+      incidentTypePriValid &&
+      involvesChildValid &&
+      programValid &&
+      immediateResponse &&
+      staffCompleting &&
+      supervisorReviewer
     );
   };
 

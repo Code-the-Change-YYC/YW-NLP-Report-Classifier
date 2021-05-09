@@ -10,12 +10,13 @@ RiskScoreMapValue = int
 RiskScoreMap = Dict[RiskScoreMapKey, RiskScoreMapValue]
 
 MAX_PREVIOUS_INCIDENTS = 3
+MAX_RESPONSES_FOR_RISK_SCORE = 3
 
 
 class RiskScoreData:
     def __init__(self):
-        cirForm = run_query(credentials.sanity_gql_endpoint, risk_scores_query,
-                            headers)['data']['CirForm']
+        cirForm = run_query(credentials.sanity_gql_endpoint,
+                            risk_scores_query, headers)['data']['CirForm']
         self.incident_type_to_risk = self.map_array_to_dict(
             cirForm['primaryIncTypes'], 'name')
         self.program_to_risk = self.map_array_to_dict(
@@ -125,7 +126,8 @@ class RiskScoreCombiner:
 
 def calc_max_risk_score(incident_map, program_map, response_map, occurrence_time_map):
     single_val_maps = [incident_map, program_map, occurrence_time_map]
-    return sum([risk_map.max_risk_score() for risk_map in single_val_maps] + [response_map.max_risk_score_with_value_count(MAX_PREVIOUS_INCIDENTS)])
+    # assumes that no more than 3 services will be involved on average
+    return sum([risk_map.max_risk_score() for risk_map in single_val_maps] + [response_map.max_risk_score_with_value_count(MAX_RESPONSES_FOR_RISK_SCORE)])
 
 
 risk_scores = RiskScoreData()
