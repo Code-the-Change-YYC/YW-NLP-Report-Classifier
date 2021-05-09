@@ -405,6 +405,15 @@ class TestGetRiskAssessment(TestCase):
         self.assertEqual(assessment, RiskAssessment.MEDIUM)
         self.assertFalse(email_mock.called)
 
+    @patch('warnings.warn')
+    def test_get_risk_assessment_over_one(self, warn_mock, curr_mock, prev_mock, email_mock):
+        curr_mock.return_value = 1.1
+        prev_mock.return_value = 1.1
+        assessment = get_risk_assessment(mock_form, 3)
+        self.assertEqual(assessment, RiskAssessment.HIGH)
+        self.assertTrue(email_mock.called)
+        self.assertTrue(warn_mock.called)
+
 
 if __name__ == '__main__':
     main()
