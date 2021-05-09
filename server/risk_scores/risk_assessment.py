@@ -2,6 +2,7 @@ from enum import Enum
 
 from datetime import timezone, datetime
 from dateutil.relativedelta import relativedelta
+from os.path import dirname
 import server.schemas.submit as submit_schema
 from typing import List, Tuple
 import yagmail
@@ -39,7 +40,6 @@ assessment_ranges: List[AssessmentRange] = [(0.3, RiskAssessment.LOW),
                                             (0.7, RiskAssessment.MEDIUM),
                                             (1.0, RiskAssessment.HIGH)]
 assessment_ranges.sort(key=lambda range: range[0])
-
 
 minimum_email_score = run_query(
     credentials.sanity_gql_endpoint,
@@ -199,25 +199,33 @@ def get_current_risk_score(form: submit_schema.Form):
     return normalize_current_risk_score(risk_score)
 
 
-def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessment:
-    score_from_current_incident = get_current_risk_score(form) * 0.5
-    score_from_prev_incidents = get_previous_incidents_risk_score(
-        form, timeframe) * 0.5
-    total_risk_score = score_from_current_incident + score_from_prev_incidents
+def get_risk_assessment(form: submit_schema.Form, timeframe) -> RiskAssessment:
+    total_risk_score = get_current_risk_score(form) + get_previous_risk_score(form, timeframe)
+    form_dict = form.dict()
 
     for i, (max_percent, assessment) in enumerate(assessment_ranges):
         if total_risk_score <= max_percent:
-            # check if risk score is above the required minimum to send an email
             if i >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
-                email_high_risk_alert(form.dict())  # TODO: make async
+                email_dict = {
+                    "staff_name": form_dict["staff_name"],
+                    "client_primary": form_dict["client_primary"],
+                    "risk_score": assessment.value,
+                    "risk_score_raw": total_risk_score
+                }
+                email_high_risk_alert(email_dict)
             return assessment
     else:
         return RiskAssessment.UNDEFINED
 
 
-def email_high_risk_alert(form_values: dict):
-    form_values = (
-        f"<b>{field}</b>: {value}" for field, value in form_values.items())
+html_template_filename = "/template.html"
+
+with open(dirname(__file__) + html_template_filename) as f:
+    html_template = f.read()
+
+
+def email_high_risk_alert(email_values: dict):
+    email_contents = html_template.format(**email_values)
     yag.send(credentials.gmail_username,
-             subject="Recent high risk assessment",
-             contents=email_format.format(form_values="\n".join(form_values)))
+             subject="CIR Risk Assessment",
+             contents=email_contents)
