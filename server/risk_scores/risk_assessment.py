@@ -41,7 +41,8 @@ assessment_ranges: List[AssessmentRange] = [(1 / 3, RiskAssessment.LOW),
 assessment_ranges.sort(key=lambda range: range[0])
 
 minimum_email_score = run_query(
-    credentials.sanity_gql_endpoint, minimum_email_score_query,
+    credentials.sanity_gql_endpoint,
+    minimum_email_score_query,
     headers)['data']['CirForm']['minimumEmailRiskScore'].upper()
 
 minimum_email_score_index = 0
@@ -51,8 +52,7 @@ for i, (max_percent, assessment) in enumerate(assessment_ranges):
         minimum_email_score_index = i
 
 
-def get_incident_similarity(prev_incident: submit_schema.Form,
-                            current_incident: submit_schema.Form):
+def get_incident_similarity(prev_incident: submit_schema.Form, current_incident: submit_schema.Form):
     similarity = 0
     coefficient = 1
 
@@ -72,14 +72,13 @@ def get_incident_similarity(prev_incident: submit_schema.Form,
     return coefficient * similarity
 
 
-def get_incident_recency(prev_incident: submit_schema.Form,
-                         current_incident: submit_schema.Form, timeframe):
+def get_incident_recency(prev_incident: submit_schema.Form, current_incident: submit_schema.Form, timeframe):
     # TODO: Standardize all dates in the databse
     prev_incident.occurrence_time = prev_incident.occurrence_time.replace(
         tzinfo=timezone.utc)
     delta = (current_incident.occurrence_time -
-             prev_incident.occurrence_time).days / 30
-    recency_of_incident = 1 - delta / timeframe
+             prev_incident.occurrence_time).days/30
+    recency_of_incident = 1 - delta/timeframe
     return recency_of_incident
 
 
@@ -87,18 +86,14 @@ def get_previous_risk_score(form: submit_schema.Form, timeframe):
     query = {
         "client_primary": form.client_primary,
         "occurrence_time": {
-            '$gte':
-                (form.occurrence_time -
-                 relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
+            '$gte': (form.occurrence_time - relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
         }
     }
     prev_incidents = collection.find(query)
     total_prev_risk_score = 0
     for incident_dict in prev_incidents:
-        incident_dict = {
-            key: (val.lower() if type(val) == str else val)
-            for key, val in incident_dict.items()
-        }
+        incident_dict = {key: (val.lower() if type(val) == str else val)
+                         for key, val in incident_dict.items()}
 
         incident = Form(**incident_dict)
         incident_score = get_current_risk_score(incident)
@@ -131,31 +126,26 @@ def get_current_risk_score(form: submit_schema.Form):
     return percent_of_max
 
 
-required_email_form_fields = {'staff_name', 'client_primary'}
-
-
 def get_risk_assessment(form: submit_schema.Form, timeframe) -> RiskAssessment:
-    total_risk_score = get_current_risk_score(form)
-    +get_previous_risk_score(form, timeframe)
+    total_risk_score = get_current_risk_score(form) + get_previous_risk_score(form, timeframe)
+    form_dict = form.dict()
 
-    for (max_percent, assessment) in assessment_ranges:
+    for i, (max_percent, assessment) in enumerate(assessment_ranges):
         if total_risk_score <= max_percent:
-            email_dict = {
-                k: v
-                for k, v in form.dict().items()
-                if k in required_email_form_fields
-            }
-            email_dict.update({
-                'risk_score': assessment.value,
-                'risk_score_raw': total_risk_score
-            })
-            email_high_risk_alert(email_dict)
+            if i >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
+                email_dict = {
+                    "staff_name": form_dict["staff_name"],
+                    "client_primary": form_dict["client_primary"],
+                    "risk_score": assessment.value,
+                    "risk_score_raw": total_risk_score
+                }
+                email_high_risk_alert(email_dict)
             return assessment
     else:
         return RiskAssessment.UNDEFINED
 
 
-html_template_filename = "/.template.html"
+html_template_filename = "/template.html"
 
 with open(dirname(__file__) + html_template_filename) as f:
     html_template = f.read()
