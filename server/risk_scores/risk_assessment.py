@@ -2,6 +2,7 @@ from enum import Enum
 
 from datetime import timezone, datetime
 from dateutil.relativedelta import relativedelta
+from os.path import dirname
 import server.schemas.submit as submit_schema
 from typing import List, Tuple
 import yagmail
@@ -15,11 +16,6 @@ from server.credentials import credentials
 from server.sanity_utils import run_query, headers, minimum_email_score_query
 
 yag = yagmail.SMTP(credentials.gmail_username, credentials.gmail_password)
-email_format = ("""
-    <h2>A high risk assessment was determined in a critical incident report recently filled out</h2>
-    Contents of report form:
-    {form_values}
-    """)
 
 
 class RiskAssessment(Enum):
@@ -32,7 +28,6 @@ class RiskAssessment(Enum):
 assessment_ranges: List[RiskAssessment] = [RiskAssessment.LOW,
                                            RiskAssessment.MEDIUM,
                                            RiskAssessment.HIGH]
-
 
 minimum_email_score = run_query(
     credentials.sanity_gql_endpoint,
@@ -199,14 +194,28 @@ def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessm
     risk_assessment = risk_score_combiner.combine_risk_scores(
         score_from_current_incident, score_from_prev_incidents)
 
+    form_dict = form.dict()
+
     if risk_assessment >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
-        email_high_risk_alert(form.dict())  # TODO: make async
+        email_dict = {
+            "staff_name": form_dict["staff_name"],
+            "client_primary": form_dict["client_primary"],
+            "risk_score": assessment.value,
+            "score_from_prev_incidents": score_from_prev_incidents,
+            "score_from_current_incident": score_from_current_incident
+        }
+        email_high_risk_alert(email_dict)
     return assessment_ranges[risk_assessment]
 
 
-def email_high_risk_alert(form_values: dict):
-    form_values = (
-        f"<b>{field}</b>: {value}" for field, value in form_values.items())
+html_template_filename = "/template.html"
+
+with open(dirname(__file__) + html_template_filename) as f:
+    html_template = f.read()
+
+
+def email_high_risk_alert(email_values: dict):
+    email_contents = html_template.format(**email_values)
     yag.send(credentials.gmail_username,
-             subject="Recent high risk assessment",
-             contents=email_format.format(form_values="\n".join(form_values)))
+             subject="CIR Risk Assessment",
+             contents=email_contents)
