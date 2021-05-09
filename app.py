@@ -111,7 +111,8 @@ async def sanity_update(sanity_update_in: SanityUpdate):
     fields occur in Sanity.
     Assumes all data in the database has undergone preprocessing.
     """
-    all_incidents_query = collection.find(projection=['description', 'incident_type_primary'])
+    all_incidents_query = collection.find(
+        projection=['description', 'incident_type_primary'])
     all_incidents = pd.DataFrame(list(all_incidents_query)).dropna()
     if 'cirForm' in sanity_update_in.ids.all:
         inc_types = get_incident_types_from_sanity()
@@ -121,7 +122,7 @@ async def sanity_update(sanity_update_in: SanityUpdate):
 
 
 @app.post('/api/retrain')
-async def retrain_model(csv_file: UploadFile = File(..., media_type='text/csv')):
+async def retrain_model(csv_file: UploadFile = File(...)):
     report_data = ReportData()
     dataframe = report_data.process_report_data(csv_file.file)
     descriptions = dataframe[_ColName.DESC].to_numpy()

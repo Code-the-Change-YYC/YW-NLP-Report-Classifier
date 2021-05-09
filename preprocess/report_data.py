@@ -55,10 +55,8 @@ class ReportData:
         if ReportData.pipeline is None:
             ReportData.pipeline = [
                 DatetimeMapper(**processor_args),
-                IncidentTypesProcessor(**processor_args),
-                self.desc_processor
+                IncidentTypesProcessor(**processor_args), self.desc_processor
             ]
-            
 
     def get_raw_report_data(self, file_spec: Any = None) -> pd.DataFrame:
         """
@@ -73,12 +71,13 @@ class ReportData:
         # Add all additional columns not included in the original csv
         for processor in self.pipeline:
             report_df = processor.add_columns(report_df)
+            print(len(report_df.columns))
         # Use enum for column access. This works because enum's are iterable and
         # ordered.
         report_df.columns = _ColName
         return report_df
 
-    def process_report_data(self, file_spec = None) -> pd.DataFrame:
+    def process_report_data(self, file_spec=None) -> pd.DataFrame:
         """
         Params:
             file_spec: see `get_raw_report_data`
