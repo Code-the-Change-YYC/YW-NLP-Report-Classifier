@@ -9,4 +9,5 @@ uvicorn==0.12.1
 yagmail==0.14.245
 pymongo~=3.11.2
 python-multipart==0.0.5
+htmlmin==0.1.12
 # https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-2.3.1/en_core_web_lg-2.3.1.tar.gz

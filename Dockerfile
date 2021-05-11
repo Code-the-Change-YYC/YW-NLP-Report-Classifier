@@ -12,8 +12,3 @@ RUN python -m nltk.downloader wordnet
 RUN python -m nltk.downloader averaged_perceptron_tagger
 
 ADD . /opt/app
-
-EXPOSE 8000
-ENV PORT=8000
-
-CMD uvicorn app:app --reload --port 8000 --host 0.0.0.0
