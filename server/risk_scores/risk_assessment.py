@@ -6,21 +6,16 @@ from os.path import dirname
 import server.schemas.submit as submit_schema
 from typing import List, Tuple
 import yagmail
+import htmlmin
 
 from server.schemas.submit import Form
 
 import server.risk_scores.risk_scores as risk_scores
-from server.risk_scores.risk_scores import MAX_PREVIOUS_INCIDENTS
+from server.risk_scores.risk_scores import MAX_PREVIOUS_INCIDENTS, risk_score_combiner
 from server.connection import collection
 from server.credentials import credentials
 from server.sanity_utils import run_query, headers, minimum_email_score_query
-
 yag = yagmail.SMTP(credentials.gmail_username, credentials.gmail_password)
-email_format = ("""
-    <h2>A high risk assessment was determined in a critical incident report recently filled out</h2>
-    Contents of report form:
-    {form_values}
-    """)
 
 
 class RiskAssessment(Enum):
@@ -30,16 +25,9 @@ class RiskAssessment(Enum):
     HIGH = 'HIGH'
 
 
-AssessmentRange = Tuple[float, RiskAssessment]
-"""
-The first value indicates the maximum percentage (inclusive) of the maximum
-possible risk score for which a risk score could be classified as the second
-value.
-"""
-assessment_ranges: List[AssessmentRange] = [(0.3, RiskAssessment.LOW),
-                                            (0.7, RiskAssessment.MEDIUM),
-                                            (1.0, RiskAssessment.HIGH)]
-assessment_ranges.sort(key=lambda range: range[0])
+assessment_ranges: List[RiskAssessment] = [RiskAssessment.LOW,
+                                           RiskAssessment.MEDIUM,
+                                           RiskAssessment.HIGH]
 
 minimum_email_score = run_query(
     credentials.sanity_gql_endpoint,
@@ -48,7 +36,7 @@ minimum_email_score = run_query(
 
 minimum_email_score_index = 0
 
-for i, (max_percent, assessment) in enumerate(assessment_ranges):
+for i, assessment in enumerate(assessment_ranges):
     if assessment == RiskAssessment[minimum_email_score]:
         minimum_email_score_index = i
 
@@ -199,23 +187,26 @@ def get_current_risk_score(form: submit_schema.Form):
     return normalize_current_risk_score(risk_score)
 
 
-def get_risk_assessment(form: submit_schema.Form, timeframe) -> RiskAssessment:
-    total_risk_score = get_current_risk_score(form) + get_previous_risk_score(form, timeframe)
+def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessment:
+    score_from_current_incident = get_current_risk_score(form)
+    score_from_prev_incidents = get_previous_incidents_risk_score(
+        form, timeframe)
+    risk_assessment = risk_score_combiner.combine_risk_scores(
+        score_from_current_incident, score_from_prev_incidents)
+
     form_dict = form.dict()
 
-    for i, (max_percent, assessment) in enumerate(assessment_ranges):
-        if total_risk_score <= max_percent:
-            if i >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
-                email_dict = {
-                    "staff_name": form_dict["staff_name"],
-                    "client_primary": form_dict["client_primary"],
-                    "risk_score": assessment.value,
-                    "risk_score_raw": total_risk_score
-                }
-                email_high_risk_alert(email_dict)
-            return assessment
-    else:
-        return RiskAssessment.UNDEFINED
+    if risk_assessment >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
+        email_dict = {
+            "staff_name": form_dict["staff_name"],
+            "client_primary": form_dict["client_primary"],
+            "risk_assessment": assessment_ranges[risk_assessment].value,
+            "score_from_prev_incidents": score_from_prev_incidents,
+            "score_from_current_incident": score_from_current_incident
+        }
+        email_high_risk_alert(email_dict)
+
+    return assessment_ranges[risk_assessment]
 
 
 html_template_filename = "/template.html"
@@ -225,7 +216,7 @@ with open(dirname(__file__) + html_template_filename) as f:
 
 
 def email_high_risk_alert(email_values: dict):
-    email_contents = html_template.format(**email_values)
+    email_contents = htmlmin.minify(html_template.format(**email_values))
     yag.send(credentials.gmail_username,
              subject="CIR Risk Assessment",
              contents=email_contents)

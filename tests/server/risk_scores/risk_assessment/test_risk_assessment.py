@@ -1,4 +1,4 @@
-from server.risk_scores.risk_assessment import get_current_risk_score
+from server.risk_scores.risk_assessment import get_current_risk_score, get_risk_assessment, RiskAssessment
 from unittest import TestCase, main
 from unittest.mock import patch
 from server.schemas.submit import Form
@@ -71,8 +71,8 @@ mock_occurrence_time_to_risk_map = {
 @patch.dict('server.risk_scores.risk_scores.incident_type_to_risk_map._risk_score_map', mock_incident_type_to_risk_map)
 @patch.dict('server.risk_scores.risk_scores.response_to_risk_map._risk_score_map', mock_response_to_risk_map)
 @patch.dict('server.risk_scores.risk_scores.occurrence_time_to_risk_map._risk_score_map', mock_occurrence_time_to_risk_map)
-class TestRiskAssessment(TestCase):
-    def test_risk_assessment_sample(self):
+class TestGetCurrentRiskScore(TestCase):
+    def test_get_current_risk_score_sample(self):
         mock_form = Form(**{
             "description": "Example description from form field.",
             "client_primary": "AB",
@@ -97,7 +97,7 @@ class TestRiskAssessment(TestCase):
         risk_score = get_current_risk_score(mock_form)
         self.assertAlmostEqual(risk_score, 0.48, places=2)
 
-    def test_risk_assessment_drug_related_three_services(self):
+    def test_get_current_risk_score_drug_related_three_services(self):
         mock_form = Form(**{
             "description": "At 4:08am staff did a safety check on TL. No answer, so staff entered the unit. Found TL hunched over and breathing laboured and erratically about once every 30-45 seconds. Staff called for assistance. Upon arrival of team member staff was informed to call 911. EMS arrived 4:15am, Nar can was administered, secondary EMS called in by EMS for guest who was convulsing. Fire/Police arrived. Fire carried TL to EMS vehicle. TL and guest taken to unknown hospital in separate vehicle.",
             "client_primary": "TL",
@@ -122,7 +122,7 @@ class TestRiskAssessment(TestCase):
         risk_score = get_current_risk_score(mock_form)
         self.assertAlmostEqual(risk_score, 0.52, places=2)
 
-    def test_risk_assessment_client_can_communicate(self):
+    def test_get_current_risk_score_client_can_communicate(self):
         mock_form = Form(**{
             "description": "Client was brought to Rubina's office by a classroom volunteer. MB reported pain in his left arm and left side of the chest and trouble breathing. He reported this is a perviously existing condition. Supervisor called EMS. They arrived in approximately in 10 minutes. ER staff evaluated and his ECG was normal but was taken to the Foothills hospital for follow up. Client was able to communicate.",
             "client_primary": " MB",
@@ -147,7 +147,7 @@ class TestRiskAssessment(TestCase):
         risk_score = get_current_risk_score(mock_form)
         self.assertAlmostEqual(risk_score, 0.26, places=2)
 
-    def test_risk_assessment_violence_involved_under_control(self):
+    def test_get_current_risk_score_violence_involved_under_control(self):
         mock_form = Form(**{
             "description": "CC's male guest came to the office with blood dripping down his face. He told staff that CC hit him with a piece of wood, and he needed staff to get his bags from her. CC came downstairs with the bags, and the guest hid in the office. CC was angry and yelled, but she gave the bags to staff. The guest left with his stuff, and CC went to her room. CPS came and spoke to CC. They asked that CC stay in the building for the night, as they did not consider a risk for violence.",
             "client_primary": "CC",
@@ -172,7 +172,7 @@ class TestRiskAssessment(TestCase):
         risk_score = get_current_risk_score(mock_form)
         self.assertAlmostEqual(risk_score, 0.4, places=2)
 
-    def test_risk_assessment_violence_involved_under_control(self):
+    def test_get_current_risk_score_violence_involved_under_control(self):
         mock_form = Form(**{
             "description": "Community Paramedics (CP) came to assess DA. After assessing her and taking her vitals staff found empty pill packages. It was suspected that she had taken up to 90 Aspirin and 15 Gravol. CP called DA's doctor who concluded that the amount of pills she has taken could lead to liver failure. DA did not want to go to hospital so CP called EMS and police for assistance. DA continued to be resistant in the EMS as they were examining her. Police helped EMS and they took her to Peter Lougheed Hospital.",
             "client_primary": "DA",
@@ -198,7 +198,7 @@ class TestRiskAssessment(TestCase):
         # TODO: reexamine this risk score
         self.assertAlmostEqual(risk_score, 0.26, places=2)
 
-    def test_risk_assessment_not_responsive(self):
+    def test_get_current_risk_score_not_responsive(self):
         mock_form = Form(**{
             "description": "Staff heard a loud noise, looked at the cameras and saw SSC laying on the ground blocking the elevator door. Staff went to check on SSC and moved her into the hallway & called 911. Staff sat with SSC while waiting for EMS to arrive however SSC was not responsive to staff. EMS arrived and assessed SSC and because of her low vital signs and recent trip to the hospital they decided to take her back to the Foothills hospital.",
             "client_primary": " SSC ",
@@ -224,7 +224,7 @@ class TestRiskAssessment(TestCase):
         # TODO: reexamine this risk score
         self.assertAlmostEqual(risk_score, 0.32, places=2)
 
-    def test_risk_assessment_police_no_actions(self):
+    def test_get_current_risk_score_police_no_actions(self):
         mock_form = Form(**{
             "description": "BH asked staff to call 911; she felt unsafe at shelter (staff letting men in building, women getting someone to beat her up, someone putting meth in her clothes). Staff told her that there was no emergency; she took it upon herself to call 911. police were sent. Police arrived around 1:30 am; stated that they would not take BH anywhere because they considered SK to be a very safe place. BH was not happy with this and called 911 again. BH was on her way out to take her own taxi.",
             "client_primary": "BH",
@@ -250,7 +250,7 @@ class TestRiskAssessment(TestCase):
         # TODO: reexamine this risk score
         self.assertAlmostEqual(risk_score, 0.32, places=2)
 
-    def test_risk_assessment_police_no_extreme_actions(self):
+    def test_get_current_risk_score_police_no_extreme_actions(self):
         mock_form = Form(**{
             "description": "MM came to staff and expressed that she wished to call police to make a statement about the mistreatment of the Stoney People. Writer encouraged MM to call the non-emergency line but MM insisted on calling 911. She made the call and police arrived a short time later to take her statement.  MM thanked them for their time and went back to her room.",
             "client_primary": "MM",
@@ -276,7 +276,7 @@ class TestRiskAssessment(TestCase):
         # TODO: reexamine this risk score
         self.assertAlmostEqual(risk_score, 0.26, places=2)
 
-    def test_risk_assessment_guest_threatening(self):
+    def test_get_current_risk_score_guest_threatening(self):
         mock_form = Form(**{
             "description": "At approximately 4:30pm WE came up to office crying and told staff the SSC's guest was threatening her - Writer went down and asked SSC if it was time for her guest to and she nodded her head. This writer asked guest to leave and he refused - Writer let guest know that CPS will be called if he does not leave - Guest replied \"Go ahead I will be taken away anyway because I have warrants!\" Writer returned to office and called CPS - At 4:45pm CPS came to building and escorted guest out of building.",
             "client_primary": "WE",
@@ -302,7 +302,7 @@ class TestRiskAssessment(TestCase):
         # TODO: reexamine this risk score
         self.assertAlmostEqual(risk_score, 0.35, places=2)
 
-    def test_risk_assessment_child_aggression(self):
+    def test_get_current_risk_score_child_aggression(self):
         mock_form = Form(**{
             "description": "Writer had an update with HL in regards to how CL was doing at home. HL reported that CL was hitting him and he spanked her. He reported that his emotion was under control and he used the same amount of force as CL used on him.  Writer and HL discussed alternative forms of discipline.Writer consulted Katharine Chapman, clinical supervisor .Writer telephoned SSRT to report concern.",
             "client_primary": "CL",
@@ -328,7 +328,7 @@ class TestRiskAssessment(TestCase):
         # TODO: reexamine this risk score
         self.assertAlmostEqual(risk_score, 0.39, places=2)
 
-    def test_risk_assessment_client_aggression(self):
+    def test_get_current_risk_score_client_aggression(self):
         mock_form = Form(**{
             "description": "Staff heard the yelling sound coming from unit 405 around 11:20am, staff went to check and found LBP locking her guest with her feet and chocking him, staff told her to let go, another resident TR was also with staff. LBP continued chocking him so staff called 911. When staff was calling she let go of him and her guest just took his bag and left the building. staff heard LBP yelling and throwing things in her unit. CPS arrived at 11:35am talked with her and left.",
             "client_primary": "LBP",
@@ -353,6 +353,66 @@ class TestRiskAssessment(TestCase):
         risk_score = get_current_risk_score(mock_form)
         # TODO: reexamine this risk score
         self.assertAlmostEqual(risk_score, 0.39, places=2)
+
+
+mock_form = Form(**{
+    "description": "Example description from form field.",
+    "client_primary": "AB",
+    "client_secondary": "DL",
+    "location": "yw croydon",
+    "location_detail": "Around the corner.",
+    "services_involved": ["police", "hospital"],
+    "services_involved_other": "police",
+    "primary_staff_first_name": "John",
+    "primary_staff_last_name": "Doe",
+    "occurrence_time": "2008-09-15T15:53:00+05:00",
+    "incident_type_primary": "child abandonment",
+    "incident_type_secondary": "injury",
+    "child_involved": True,
+    "non_client_involved": False,
+    "program": "compass",
+    "immediate_response": ["evacuation", "mental health assessment"],
+    "staff_name": "John man",
+    "program_supervisor_reviewer_name": "another john",
+    "completion_date": "2008-09-15T15:53:00+05:00"
+})
+
+
+@patch('server.risk_scores.risk_assessment.email_high_risk_alert')
+@patch('server.risk_scores.risk_assessment.get_previous_incidents_risk_score')
+@patch('server.risk_scores.risk_assessment.get_current_risk_score')
+@patch('server.risk_scores.risk_assessment.minimum_email_score_index', 2)
+@patch.dict('server.credentials.credentials._credentials', {'PYTHON_ENV': 'production'})
+class TestGetRiskAssessment(TestCase):
+    def test_get_risk_assessment_high_current_high_prev(self, curr_mock, prev_mock, email_mock):
+        curr_mock.return_value = 0.9
+        prev_mock.return_value = 0.9
+        assessment = get_risk_assessment(mock_form, 3)
+        self.assertEqual(assessment, RiskAssessment.HIGH)
+        self.assertTrue(email_mock.called)
+
+    def test_get_risk_assessment_low_current_low_prev(self, curr_mock, prev_mock, email_mock):
+        curr_mock.return_value = 0.2
+        prev_mock.return_value = 0.2
+        assessment = get_risk_assessment(mock_form, 3)
+        self.assertEqual(assessment, RiskAssessment.LOW)
+        self.assertFalse(email_mock.called)
+
+    def test_get_risk_assessment_med_current_med_prev(self, curr_mock, prev_mock, email_mock):
+        curr_mock.return_value = 0.4
+        prev_mock.return_value = 0.4
+        assessment = get_risk_assessment(mock_form, 3)
+        self.assertEqual(assessment, RiskAssessment.MEDIUM)
+        self.assertFalse(email_mock.called)
+
+    @patch('warnings.warn')
+    def test_get_risk_assessment_over_one(self, warn_mock, curr_mock, prev_mock, email_mock):
+        curr_mock.return_value = 1.1
+        prev_mock.return_value = 1.1
+        assessment = get_risk_assessment(mock_form, 3)
+        self.assertEqual(assessment, RiskAssessment.HIGH)
+        self.assertTrue(email_mock.called)
+        self.assertTrue(warn_mock.called)
 
 
 if __name__ == '__main__':

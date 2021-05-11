@@ -1,4 +1,8 @@
-<h3 style="color:black">Risk Score Report</h3>
-<p style="color:black">A recent CIR that was filled out by <b>{staff_name}</b> regarding client <b>{client_primary}</b> reported a risk
-    score of {risk_score} [{risk_score_raw:.3f}].</p>
-    
+<div style="color: black">
+  <h3 style="color: black">Risk Score Report</h3>
+  <p style="color: black">A recent CIR that was filled out by <b>{staff_name}</b> regarding client <b>{client_primary}</b> was assessed to be of {risk_assessment} risk. The score was calculated from the following raw risk scores:</p>
+  <ul style="color: black"> 
+    <li>Risk score from submitted report: {score_from_current_incident} / 1</li>
+    <li>Risk score from past reports with same initials: {score_from_prev_incidents} / 1</li>
+  </ul>
+</div>
