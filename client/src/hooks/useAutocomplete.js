@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react";
-import chrono from "chrono-node";
+import * as chrono from "chrono-node";
 import _ from "lodash";
 import usePrevious from "./usePrevious";
 
