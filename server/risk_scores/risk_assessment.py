@@ -196,8 +196,7 @@ def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessm
 
     form_dict = form.dict()
 
-    # if risk_assessment >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
-    if risk_assessment >= 0:
+    if risk_assessment >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
         email_dict = {
             "staff_name": form_dict["staff_name"],
             "client_primary": form_dict["client_primary"],
@@ -205,7 +204,6 @@ def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessm
             "score_from_prev_incidents": score_from_prev_incidents,
             "score_from_current_incident": score_from_current_incident
         }
-        print('email')
         email_high_risk_alert(email_dict)
 
     return assessment_ranges[risk_assessment]
