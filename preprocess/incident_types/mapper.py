@@ -29,9 +29,13 @@ class IncTypeMapper(Preprocessor):
 
     def process(self, report_data: pd.DataFrame) -> pd.DataFrame:
         for col_name in self.col_names:
-            report_data[col_name] = report_data[col_name].apply(
-                self.normalize_inc_type)
-            report_data[col_name].replace(self.replacements, inplace=True)
+            try:
+                report_data[col_name] = report_data[col_name].apply(
+                    self.normalize_inc_type)
+                report_data[col_name].replace(self.replacements, inplace=True)
+            except KeyError:
+                print("key error in preprocess/incident_types/mapper.py in `process` but we move")
+                pass
 
         return report_data
 

@@ -38,6 +38,7 @@ class ReportData:
     pipeline: Optional[List[Preprocessor]] = None
     in_file_path: str = path.join(dir_path, 'data', 'data-sensitive.csv')
     out_file_path: str = path.join(dir_path, 'data', 'data-processed.csv')
+    column_names = {column.value for column in _ColName}
 
     def __init__(self,
                  in_file_path: str = in_file_path,
@@ -71,10 +72,16 @@ class ReportData:
         # Add all additional columns not included in the original csv
         for processor in self.pipeline:
             report_df = processor.add_columns(report_df)
-            print(len(report_df.columns))
         # Use enum for column access. This works because enum's are iterable and
         # ordered.
-        report_df.columns = _ColName
+        if len(report_df.columns) == len(_ColName):
+            report_df.columns = _ColName
+        else:
+            # only include columns that are in `_ColName`
+            report_df = report_df.loc[:, report_df.columns.isin(self.column_names)]
+            report_df.columns = [column 
+                                 for column in _ColName 
+                                 if column.value in report_df.columns]
         return report_df
 
     def process_report_data(self, file_spec=None) -> pd.DataFrame:
@@ -87,8 +94,11 @@ class ReportData:
         report_df = self.get_raw_report_data(file_spec)
         for processor in self.pipeline:
             print(f'Starting {processor.__class__.__name__}')
-            report_df = processor.process(report_df)
-            print(f'Finished {processor.__class__.__name__}')
+            try:
+                report_df = processor.process(report_df)
+                print(f'Finished {processor.__class__.__name__}')
+            except KeyError:
+                print(f'Failed {processor.__class__.__name__}')
         return report_df
 
     def process_form_submission(self, form_submission: Form) -> Form:
