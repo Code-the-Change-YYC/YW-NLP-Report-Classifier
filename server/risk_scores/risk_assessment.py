@@ -6,6 +6,7 @@ from os.path import dirname
 import server.schemas.submit as submit_schema
 from typing import List, Tuple
 import yagmail
+import htmlmin
 
 from server.schemas.submit import Form
 
@@ -14,7 +15,6 @@ from server.risk_scores.risk_scores import MAX_PREVIOUS_INCIDENTS, risk_score_co
 from server.connection import collection
 from server.credentials import credentials
 from server.sanity_utils import run_query, headers, minimum_email_score_query
-
 yag = yagmail.SMTP(credentials.gmail_username, credentials.gmail_password)
 
 
@@ -196,15 +196,18 @@ def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessm
 
     form_dict = form.dict()
 
-    if risk_assessment >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
+    # if risk_assessment >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
+    if risk_assessment >= 0:
         email_dict = {
             "staff_name": form_dict["staff_name"],
             "client_primary": form_dict["client_primary"],
-            "risk_score": assessment.value,
+            "risk_assessment": assessment_ranges[risk_assessment].value,
             "score_from_prev_incidents": score_from_prev_incidents,
             "score_from_current_incident": score_from_current_incident
         }
+        print('email')
         email_high_risk_alert(email_dict)
+
     return assessment_ranges[risk_assessment]
 
 
@@ -215,7 +218,7 @@ with open(dirname(__file__) + html_template_filename) as f:
 
 
 def email_high_risk_alert(email_values: dict):
-    email_contents = html_template.format(**email_values)
+    email_contents = htmlmin.minify(html_template.format(**email_values))
     yag.send(credentials.gmail_username,
              subject="CIR Risk Assessment",
              contents=email_contents)
