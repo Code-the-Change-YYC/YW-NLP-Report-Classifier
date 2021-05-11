@@ -33,9 +33,8 @@ class IncTypeMapper(Preprocessor):
                 report_data[col_name] = report_data[col_name].apply(
                     self.normalize_inc_type)
                 report_data[col_name].replace(self.replacements, inplace=True)
-            except KeyError:
-                print("key error in preprocess/incident_types/mapper.py in `process` but we move")
-                pass
+            except KeyError as ke:
+                print(f"key error: {ke} in preprocess.incident_types.mapper in IncTypeMapper.process")
 
         return report_data
 
