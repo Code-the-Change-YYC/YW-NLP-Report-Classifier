@@ -132,7 +132,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
             incident_types (Sequence[str]): The incident types for descriptions. 
             all_incident_types: See `create_model`.
         """
-        save_cnb(self._model, model_path=model_paths.cnb_backup_file_name)
+        save_cnb(self._model, model_path=model_paths.backup)
         self._model = self.create_model(descriptions, incident_types, all_incident_types=all_incident_types)
         save_cnb(self._model, model_path=self._model_path)
 
