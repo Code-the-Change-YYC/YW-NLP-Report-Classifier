@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, TypedDict
 
 from pydantic import BaseModel
 
@@ -61,3 +61,17 @@ class SubmitOut(BaseModel):
     form_fields: Form
     risk_assessment: str
     redirect_url: str
+
+
+class SanityUpdateIds(BaseModel):
+    created: List[str]
+    deleted: List[str]
+    updated: List[str]
+    all: List[str]
+
+
+class SanityUpdate(BaseModel):
+  transactionId: str
+  projectId: str
+  dataset: str
+  ids: SanityUpdateIds

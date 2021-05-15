@@ -162,3 +162,4 @@ SANITY_TOKEN
 db/data
 
 *.dev.pickle
+.python-version
