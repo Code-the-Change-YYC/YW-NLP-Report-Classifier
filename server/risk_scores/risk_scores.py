@@ -13,6 +13,7 @@ RiskScoreMap = Dict[RiskScoreMapKey, RiskScoreMapValue]
 
 MAX_PREVIOUS_INCIDENTS = 3
 MAX_RESPONSES_FOR_RISK_SCORE = 3
+MAX_SERVICES_FOR_RISK_SCORE = 3
 
 
 class RiskScoreData:
@@ -41,7 +42,7 @@ class RiskScoreData:
         return {entry[key_name].lower(): int(entry['risk_weighting']) for entry in arr}
 
     def get_maps(self):
-        return [self.incident_type_to_risk, self.program_to_risk, self.response_to_risk, self.time_of_day_to_risk, self.services_to_risk]
+        return [self.incident_type_to_risk, self.program_to_risk, self.response_to_risk, self.services_to_risk, self.time_of_day_to_risk]
 
 
 class FieldRiskScoreMap:
@@ -132,22 +133,22 @@ class RiskScoreCombiner:
         return self._mapping[curr_score][prev_score]
 
 
-def calc_max_risk_score(incident_map, program_map, response_map, occurrence_time_map):
+def calc_max_risk_score(incident_map, program_map, response_map, services_map, occurrence_time_map):
     single_val_maps = [incident_map, program_map, occurrence_time_map]
     # assumes that no more than 3 services will be involved on average
-    return sum([risk_map.max_risk_score() for risk_map in single_val_maps] + [response_map.max_risk_score_with_value_count(MAX_RESPONSES_FOR_RISK_SCORE)])
+    return sum([risk_map.max_risk_score() for risk_map in single_val_maps] + [response_map.max_risk_score_with_value_count(MAX_RESPONSES_FOR_RISK_SCORE)] + [services_map.max_risk_score_with_value_count(MAX_SERVICES_FOR_RISK_SCORE)])
 
 
 risk_scores = RiskScoreData()
 [incident_type_to_risk, program_to_risk, response_to_risk,
-    time_of_day_to_risk] = risk_scores.get_maps()
+    services_to_risk, time_of_day_to_risk] = risk_scores.get_maps()
 risk_score_combiner = RiskScoreCombiner()
 
 
 incident_type_to_risk_map = FieldRiskScoreMap(incident_type_to_risk)
-services_to_risk_map = MultiValFieldRiskScoreMap()
 program_to_risk_map = FieldRiskScoreMap(program_to_risk)
 response_to_risk_map = MultiValFieldRiskScoreMap(response_to_risk)
+services_to_risk_map = MultiValFieldRiskScoreMap(services_to_risk)
 occurrence_time_to_risk_map = DateFieldRiskScoreMap(time_of_day_to_risk)
 max_risk_score = calc_max_risk_score(
-    incident_type_to_risk_map, program_to_risk_map, response_to_risk_map, occurrence_time_to_risk_map)
+    incident_type_to_risk_map, program_to_risk_map, response_to_risk_map, services_to_risk_map, occurrence_time_to_risk_map)
