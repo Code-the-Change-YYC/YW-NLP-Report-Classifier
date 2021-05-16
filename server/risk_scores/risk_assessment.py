@@ -181,6 +181,8 @@ def get_current_risk_score(form: submit_schema.Form):
                       form.incident_type_primary) +
                   risk_scores.response_to_risk_map.get_risk_score(
                       form.immediate_response) +
+                  risk_scores.services_to_risk_map.get_risk_score(
+                      form.services_involved) +
                   risk_scores.occurrence_time_to_risk_map.get_risk_score(
                       form.occurrence_time))
 
