@@ -1,14 +1,17 @@
+from preprocess.report_data_d import _ColName
 from typing import Dict
 from preprocess.report_data import ReportData
+import requests
+import pandas as pd
 
 from server.credentials import credentials
 from server.interceptum_adapter import InterceptumAdapter
-from server.risk_scores.risk_assessment import get_risk_assessment
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from server.risk_scores.risk_assessment import RiskAssessment, get_risk_assessment
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
 
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
-from server.schemas.submit import Form, SubmitOut, SubmitIn
+from server.schemas.submit import Form, SanityUpdate, SubmitOut, SubmitIn
 from server.connection import collection
 from server.sanity_utils import form_query, timeframe_query, headers, run_query
 
@@ -32,9 +35,15 @@ def background_processing(form_fields: Form):
     collection.insert_one(processed_form_data.dict())
 
 
+def get_incident_types_from_sanity():
+    inc_types_obj = run_query(credentials.sanity_gql_endpoint, form_query,
+                              headers)['data']['CirForm']['primaryIncTypes']
+    return list(map(lambda inc_type: inc_type['name'], inc_types_obj))
+
+
 @app.get("/")
 async def index():
-    return {"Hello": "World"}
+    return {"Server status": "Healthy"}
 
 
 @app.post("/api/predict/", response_model=PredictOut)
@@ -48,13 +57,11 @@ async def predict(predict_in: PredictIn) -> PredictOut:
         PredictOut: JSON containing input text and predictions with their
         probabilities.
     """
-    inc_types_obj = run_query(credentials.sanity_gql_endpoint, form_query,
-                              headers)['data']['CirForm']['primaryIncTypes']
-    inc_types = list(map(lambda inc_type: inc_type['name'], inc_types_obj))
+    inc_types = get_incident_types_from_sanity()
     input_string = predict_in.text
     num_predictions = predict_in.num_predictions
     [predictions] = clf.predict_multiple([input_string], num_predictions)
-    predictions = [(pred[0].value, pred[1]) for pred in predictions]
+    predictions = [(pred[0], float(pred[1])) for pred in predictions]
     predictions = list(filter(lambda pred: pred[0] in inc_types, predictions))
     return PredictOut(input_text=input_string, predictions=predictions)
 
@@ -70,7 +77,6 @@ async def submit_form(form: SubmitIn,
     Returns:
         SubmitOut: Request data alongside risk score.
     """
-    background_tasks.add_task(background_processing, form.form_fields)
     risk_assessment_timeframe = run_query(
         credentials.sanity_gql_endpoint, timeframe_query,
         headers)['data']['CirForm']['riskAssessmentTimeframe']
@@ -81,6 +87,9 @@ async def submit_form(form: SubmitIn,
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
 
+    if not credentials.USE_WEBHOOK:
+        background_tasks.add_task(background_processing, form.form_fields)
+
     redirect_url = interceptum.call_api(form.form_fields.dict())
     return SubmitOut(form_fields=form.form_fields,
                      risk_assessment=risk_assessment.value,
@@ -90,4 +99,32 @@ async def submit_form(form: SubmitIn,
 @app.post('/api/interceptum-post', response_model=SubmitOut)
 async def interceptum_post_form(form_dict: Dict,
                                 background_tasks: BackgroundTasks) -> SubmitOut:
-    background_tasks.add_task(background_processing, form_dict)
+    """Currently unusable."""
+    # TODO: Map interceptum input to background task input
+    if credentials.USE_WEBHOOK:
+        background_tasks.add_task(background_processing, form_dict)
+
+
+@app.post("/api/sanity-update/")
+async def sanity_update(sanity_update_in: SanityUpdate):
+    """Endpoint for retraining the model when relevant changes to the form
+    fields occur in Sanity.
+    Assumes all data in the database has undergone preprocessing.
+    """
+    all_incidents_query = collection.find(
+        projection=['description', 'incident_type_primary'])
+    all_incidents = pd.DataFrame(list(all_incidents_query)).dropna()
+    if 'cirForm' in sanity_update_in.ids.all:
+        inc_types = get_incident_types_from_sanity()
+        clf.retrain_model(all_incidents['description'],
+                          all_incidents['incident_type_primary'],
+                          all_incident_types=inc_types)
+
+
+@app.post('/api/retrain')
+async def retrain_model(csv_file: UploadFile = File(...)):
+    report_data = ReportData()
+    dataframe = report_data.process_report_data(csv_file.file)
+    descriptions = dataframe[_ColName.DESC].to_numpy()
+    types = dataframe[_ColName.INC_T1].to_numpy()
+    clf.retrain_model(descriptions, types)

@@ -39,6 +39,14 @@ risk_scores_query = """
     }
 """
 
+minimum_email_score_query = """
+    {
+        CirForm(id: "cirForm") {
+            minimumEmailRiskScore
+        }
+    }
+"""
+
 
 headers = {
     'Content-Type': 'application/json',

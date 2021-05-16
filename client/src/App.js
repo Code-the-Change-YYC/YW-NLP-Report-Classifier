@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 import logo from "./logo.jpg";
 import "./App.css";
 import { FormRow, Input, Textarea, HR } from "./styled";
@@ -23,7 +23,7 @@ import useSubmit from "./hooks/useSubmit";
 
 const LastUpdated = styled.h2`
   font-size: 12pt;
-`
+`;
 
 function App() {
   // State variables
@@ -50,6 +50,7 @@ function App() {
     setLocationAutocomplete,
     locationShowAutocomplete,
     setLocationShowAutocomplete,
+    locationValid,
   ] = useSelectFieldInfo();
 
   const [locationDetail, setLocationDetail] = useState("");
@@ -71,6 +72,7 @@ function App() {
     setDateOccurredAutocomplete,
     dateOccurredShowAutocomplete,
     setDateOccurredShowAutocomplete,
+    dateOccurredValid,
   ] = useDateFieldInfo(false);
 
   const [incidentTypeSec, setIncidentTypeSec] = useState(null);
@@ -82,6 +84,7 @@ function App() {
     setInvolvesChildAutocomplete,
     involvesChildShowAutocomplete,
     setInvolvesChildShowAutocomplete,
+    involvesChildValid,
   ] = useSelectFieldInfo();
 
   const [
@@ -98,6 +101,7 @@ function App() {
     setProgramAutocomplete,
     programShowAutocomplete,
     setProgramShowAutocomplete,
+    programValid,
   ] = useSelectFieldInfo();
 
   const [
@@ -121,6 +125,7 @@ function App() {
     incTypesOptions,
     sortedIncTypeOptions,
     updateOptionsFromDescription: updateIncTypesOptions,
+    incidentTypePriValid,
   } = useIncTypeOptions();
 
   const {
@@ -153,6 +158,11 @@ function App() {
     supervisorReviewer,
     dateCompleted,
     clientInitialsValid,
+    locationValid,
+    dateOccurredValid,
+    involvesChildValid,
+    programValid,
+    incidentTypePriValid,
   };
 
   useAutocomplete({
@@ -196,7 +206,7 @@ function App() {
       ></ModalBox>
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
-      <LastUpdated>Last updated: April 13, 2021</LastUpdated>
+      <LastUpdated>Last updated: May 10, 2021</LastUpdated>
       <FormRow>
         <label>Description of Incident *</label>
         <Textarea

@@ -1,3 +1,4 @@
+import contextlib
 import os
 from training.description_classification.utils import save_cnb
 import unittest
@@ -17,8 +18,51 @@ test_inc_types = [
     IncidentType.ABU_CLI.value
 ]
 
+@contextlib.contextmanager
+def test_model_context():
+    # Create a copy of the model to use for testing
+    test_model_path = 'cnb_desc_clf.test.pickle'
+    with open(model_paths.cnb, 'rb') as prod_model, open(test_model_path, 'wb') as model:
+        model.write(prod_model.read())
+
+    try:
+        clf = CNBDescriptionClf(model_path=test_model_path)
+        yield clf, test_model_path
+    finally:
+        os.remove(test_model_path)
 
 class TestCNBDescriptionClf(unittest.TestCase):
+
+    def test_retrain_model_fewer_incident_types(self):
+        """Asserts that retraining the model with a list of all incident types
+        that does not include some incident types in the training examples does
+        not break things. For example, if an incident type is removed in Sanity,
+        but we still have descriptions with those as incident types in the
+        dataset, the model should handle that."""
+        with test_model_context() as (clf, test_model_path):
+            test_inc_types_fewer = test_inc_types[1:]
+            clf.retrain_model(test_descriptions, test_inc_types, all_incident_types=test_inc_types_fewer)
+            self.assertSetEqual(set(test_inc_types_fewer), set(clf._model.classes_))
+            clf.predict(['a description'])
+            test_descriptions_fewer = test_descriptions[1:]
+            clf.partial_fit(test_descriptions_fewer, test_inc_types_fewer)
+            clf.predict(['a description'])
+
+    def test_retrain_model_extra_incident_types(self):
+        """Asserts that retraining the model with a list of all incident types
+        that includes some incident types that are not in the training examples does
+        not break things. For example, if an incident type is added in Sanity,
+        but we don't have any training examples for that type, the model should
+        handle that."""
+        with test_model_context() as (clf, test_model_path):
+            new_inc_type = "a new incident type"
+            test_inc_types_extra = test_inc_types + [new_inc_type]
+            clf.retrain_model(test_descriptions, test_inc_types, all_incident_types=test_inc_types_extra)
+            self.assertSetEqual(set(test_inc_types_extra), set(clf._model.classes_))
+            clf.predict(['a description'])
+            test_descriptions_extra = test_descriptions + ['a new description']
+            clf.partial_fit(test_descriptions_extra, test_inc_types_extra)
+            clf.predict(['a description'])
 
     def test_create_model_integration(self):
         """Asserts that the created model doesn't break when used in the rest of
@@ -47,17 +91,11 @@ class TestCNBDescriptionClf(unittest.TestCase):
         result = clf._predictions_with_proba(proba, 3)
         for prediction_set in result:
             for i, prediction_with_proba in enumerate(prediction_set):
-                self.assertEqual(prediction_with_proba[0], IncidentType(classes[i]))
-                self.assertEqual(prediction_with_proba[1], single_proba[i])
+                self.assertEqual(prediction_with_proba[0], classes[i])
+                self.assertEqual(float(prediction_with_proba[1]), single_proba[i])
 
     def test_partial_fit_handles_new_classes(self):
-        # Create a copy of the model to use for testing
-        test_model_path = 'cnb_desc_clf.test.pickle'
-        with open(model_paths.cnb, 'rb') as prod_model, open(test_model_path, 'wb') as model:
-            model.write(prod_model.read())
-
-        try:
-            clf = CNBDescriptionClf(model_path=test_model_path)
+        with test_model_context() as (clf, test_model_path):
             previous_classes = list(clf._get_estimator().classes_)
             y = ['a wild incident type appears']
             clf.partial_fit(['a new incident occured'], y)
@@ -67,8 +105,6 @@ class TestCNBDescriptionClf(unittest.TestCase):
             
             for cls in previous_classes:
                 self.assertIn(cls, new_classes)
-        finally:
-            os.remove(test_model_path)
 
     def test_get_classes_handles_unknown(self):
         clf = CNBDescriptionClf()
