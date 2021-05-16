@@ -31,8 +31,6 @@ report_data = ReportData()
 
 def background_processing(form_fields: Form):
     update_model(form_fields)
-    processed_form_data = report_data.process_form_submission(form_fields)
-    collection.insert_one(processed_form_data.dict())
 
 
 def get_incident_types_from_sanity():
@@ -86,6 +84,9 @@ async def submit_form(form: SubmitIn,
     except KeyError as ke:
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
+
+    processed_form_data = report_data.process_form_submission(form.form_fields)
+    collection.insert_one(processed_form_data.dict())
 
     if not credentials.USE_WEBHOOK:
         background_tasks.add_task(background_processing, form.form_fields)
