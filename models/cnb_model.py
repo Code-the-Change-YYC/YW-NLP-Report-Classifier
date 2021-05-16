@@ -6,6 +6,8 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import ComplementNB
 from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.metrics import log_loss
 
 from training.description_classification import model_paths
 from models.model import Model, ArrayLike
@@ -45,8 +47,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         :return: 1D array of `IncidentType` predictions for the given descriptions.
         """
         predictions = self._model.predict(X)
-        return np.array(
-            [prediction for prediction in predictions])
+        return np.array([prediction for prediction in predictions])
 
     def partial_fit(self, X: ArrayLike, y: List[str]):
         """Update the model and save the updates.
@@ -89,7 +90,8 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         return self._predictions_with_proba(self._model.predict_proba(X),
                                             num_predictions)
 
-    def create_model(self, descriptions: Sequence[str],
+    def create_model(self,
+                     descriptions: Sequence[str],
                      incident_types: Sequence[str],
                      all_incident_types: Sequence[str] = None) -> CNBPipeline:
         """Creates a CNB description classifier pipeline and trains it with the
@@ -113,16 +115,20 @@ class CNBDescriptionClf(Model[CNBPipeline]):
             min_df=2,
         )
         model = ComplementNB(alpha=1.2)
-        cnb = make_pipeline(word_vec, model)
+        cnb = make_pipeline(word_vec,
+                            CalibratedClassifierCV(model, method="sigmoid"))
         if all_incident_types is not None:
             vectors = word_vec.fit_transform(descriptions)
-            model.partial_fit(vectors, incident_types, classes=all_incident_types)
+            model.partial_fit(vectors,
+                              incident_types,
+                              classes=all_incident_types)
         else:
             cnb.fit(descriptions, incident_types)
-            
+
         return cast(CNBPipeline, cnb)
 
-    def retrain_model(self, descriptions: Sequence[str],
+    def retrain_model(self,
+                      descriptions: Sequence[str],
                       incident_types: Sequence[str],
                       all_incident_types: Sequence[str] = None):
         """Retrain current model with new data, save old model. 
@@ -133,7 +139,9 @@ class CNBDescriptionClf(Model[CNBPipeline]):
             all_incident_types: See `create_model`.
         """
         save_cnb(self._model, model_path=model_paths.backup)
-        self._model = self.create_model(descriptions, incident_types, all_incident_types=all_incident_types)
+        self._model = self.create_model(descriptions,
+                                        incident_types,
+                                        all_incident_types=all_incident_types)
         save_cnb(self._model, model_path=self._model_path)
 
     def _predictions_with_proba(self, proba: ArrayLike,
@@ -189,12 +197,14 @@ class CNBDescriptionClf(Model[CNBPipeline]):
 
 
 if __name__ == "__main__":
+
     clf = CNBDescriptionClf()
     df = ReportData().get_processed_data()
     X = df[ColName.DESC][:5]
     y = df[ColName.INC_T1][:5]
-    clf.partial_fit(X, y, list(set(y)))
+
     print(clf.predict(X))
+
     multi_predict = clf.predict_multiple(X, 5)
     for i, prediction_set in enumerate(multi_predict):
         print("For description")

@@ -1,17 +1,6 @@
 import axios from 'axios'
 
 
-/**
- * Use sigmoid function to put confidence values on a scale of 0 to 1.
- * 
- * @param {Array} confidenceValues 
- */
-function getConfidenceDisplayValues(confidenceValues) {
-  // Update this to increase/decrease the difference between the outputed
-  // confidence values
-  const scaleFactor = 10;
-  return confidenceValues.map((v) => 1 / (1 + Math.exp(-v * scaleFactor)));
-}
 
 
 /**
@@ -43,9 +32,8 @@ export const getMultiPrediction = async (description, incidentTypes) => {
     })
     if (data.predictions) {
         const incidentTypesLookup = getIncTypesLookup(incidentTypes)
-        const confValues = getConfidenceDisplayValues(
-          data.predictions.map(([_, c]) => c)
-        );
+        const confValues =
+          data.predictions.map(([_, c]) => c);
         const updatedIncTypes = Object.assign(
             incidentTypesLookup,
             ...data.predictions.map(([incType], i) => {
