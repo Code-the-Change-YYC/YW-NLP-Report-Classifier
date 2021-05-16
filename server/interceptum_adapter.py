@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import requests
 from datetime import datetime
 
+import pytz
 from server.schemas.submit import Form
 import server.interceptum_adapter_d as d
 
@@ -175,7 +176,8 @@ class InterceptumAdapter():
                 text = "|".join(mapped_text)
 
             elif isinstance(value, datetime):
-                text = value.strftime("%Y-%m-%d %H:%M")
+                localtime = value.astimezone(pytz.timezone("Canada/Mountain"))
+                text = localtime.strftime("%Y-%m-%d %H:%M")
 
             elif isinstance(value, bool):
                 text = d.interceptum_boolean_dict[value]
