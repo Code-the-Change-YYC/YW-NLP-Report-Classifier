@@ -96,7 +96,7 @@ async def submit_form(form: SubmitIn,
                      redirect_url=redirect_url)
 
 
-@app.post('/webhook/interceptum-post', response_model=SubmitOut)
+@app.post('/webhook/interceptum-post/', response_model=SubmitOut)
 async def interceptum_post_form(form_dict: Dict,
                                 background_tasks: BackgroundTasks) -> SubmitOut:
     """Currently unusable."""
