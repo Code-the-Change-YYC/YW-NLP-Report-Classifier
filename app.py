@@ -85,10 +85,10 @@ async def submit_form(form: SubmitIn,
         raise HTTPException(
             422, detail={"error": f"Incorrect request parameter/key: {ke}"})
 
-    processed_form_data = report_data.process_form_submission(form.form_fields)
-    collection.insert_one(processed_form_data.dict())
-
     if not credentials.USE_WEBHOOK:
+        processed_form_data = report_data.process_form_submission(
+            form.form_fields)
+        collection.insert_one(processed_form_data.dict())
         background_tasks.add_task(background_processing, form.form_fields)
 
     redirect_url = interceptum.call_api(form.form_fields.dict())
