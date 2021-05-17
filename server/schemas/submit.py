@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import List, Optional, TypedDict
+from typing import List, Optional
+from typing_extensions import TypedDict
 
 from pydantic import BaseModel
 
