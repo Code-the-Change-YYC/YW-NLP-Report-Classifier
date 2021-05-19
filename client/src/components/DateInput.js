@@ -40,7 +40,7 @@ const DateInput = ({
         }}
         timeInputLabel="Time:"
         showTimeInput
-        // style={{ padding: "5px" }}
+        style={{ padding: "5px" }}
         customInput={<Input style={style}></Input>}
         dateFormat="MMMM d, yyyy h:mm aa"
       ></ReactDatePicker>
