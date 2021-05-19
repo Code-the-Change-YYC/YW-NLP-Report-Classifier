@@ -65,12 +65,21 @@ mock_occurrence_time_to_risk_map = {
     'evening': 3,
     'night': 4
 }
+mock_services_involved_map = {
+    'child welfare (cfs)': 4,
+    'ems': 4,
+    'police': 5,
+    'fire': 4,
+    'outreach (doap/pact)': 2,
+    'other': 2
+}
 
 
 @patch.dict('server.risk_scores.risk_scores.program_to_risk_map._risk_score_map', mock_program_to_risk_map)
 @patch.dict('server.risk_scores.risk_scores.incident_type_to_risk_map._risk_score_map', mock_incident_type_to_risk_map)
 @patch.dict('server.risk_scores.risk_scores.response_to_risk_map._risk_score_map', mock_response_to_risk_map)
 @patch.dict('server.risk_scores.risk_scores.occurrence_time_to_risk_map._risk_score_map', mock_occurrence_time_to_risk_map)
+@patch.dict('server.risk_scores.risk_scores.services_to_risk_map._risk_score_map', mock_services_involved_map)
 class TestGetCurrentRiskScore(TestCase):
     def test_get_current_risk_score_sample(self):
         mock_form = Form(**{
@@ -79,7 +88,7 @@ class TestGetCurrentRiskScore(TestCase):
             "client_secondary": "DL",
             "location": "yw croydon",
             "location_detail": "Around the corner.",
-            "services_involved": ["police", "hospital"],
+            "services_involved": ["police", "ems"],
             "services_involved_other": "police",
             "primary_staff_first_name": "John",
             "primary_staff_last_name": "Doe",
@@ -95,16 +104,16 @@ class TestGetCurrentRiskScore(TestCase):
             "completion_date": "2008-09-15T15:53:00+05:00"
         })
         risk_score = get_current_risk_score(mock_form)
-        self.assertAlmostEqual(risk_score, 0.48, places=2)
+        self.assertAlmostEqual(risk_score, 0.55, places=2)
 
-    def test_get_current_risk_score_drug_related_three_services(self):
+    def test_get_current_risk_score_drug_related_two_services(self):
         mock_form = Form(**{
             "description": "At 4:08am staff did a safety check on TL. No answer, so staff entered the unit. Found TL hunched over and breathing laboured and erratically about once every 30-45 seconds. Staff called for assistance. Upon arrival of team member staff was informed to call 911. EMS arrived 4:15am, Nar can was administered, secondary EMS called in by EMS for guest who was convulsing. Fire/Police arrived. Fire carried TL to EMS vehicle. TL and guest taken to unknown hospital in separate vehicle.",
             "client_primary": "TL",
             "client_secondary": "",
             "location": "yw providence",
             "location_detail": "Unit 201",
-            "services_involved": ["hospital", "fire", "ems"],
+            "services_involved": ["fire", "ems"],
             "services_involved_other": "police",
             "primary_staff_first_name": "",
             "primary_staff_last_name": "",
@@ -120,7 +129,7 @@ class TestGetCurrentRiskScore(TestCase):
             "completion_date": "2019-02-24T06:08:01",
         })
         risk_score = get_current_risk_score(mock_form)
-        self.assertAlmostEqual(risk_score, 0.52, places=2)
+        self.assertAlmostEqual(risk_score, 0.55, places=2)
 
     def test_get_current_risk_score_client_can_communicate(self):
         mock_form = Form(**{
@@ -145,7 +154,7 @@ class TestGetCurrentRiskScore(TestCase):
             "completion_date": "2019-03-28T13:12:00",
         })
         risk_score = get_current_risk_score(mock_form)
-        self.assertAlmostEqual(risk_score, 0.26, places=2)
+        self.assertAlmostEqual(risk_score, 0.27, places=2)
 
     def test_get_current_risk_score_violence_involved_under_control(self):
         mock_form = Form(**{
@@ -196,12 +205,12 @@ class TestGetCurrentRiskScore(TestCase):
         })
         risk_score = get_current_risk_score(mock_form)
         # TODO: reexamine this risk score
-        self.assertAlmostEqual(risk_score, 0.26, places=2)
+        self.assertAlmostEqual(risk_score, 0.27, places=2)
 
     def test_get_current_risk_score_not_responsive(self):
         mock_form = Form(**{
             "description": "Staff heard a loud noise, looked at the cameras and saw SSC laying on the ground blocking the elevator door. Staff went to check on SSC and moved her into the hallway & called 911. Staff sat with SSC while waiting for EMS to arrive however SSC was not responsive to staff. EMS arrived and assessed SSC and because of her low vital signs and recent trip to the hospital they decided to take her back to the Foothills hospital.",
-            "client_primary": " SSC ",
+            "client_primary": "SS",
             "client_secondary": "",
             "location": "yw maple",
             "location_detail": "4th floor near elevator",
@@ -256,7 +265,7 @@ class TestGetCurrentRiskScore(TestCase):
             "client_primary": "MM",
             "client_secondary": "",
             "location": "yw downtown",
-            "location_detail": " 4th floor offices ",
+            "location_detail": "4th floor offices",
             "services_involved": ["police"],
             "services_involved_other": "",
             "primary_staff_first_name": "",
@@ -274,7 +283,7 @@ class TestGetCurrentRiskScore(TestCase):
         })
         risk_score = get_current_risk_score(mock_form)
         # TODO: reexamine this risk score
-        self.assertAlmostEqual(risk_score, 0.26, places=2)
+        self.assertAlmostEqual(risk_score, 0.30, places=2)
 
     def test_get_current_risk_score_guest_threatening(self):
         mock_form = Form(**{
@@ -300,7 +309,7 @@ class TestGetCurrentRiskScore(TestCase):
         })
         risk_score = get_current_risk_score(mock_form)
         # TODO: reexamine this risk score
-        self.assertAlmostEqual(risk_score, 0.35, places=2)
+        self.assertAlmostEqual(risk_score, 0.36, places=2)
 
     def test_get_current_risk_score_child_aggression(self):
         mock_form = Form(**{
@@ -361,7 +370,7 @@ mock_form = Form(**{
     "client_secondary": "DL",
     "location": "yw croydon",
     "location_detail": "Around the corner.",
-    "services_involved": ["police", "hospital"],
+    "services_involved": ["police", "ems"],
     "services_involved_other": "police",
     "primary_staff_first_name": "John",
     "primary_staff_last_name": "Doe",
@@ -385,22 +394,22 @@ mock_form = Form(**{
 @patch.dict('server.credentials.credentials._credentials', {'PYTHON_ENV': 'production'})
 class TestGetRiskAssessment(TestCase):
     def test_get_risk_assessment_high_current_high_prev(self, curr_mock, prev_mock, email_mock):
-        curr_mock.return_value = 0.9
-        prev_mock.return_value = 0.9
+        curr_mock.return_value = 0.5
+        prev_mock.return_value = 0.5
         assessment = get_risk_assessment(mock_form, 3)
         self.assertEqual(assessment, RiskAssessment.HIGH)
         self.assertTrue(email_mock.called)
 
     def test_get_risk_assessment_low_current_low_prev(self, curr_mock, prev_mock, email_mock):
-        curr_mock.return_value = 0.2
-        prev_mock.return_value = 0.2
+        curr_mock.return_value = 0.1
+        prev_mock.return_value = 0.1
         assessment = get_risk_assessment(mock_form, 3)
         self.assertEqual(assessment, RiskAssessment.LOW)
         self.assertFalse(email_mock.called)
 
     def test_get_risk_assessment_med_current_med_prev(self, curr_mock, prev_mock, email_mock):
-        curr_mock.return_value = 0.4
-        prev_mock.return_value = 0.4
+        curr_mock.return_value = 0.3
+        prev_mock.return_value = 0.3
         assessment = get_risk_assessment(mock_form, 3)
         self.assertEqual(assessment, RiskAssessment.MEDIUM)
         self.assertFalse(email_mock.called)
