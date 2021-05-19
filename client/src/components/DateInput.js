@@ -17,7 +17,7 @@ const DateInput = ({
   const showWarning = required && submitClicked && !value;
   const style = {
     // prettier-ignore
-    border: `1px solid ${ showWarning ? "red" : (showAutocomplete && !touched ? "#00adef" : "lightgrey")}`,
+    border: `1px solid ${showWarning ? "red" : (showAutocomplete && !touched ? "#00adef" : "lightgrey")}`,
   };
 
   return (
@@ -38,9 +38,9 @@ const DateInput = ({
           setTouched(true);
           setValue(date);
         }}
-        showTimeSelect
-        timeIntervals={15}
-        style={{ padding: "5px" }}
+        timeInputLabel="Time:"
+        showTimeInput
+        // style={{ padding: "5px" }}
         customInput={<Input style={style}></Input>}
         dateFormat="MMMM d, yyyy h:mm aa"
       ></ReactDatePicker>
