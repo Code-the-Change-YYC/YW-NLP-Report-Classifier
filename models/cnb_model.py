@@ -115,8 +115,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
             min_df=2,
         )
         model = ComplementNB(alpha=1.2)
-        cnb = make_pipeline(word_vec,
-                            CalibratedClassifierCV(model, method="sigmoid"))
+        cnb = make_pipeline(word_vec, model)
         if all_incident_types is not None:
             vectors = word_vec.fit_transform(descriptions)
             model.partial_fit(vectors,
@@ -203,6 +202,8 @@ if __name__ == "__main__":
     X = df[ColName.DESC][:5]
     y = df[ColName.INC_T1][:5]
 
+    clf.partial_fit(X, y)
+
     print(clf.predict(X))
 
     multi_predict = clf.predict_multiple(X, 5)
@@ -210,6 +211,5 @@ if __name__ == "__main__":
         print("For description")
         print(X[i])
         for prediction_with_proba in prediction_set:
-            print(
-                f"We predict {prediction_with_proba[0]} with {prediction_with_proba[1]:.2f}% confidence"
-            )
+            print("We predict", prediction_with_proba[0], " with ",
+                  prediction_with_proba[1], " confidence")
