@@ -7,7 +7,7 @@ import pandas as pd
 from server.credentials import credentials
 from server.interceptum_adapter import InterceptumAdapter
 from server.risk_scores.risk_assessment import RiskAssessment, get_risk_assessment
-from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Request
 
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
@@ -97,11 +97,12 @@ async def submit_form(form: SubmitIn,
                      redirect_url=redirect_url)
 
 
-@app.post('/webhook/interceptum-post/', response_model=SubmitOut)
-async def interceptum_post_form(form_dict: Dict,
-                                background_tasks: BackgroundTasks) -> SubmitOut:
+@app.post('/webhook/interceptum-post/')
+async def interceptum_post_form(background_tasks: BackgroundTasks, request: Request) -> SubmitOut:
     """Currently unusable."""
     # TODO: Map interceptum input to background task input
+    xml = (await request.form()).get('VALUES_XML')
+    form_dict = {}
     if credentials.USE_WEBHOOK:
         background_tasks.add_task(background_processing, form_dict)
 
