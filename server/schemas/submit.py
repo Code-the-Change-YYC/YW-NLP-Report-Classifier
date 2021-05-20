@@ -34,7 +34,7 @@ class Form(BaseModel):
                 "client_secondary": "DL",
                 "location": "yw croydon",
                 "location_detail": "Around the corner.",
-                "services_involved": ["police", "hospital"],
+                "services_involved": ["police", "ems"],
                 "services_involved_other": "police",
                 "primary_staff_first_name": "John",
                 "primary_staff_last_name": "Doe",
