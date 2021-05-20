@@ -191,3 +191,8 @@ class InterceptumAdapter():
             fId = d.field_values_dict[field]
             xml_values.append(f"<value fId=\"{fId}\">{text}</value>")
         return "".join(xml_values)
+
+    @staticmethod
+    def xml_to_form_values(xml) -> dict:
+        # TODO: Implement
+        pass
