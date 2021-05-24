@@ -9,6 +9,7 @@ import yagmail
 import htmlmin
 
 from server.schemas.submit import Form
+from pydantic import BaseModel
 
 import server.risk_scores.risk_scores as risk_scores
 from server.risk_scores.risk_scores import MAX_PREVIOUS_INCIDENTS, risk_score_combiner
@@ -16,6 +17,18 @@ from server.connection import collection
 from server.credentials import credentials
 from server.sanity_utils import run_query, headers, minimum_email_score_query
 yag = yagmail.SMTP(credentials.gmail_username, credentials.gmail_password)
+
+
+class RiskScoreBreakdown(BaseModel):
+    services_involved: int
+    occurrence_time: int
+    incident_type_primary: int
+    program: int
+    immediate_response: int
+
+
+class PreviousRiskBreakdown(BaseModel):
+    previous_risk_scores: [float]
 
 
 class RiskAssessment(Enum):
@@ -89,7 +102,7 @@ def previous_risk_score_func(incident_score: float, incident_recency: float, inc
 
 
 def get_previous_incident_risk_score(curr_incident: submit_schema.Form, prev_incident: submit_schema.Form, timeframe: int):
-    incident_score = get_current_risk_score(prev_incident)
+    incident_score, _ = get_current_risk_score(prev_incident)
     incident_similarity = get_incident_similarity(prev_incident, curr_incident)
     incident_recency = get_incident_recency(
         prev_incident, curr_incident, timeframe)
@@ -143,7 +156,7 @@ def calculate_previous_risk_score_weightings() -> List[float]:
     return [(mpi-i)/denominator for i in range(mpi)]
 
 
-def get_previous_incidents_risk_score(form: submit_schema.Form, timeframe: int):
+def get_previous_incidents_risk_score(form: submit_schema.Form, timeframe: int) -> (score, PreviousRiskBreakdown):
     """
     Returns a risk score number between 0 and 1 based on the last MAX_PREVIOUS_INCIDENTS by that client
     with the same primary initials in the database.
@@ -164,34 +177,46 @@ def get_previous_incidents_risk_score(form: submit_schema.Form, timeframe: int):
 
     previous_risk_score_weightings = calculate_previous_risk_score_weightings()
 
+    previous_risk_scores = []
+
     total_prev_risk_score = 0
     for i, incident_dict in enumerate(prev_incidents):
         incident_dict = {key: (val.lower() if type(val) == str else val)
                          for key, val in incident_dict.items()}
         incident = Form(**incident_dict)
-        total_prev_risk_score += normalize_previous_risk_score(get_previous_incident_risk_score(
-            form, incident, timeframe)) * previous_risk_score_weightings[i]
+        prev_risk_score = normalize_previous_risk_score(get_previous_incident_risk_score(
+            form, incident, timeframe))
+        total_prev_risk_score += prev_risk_score * \
+            previous_risk_score_weightings[i]
+        previous_risk_scores.append(prev_risk_score)
 
-    return total_prev_risk_score
+    return (total_prev_risk_score, previous_risk_scores)
 
 
-def get_current_risk_score(form: submit_schema.Form):
-    risk_score = (risk_scores.program_to_risk_map.get_risk_score(form.program) +
-                  risk_scores.incident_type_to_risk_map.get_risk_score(
-                      form.incident_type_primary) +
-                  risk_scores.response_to_risk_map.get_risk_score(
-                      form.immediate_response) +
-                  risk_scores.services_to_risk_map.get_risk_score(
-                      form.services_involved) +
-                  risk_scores.occurrence_time_to_risk_map.get_risk_score(
-                      form.occurrence_time))
+def get_current_risk_score(form: submit_schema.Form) -> (int, RiskScoreBreakdown):
+    program_score = risk_scores.program_to_risk_map.get_risk_score(
+        form.program)
+    incident_type_score = risk_scores.incident_type_to_risk_map.get_risk_score(
+        form.incident_type_primary)
+    response_score = risk_scores.response_to_risk_map.get_risk_score(
+        form.immediate_response)
+    services_score = risk_scores.services_to_risk_map.get_risk_score(
+        form.services_involved)
+    occurrence_time_score = risk_scores.occurrence_time_to_risk_map.get_risk_score(
+        form.occurrence_time)
+    risk_score = program_score + incident_type_score + \
+        response_score + services_score + occurrence_time_score
 
-    return normalize_current_risk_score(risk_score)
+    risk_score_breakdown = RiskScoreBreakdown(services_involved=services_score, occurrence_time=occurrence_time_score,
+                                              incident_type_primary=incident_type_score, immediate_response=response_score, program=program_score)
+
+    return (normalize_current_risk_score(risk_score), risk_score_breakdown)
 
 
 def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessment:
-    score_from_current_incident = get_current_risk_score(form)
-    score_from_prev_incidents = get_previous_incidents_risk_score(
+    score_from_current_incident, risk_score_breakdown = get_current_risk_score(
+        form)
+    score_from_prev_incidents, previous_risk_breakdown = get_previous_incidents_risk_score(
         form, timeframe)
     risk_assessment = risk_score_combiner.combine_risk_scores(
         score_from_current_incident, score_from_prev_incidents)
