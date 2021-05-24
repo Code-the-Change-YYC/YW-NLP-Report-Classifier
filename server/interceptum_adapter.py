@@ -55,6 +55,7 @@ XML_REQ_HEADERS = {'Content-Type': 'text/xml'}
 
 
 class InterceptumException(Exception):
+
     def __init__(self, message='Exception occurred while using Interceptum.'):
         self.message = message
 
@@ -171,8 +172,8 @@ class InterceptumAdapter():
                 continue
             if isinstance(value, list):
                 value_map = d.multi_options[field]
-                mapped_text = (str(value_map[val]) for val in value
-                               if val in value_map)
+                mapped_text = (
+                    str(value_map[val]) for val in value if val in value_map)
                 text = "|".join(mapped_text)
 
             elif isinstance(value, datetime):
@@ -191,3 +192,107 @@ class InterceptumAdapter():
             fId = d.field_values_dict[field]
             xml_values.append(f"<value fId=\"{fId}\">{text}</value>")
         return "".join(xml_values)
+
+    @staticmethod
+    def xml_to_form_values(xml) -> dict:
+
+        root = ET.fromstring(xml)
+
+        resp_root = root[0][0]
+
+        ## make array to contain all the tags we need from XML
+
+        tag_map_to_correct = {
+            "description_of_incident_provide_a_brief_precise_description_of_the_actual_incident_including_timelines_500_character_max":
+                "description",
+            "client_involved__primary_initials":
+                "client_primary",
+            "client_involved__secondary_initials":
+                "client_secondary",
+            "location_of_incident":
+                "location",
+            "location_detail":
+                "location_detail",
+            "other_services_involved_select_all_that_apply":
+                "services_involved",
+            "other_services_involved_if_other":
+                "services_involved_other",
+            "primary_staff_involved_first_name":
+                "primary_staff_first_name",
+            "primary_staff_involved_last_name":
+                "primary_staff_last_name",
+            "date_and_time_of_occurrence":
+                "occurrence_time",
+            "incident_type_primary":
+                "incident_type_primary",
+            "incident_type_secondary":
+                "incident_type_secondary",
+            "did_this_incident_involve_a_child":
+                "child_involved",
+            "did_this_incident_involve_a_nonclient_guest":
+                "non_client_involved",
+            "program":
+                "program",
+            "what_was_the_immediate_response_to_the_incident_select_all_that_apply":
+                "immediate_response",
+            "name_of_staff_completing_this_report":
+                "staff_name",
+            "name_of_program_supervisor_reviewer":
+                "program_supervisor_reviewer_name",
+            "completed_on_2":
+                "completion_date"
+        }
+
+        ## initialize result dict object.
+
+        result = {
+            "description": "",
+            "client_primary": "",
+            "client_secondary": "",
+            "location": "",
+            "location_detail": "",
+            "services_involved": [],
+            "services_involved_other": "",
+            "primary_staff_first_name": "",
+            "primary_staff_last_name": "",
+            "occurrence_time": "",
+            "incident_type_primary": "",
+            "incident_type_secondary": "",
+            "child_involved": True,
+            "non_client_involved": True,
+            "program": "",
+            "immediate_response": [],
+            "staff_name": "",
+            "program_supervisor_reviewer_name": "",
+            "completion_date": ""
+        }
+
+        for child in resp_root:
+            ctag = child.tag.lower()
+
+            if ctag in tag_map_to_correct:
+
+                if (ctag == "location_of_incident"
+                        or ctag == "incident_type_primary"
+                        or ctag == "incident_type_secondary"
+                        or ctag == "program"):
+                    result[tag_map_to_correct[ctag]] = child[0][1].text.lower()
+
+                elif (ctag == "did_this_incident_involve_a_child"
+                      or ctag == "did_this_incident_involve_a_nonclient_guest"):
+
+                    if (child[0][1].text == "No"):
+                        result[tag_map_to_correct[ctag]] = False
+
+                elif (ctag == "other_services_involved_select_all_that_apply"
+                      or ctag ==
+                      "what_was_the_immediate_response_to_the_incident_select_all_that_apply"
+                     ):
+
+                    for c in child:
+                        result[tag_map_to_correct[ctag]].append(
+                            c[1].text.lower())
+                else:
+                    result[tag_map_to_correct[ctag]] = child.text
+
+        return result
