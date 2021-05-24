@@ -57,20 +57,7 @@ const useAutocomplete = ({
   setInvolvesChildAutocomplete,
   setInvolvesNonClientAutocomplete,
 }) => {
-  // set default immediate response to "Other"
-  useEffect(() => {
-    if (!immediateResponse || immediateResponse?.length === 0) {
-      const otherImmediateResponse = immediateResponses?.find((response) => {
-        if (response?.value) {
-          return response.value.toLowerCase().includes("other");
-        }
-      });
-      setImmediateResponseAutocomplete((prev) =>
-        otherImmediateResponse ? [otherImmediateResponse] : prev
-      );
-    }
-  }, [immediateResponses, immediateResponse, setImmediateResponseAutocomplete]);
-
+  
   const checkServices = useCallback(
     (desc) => {
       if (services) {
