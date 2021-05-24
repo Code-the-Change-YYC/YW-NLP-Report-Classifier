@@ -455,7 +455,6 @@ function App() {
             }
           }}
         ></input>
-        <button onClick={(e) => e.preventDefault()}>Download</button>
       </form>
       <FeedbackBox />
     </div>
