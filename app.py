@@ -99,13 +99,16 @@ async def submit_form(form: SubmitIn,
 
 @app.post('/webhook/interceptum-post/')
 async def interceptum_post_form(background_tasks: BackgroundTasks,
-                                request: Request) -> SubmitOut:
+                                request: Request):
     """Currently unusable."""
     # TODO: Map interceptum input to background task input
     xml = (await request.form()).get('VALUES_XML')
     form_dict = interceptum.xml_to_form_values(xml)
     if credentials.USE_WEBHOOK:
         background_tasks.add_task(background_processing, form_dict)
+        processed_form_data = report_data.process_form_submission(
+            form_dict)
+        collection.insert_one(processed_form_data.dict())
 
 
 @app.post("/webhook/sanity-update/")
