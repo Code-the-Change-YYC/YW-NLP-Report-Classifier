@@ -1,11 +1,13 @@
 FROM node:12-alpine
 
-COPY . /app
 WORKDIR /app
+COPY package.json package.json
+COPY package-lock.json package-lock.json
 
-RUN npm install -D @sanity/cli
+RUN npm ci
+
+COPY . .
+
 RUN export SANITY_AUTH_TOKEN=$(cat keys/SANITY_TOKEN)
 
-EXPOSE 3333
-
-CMD npm start
+CMD npm run prod

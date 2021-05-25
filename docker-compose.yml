@@ -58,4 +58,3 @@ services:
       - "3333:3333"
     expose:
       - "3333"
-    restart: always
