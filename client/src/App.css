@@ -1,96 +1,130 @@
 .App {
-  text-align: center;
-  max-width: 1024px;
-  margin: 0 auto 100px;
+    text-align: center;
+    max-width: 1024px;
+    margin: 0 auto 100px;
 }
 
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
+    height: 40vmin;
+    pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
 }
 
 .App-link {
-  color: #61dafb;
+    color: #61dafb;
 }
 
 @keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .react-datepicker-wrapper,
 .react-datepicker__input-container,
 .react-datepicker__input-container input {
-  display: block !important;
-  width: 100%;
-  box-sizing: border-box;
+    display: block !important;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 button,
 input[type="submit"] {
-  padding: 7px 15px;
-  border: 1px solid #000;
-  margin-top: 20px;
-  color: #fff;
-  background-color: #81bc01;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
+    padding: 7px 15px;
+    border: 1px solid #000;
+    margin-top: 20px;
+    color: #fff;
+    background-color: #81bc01;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 form button,
 form input[type="submit"] {
-  margin-top: 40px;
-  margin-left: 10px;
+    margin-top: 40px;
+    margin-left: 10px;
 }
 
 .ModalContainer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 10;
-  overflow-y: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10;
 }
 
 .ModalBox {
-  width: 500px;
-  height: auto;
-  background-color: #fff;
-  float: none;
-  margin: 5% auto;
-  border-radius: 7px;
-  text-align: left;
-  padding: 20px;
+    width: 500px;
+    background-color: #fff;
+    float: none;
+    margin: 5% auto;
+    border-radius: 7px;
+    text-align: left;
+    padding: 20px;
+    max-height: 60%;
+    display: flex;
+    flex-flow: column;
 }
 
-.ModalBox > div {
-  margin-top: 6px;
+.ModalClose {
+    flex: 0 1 auto;
+}
+
+.ModalContent {
+    flex: 1 1 auto;
+    overflow: auto;
+    margin-top: 15px;
+}
+
+.ModalContent::-webkit-scrollbar {
+    width: 10px;
+}
+
+.ModalContent::-webkit-scrollbar-track {
+    background: #ebebeb;
+}
+
+.ModalContent::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+.ModalContent::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .ModalBox .loadingText {
-  margin-top: 10px;
+    margin-top: 10px;
+}
+
+.ModalSubmit {
+    flex: 0 1 40px;
+}
+
+@media only screen and (max-width: 600px) {
+    .ModalBox {
+        width: 80%;
+    }
 }
