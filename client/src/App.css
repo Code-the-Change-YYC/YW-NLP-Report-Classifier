@@ -73,6 +73,7 @@ form input[type="submit"] {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 10;
+  overflow-y: auto;
 }
 
 .ModalBox {
@@ -80,7 +81,7 @@ form input[type="submit"] {
   height: auto;
   background-color: #fff;
   float: none;
-  margin: 10% auto 0;
+  margin: 5% auto;
   border-radius: 7px;
   text-align: left;
   padding: 20px;
