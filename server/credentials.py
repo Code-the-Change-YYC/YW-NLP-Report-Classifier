@@ -76,6 +76,11 @@ class Credentials:
     def mongo_url(self) -> str:
         """The MongoDB URL."""
         return self['mongoUrl']
+    
+    @property
+    def email_recipients(self) -> str:
+        """Recipients of risk score email."""
+        return self['emailRecipients']
 
     def __getitem__(self, cred_name: str) -> Any:
         """Gets the credential value with name `cred_name`.

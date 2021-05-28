@@ -216,9 +216,10 @@ html_template_filename = "/template.html"
 with open(dirname(__file__) + html_template_filename) as f:
     html_template = f.read()
 
+email_recipients = tuple(credentials.email_recipients)
 
 def email_high_risk_alert(email_values: dict):
     email_contents = htmlmin.minify(html_template.format(**email_values))
-    yag.send(credentials.gmail_username,
+    yag.send(to=email_recipients,
              subject="CIR Risk Assessment",
              contents=email_contents)
