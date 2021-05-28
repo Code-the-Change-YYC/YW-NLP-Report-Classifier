@@ -105,7 +105,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+.env*
 .venv
 env/
 venv/
@@ -154,7 +154,7 @@ node_modules
 
 .devcontainer/
 
-**/credentials.json
+**/credentials.*json
 
 SANITY_TOKEN
 
