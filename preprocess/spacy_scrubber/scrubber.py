@@ -56,23 +56,22 @@ class Scrubber:
         self.client_tokens = client_tokens
 
     def scrub(self, text: str):
-        scrubbed_text = ""
+        scrubbed_text = []
         # run model over the description
-        for doc in self.nlp.pipe(text):
+        for doc in self.nlp.pipe([text]):
             for token in doc:
                 if token.text.lower() in Scrubber.whitelisted_words:
                     scrubbed_text += token.text
                 elif token.text in self.client_tokens or token.ent_type_ in Scrubber.name_labels:
                     if self.replacement_method:
-                        scrubbed_text += self.replacement_method
+                        scrubbed_text.append(self.replacement_method)
                     else:
-                        scrubbed_text += "{{NAME}}"
+                        scrubbed_text.append("{{NAME}}")
                 elif token.ent_type_ in Scrubber.number_labels:
-                    scrubbed_text += "{{NUMBER}}"
+                    scrubbed_text.append("{{NUMBER}}")
                 elif token.ent_type_ in Scrubber.time_labels:
-                    scrubbed_text += "{{TIME}}"
+                    scrubbed_text.append("{{TIME}}")
                 else:
-                    scrubbed_text += token.text
-                scrubbed_text += " "
+                    scrubbed_text.append(token.text)
 
-        return scrubbed_text
+        return " ".join(scrubbed_text)
