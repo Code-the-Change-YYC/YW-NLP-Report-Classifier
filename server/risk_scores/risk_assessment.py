@@ -155,7 +155,7 @@ def get_previous_incidents_risk_score(form: submit_schema.Form, timeframe: int):
     query = {
         "client_primary": form.client_primary,
         "occurrence_time": {
-            "$gte": (form.occurrence_time - relativedelta(months=timeframe)).strftime("%Y-%m-%d %H:%M:%S")
+            "$gte": form.occurrence_time - relativedelta(months=timeframe)
         }
     }
     sort_order = [("occurrence_time", -1)]

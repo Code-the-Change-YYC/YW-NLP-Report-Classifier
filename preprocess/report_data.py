@@ -79,8 +79,8 @@ class ReportData:
         else:
             # only include columns that are in `_ColName`
             report_df = report_df.loc[:, report_df.columns.isin(self.column_names)]
-            report_df.columns = [column 
-                                 for column in _ColName 
+            report_df.columns = [column
+                                 for column in _ColName
                                  if column.value in report_df.columns]
         return report_df
 
