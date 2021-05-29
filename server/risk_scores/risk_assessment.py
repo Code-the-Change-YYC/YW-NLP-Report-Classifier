@@ -204,7 +204,9 @@ def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessm
             "client_primary": form_dict["client_primary"],
             "risk_assessment": assessment_ranges[risk_assessment].value,
             "score_from_prev_incidents": score_from_prev_incidents,
-            "score_from_current_incident": score_from_current_incident
+            "score_from_current_incident": score_from_current_incident,
+            "time_of_incident": form_dict["occurrence_time"].ctime(),
+            "time_of_report_completion": form_dict["completion_date"].ctime()
         }
         email_high_risk_alert(email_dict)
 
@@ -216,9 +218,10 @@ html_template_filename = "/template.html"
 with open(dirname(__file__) + html_template_filename) as f:
     html_template = f.read()
 
+email_recipients = tuple(credentials.email_recipients)
 
 def email_high_risk_alert(email_values: dict):
     email_contents = htmlmin.minify(html_template.format(**email_values))
-    yag.send(credentials.gmail_username,
+    yag.send(to=email_recipients,
              subject="CIR Risk Assessment",
              contents=email_contents)
