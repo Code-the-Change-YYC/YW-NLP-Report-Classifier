@@ -9,7 +9,7 @@ MONGO_HOST='localhost'
 MONGO_PORT='27017'
  
 DATABASE_NAME='YWCA_reports'
-COLLECTION='test_report'
+COLLECTION='reports'
  
 
 # make new file record

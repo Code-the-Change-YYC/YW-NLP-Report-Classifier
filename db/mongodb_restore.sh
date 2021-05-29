@@ -7,7 +7,7 @@ MONGO_HOST='localhost'
 MONGO_PORT='27017'
  
 DATABASE_NAME='YWCA_reports'
-COLLECTION='test_report'
+COLLECTION='reports'
 
 #restore to local instance at the same database
 #There are three copies will be keeping on the local back up file  
