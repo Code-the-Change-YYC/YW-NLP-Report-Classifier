@@ -195,14 +195,21 @@ def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessm
         form, timeframe)
     risk_assessment = risk_score_combiner.combine_risk_scores(
         score_from_current_incident, score_from_prev_incidents)
+    print(
+        f"Risk score from current incident: {score_from_current_incident:.3f}")
+    print(
+        f"Risk score from previous incidents: {score_from_prev_incidents:.3f}")
 
     form_dict = form.dict()
 
     if risk_assessment >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
+        risk_assessment_str = assessment_ranges[risk_assessment.value]
+        print(
+            f"Form assessed to be {risk_assessment_str} risk. Sending email.")
         email_dict = {
             "staff_name": form_dict["staff_name"],
             "client_primary": form_dict["client_primary"],
-            "risk_assessment": assessment_ranges[risk_assessment].value,
+            "risk_assessment": risk_assessment_str,
             "score_from_prev_incidents": score_from_prev_incidents,
             "score_from_current_incident": score_from_current_incident,
             "time_of_incident": form_dict["occurrence_time"].ctime(),
@@ -219,6 +226,7 @@ with open(dirname(__file__) + html_template_filename) as f:
     html_template = f.read()
 
 email_recipients = tuple(credentials.email_recipients)
+
 
 def email_high_risk_alert(email_values: dict):
     email_contents = htmlmin.minify(html_template.format(**email_values))

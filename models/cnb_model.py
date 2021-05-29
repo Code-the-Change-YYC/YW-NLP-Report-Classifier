@@ -142,6 +142,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
                                         incident_types,
                                         all_incident_types=all_incident_types)
         save_cnb(self._model, model_path=self._model_path)
+        print('Model successfully retrained.')
 
     def _predictions_with_proba(self, proba: ArrayLike,
                                 num_predictions: int) -> np.ndarray:
@@ -162,7 +163,7 @@ class CNBDescriptionClf(Model[CNBPipeline]):
         top_proba: np.ndarray = np.take_along_axis(proba, top_indices, axis=1)
         predictions: np.ndarray = self._model.classes_[top_indices]
         incident_types = np.array([p for p in predictions.flat
-                                  ]).reshape(predictions.shape)
+                                   ]).reshape(predictions.shape)
         return np.dstack((incident_types, top_proba))
 
     def _get_classes(self, labels: List[str]) -> Optional[List[str]]:

@@ -90,6 +90,8 @@ async def submit_form(form: SubmitIn,
             form.form_fields)
         collection.insert_one(processed_form_data.dict())
         background_tasks.add_task(background_processing, form.form_fields)
+    else:
+        print('USE_WEBHOOK set to True: skipping MongoDB insert and model retrain.')
 
     redirect_url = interceptum.call_api(form.form_fields.dict())
     return SubmitOut(form_fields=form.form_fields,
@@ -100,8 +102,6 @@ async def submit_form(form: SubmitIn,
 @app.post('/webhook/interceptum-post/')
 async def interceptum_post_form(background_tasks: BackgroundTasks,
                                 request: Request):
-    """Currently unusable."""
-    # TODO: Map interceptum input to background task input
     xml = (await request.form()).get('VALUES_XML')
     form_dict = interceptum.xml_to_form_values(xml)
     if credentials.USE_WEBHOOK:
@@ -109,6 +109,8 @@ async def interceptum_post_form(background_tasks: BackgroundTasks,
         processed_form_data = report_data.process_form_submission(
             form_dict)
         collection.insert_one(processed_form_data.dict())
+    else:
+        print('USE_WEBHOOK set to False: ignoring webhook response.')
 
 
 @app.post("/webhook/sanity-update/")
