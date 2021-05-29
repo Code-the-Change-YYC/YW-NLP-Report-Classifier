@@ -8,6 +8,9 @@ RUN npm install
 
 COPY . /app
 
+# Change to Sanity production dataset
+RUN sed -i 's/development/production/g' .env
+
 RUN npm run build
 
 FROM nginx:alpine
