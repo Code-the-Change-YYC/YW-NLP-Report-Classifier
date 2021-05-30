@@ -136,21 +136,12 @@ async def sanity_update(sanity_update_in: SanityUpdate):
 async def retrain_model(csv_file: UploadFile = File(...)):
     report_data = ReportData()
     dataframe = report_data.process_report_data(csv_file.file)
-    descriptions = dataframe[_ColName.DESC].to_numpy()
-    types = dataframe[_ColName.INC_T1].to_numpy()
-    clf.retrain_model(descriptions, types)
+    # descriptions = dataframe[_ColName.DESC].to_numpy()
+    # types = dataframe[_ColName.INC_T1].to_numpy()
+    # clf.retrain_model(descriptions, types)
     now = datetime.now()
     date_backup = "reports" + now.strftime("%m-%d-%Y")
-    pipeline = [
-        {
-            "$match": {}
-        },
-        {
-            "$out": date_backup
-        },
-    ]
-    collection.aggregate(pipeline)
+    collection.aggregate([{"$out": date_backup}])
     collection.remove({})
-
     records = json.loads(dataframe.T.to_json()).values()
     collection.insert_many(records)
