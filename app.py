@@ -3,6 +3,8 @@ from typing import Dict
 from preprocess.report_data import ReportData
 import requests
 import pandas as pd
+import json
+from datetime import datetime
 
 from server.credentials import credentials
 from server.interceptum_adapter import InterceptumAdapter
@@ -91,7 +93,9 @@ async def submit_form(form: SubmitIn,
         collection.insert_one(processed_form_data.dict())
         background_tasks.add_task(background_processing, form.form_fields)
     else:
-        print('USE_WEBHOOK set to True: skipping MongoDB insert and model retrain.')
+        print(
+            'USE_WEBHOOK set to True: skipping MongoDB insert and model retrain.'
+        )
 
     redirect_url = interceptum.call_api(form.form_fields.dict())
     return SubmitOut(form_fields=form.form_fields,
@@ -106,8 +110,7 @@ async def interceptum_post_form(background_tasks: BackgroundTasks,
     form_dict = interceptum.xml_to_form_values(xml)
     if credentials.USE_WEBHOOK:
         background_tasks.add_task(background_processing, form_dict)
-        processed_form_data = report_data.process_form_submission(
-            form_dict)
+        processed_form_data = report_data.process_form_submission(form_dict)
         collection.insert_one(processed_form_data.dict())
     else:
         print('USE_WEBHOOK set to False: ignoring webhook response.')
@@ -133,6 +136,12 @@ async def sanity_update(sanity_update_in: SanityUpdate):
 async def retrain_model(csv_file: UploadFile = File(...)):
     report_data = ReportData()
     dataframe = report_data.process_report_data(csv_file.file)
-    descriptions = dataframe[_ColName.DESC].to_numpy()
-    types = dataframe[_ColName.INC_T1].to_numpy()
-    clf.retrain_model(descriptions, types)
+    # descriptions = dataframe[_ColName.DESC].to_numpy()
+    # types = dataframe[_ColName.INC_T1].to_numpy()
+    # clf.retrain_model(descriptions, types)
+    now = datetime.now()
+    date_backup = "reports" + now.strftime("%m-%d-%Y")
+    collection.aggregate([{"$out": date_backup}])
+    collection.remove({})
+    records = json.loads(dataframe.T.to_json()).values()
+    collection.insert_many(records)
