@@ -1,15 +1,17 @@
-from preprocess.report_data_d import _ColName
 from typing import Dict
-from preprocess.report_data import ReportData
 import requests
-import pandas as pd
 import json
+import sys
+import pandas as pd
 from datetime import datetime
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Request, Response, status
+from traceback import format_exc
 
+from preprocess.report_data_d import _ColName
+from preprocess.report_data import ReportData
 from server.credentials import credentials
 from server.interceptum_adapter import InterceptumAdapter
 from server.risk_scores.risk_assessment import RiskAssessment, get_risk_assessment
-from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Request
 
 from models.cnb_model import CNBDescriptionClf
 from server.schemas.predict import PredictIn, PredictOut
@@ -133,16 +135,22 @@ async def sanity_update(sanity_update_in: SanityUpdate):
 
 
 @app.post('/api/retrain')
-async def retrain_model(csv_file: UploadFile = File(...)):
-    report_data = ReportData()
-    dataframe = report_data.process_report_data(csv_file.file)
-    descriptions = dataframe[_ColName.DESC].to_numpy()
-    types = dataframe[_ColName.INC_T1].to_numpy()
-    clf.retrain_model(descriptions, types)
-    now = datetime.now()
-    date_backup = "reports" + now.strftime("%m-%d-%Y")
-    collection.aggregate([{"$out": date_backup}])
-    collection.remove({})
-    records = json.loads(dataframe.T.to_json()).values()
-    collection.insert_many(records)
-    return 'Successfully retrained model and updated database.'
+async def retrain_model(response: Response, csv_file: UploadFile = File(...)):
+    try:
+        report_data = ReportData()
+        dataframe = report_data.process_report_data(csv_file.file)
+        descriptions = dataframe[_ColName.DESC].to_numpy()
+        types = dataframe[_ColName.INC_T1].to_numpy()
+        clf.retrain_model(descriptions, types)
+        now = datetime.now()
+        date_backup = "reports" + now.strftime("%m-%d-%Y")
+        collection.aggregate([{"$out": date_backup}])
+        collection.remove({})
+        records = json.loads(dataframe.T.to_json()).values()
+        collection.insert_many(records)
+        return 'Successfully retrained model and updated database.'
+    except:
+        output_msg = 'An error occurred while trying to update the database and retrain the model. Please send the following error log to the Code the Change team at jofred.cayabyab1@ucalgary.ca, or to Randy Thornhill: '
+        output_msg += format_exc()
+        response.status_code = 500
+        return output_msg
