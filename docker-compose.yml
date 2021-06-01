@@ -9,6 +9,7 @@ services:
     restart: always
     volumes:
       - ./keys:/opt/app/keys
+      - ./form_codes:/opt/app/form_codes
       - ./model_output:/opt/app/model_output
     environment:
       - BACKEND_PORT=${BACKEND_PORT}
@@ -16,7 +17,7 @@ services:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     expose:
       - "${BACKEND_PORT}"
-    command: uvicorn app:app --reload --port ${BACKEND_PORT} --host 0.0.0.0 --log-level debug
+    command: uvicorn app:app --reload --port ${BACKEND_PORT} --host 0.0.0.0
 
   nginx:
     depends_on:
