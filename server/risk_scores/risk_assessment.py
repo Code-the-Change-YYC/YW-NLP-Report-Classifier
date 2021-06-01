@@ -45,7 +45,7 @@ def get_incident_similarity(prev_incident: submit_schema.Form, current_incident:
     """
     Returns a value between min_value and 1 depending on the previous incident type's similarity to the current incident type.
     """
-    min_value = 0.2
+    min_value = 0.6
     similarity = min_value
     scale = 1 - min_value
 
@@ -61,6 +61,8 @@ def get_incident_similarity(prev_incident: submit_schema.Form, current_incident:
     total_field_sum = sum(similar_fields.values())
 
     for field, score in similar_fields.items():
+        print(field, getattr(current_incident, field),
+              getattr(prev_incident, field))
         if getattr(current_incident, field) == getattr(prev_incident, field):
             similarity += score / total_field_sum * scale
 
@@ -71,7 +73,7 @@ def get_incident_recency(prev_incident: submit_schema.Form, current_incident: su
     """
     Returns a value between min_value and 1 depending on the previous incident type's recency scaled by the timeframe.
     """
-    min_value = 0.4
+    min_value = 0.6
     prev_incident.occurrence_time = prev_incident.occurrence_time.replace(
         tzinfo=timezone.utc)
     delta = (current_incident.occurrence_time -
@@ -112,8 +114,8 @@ def normalize_previous_risk_score(total_prev_risk_score: float):
     incident_similarity = get_incident_similarity(same_form, same_form)
     incident_recency = get_incident_recency(
         same_form, same_form, timeframe=1)
-    max_total_prev_risk_score = previous_risk_score_func(
-        risk_scores.max_risk_score, incident_recency, incident_similarity)
+    max_total_prev_risk_score = normalize_current_risk_score(previous_risk_score_func(
+        risk_scores.max_risk_score, incident_recency, incident_similarity))
 
     return total_prev_risk_score / max_total_prev_risk_score
 
@@ -190,20 +192,21 @@ def get_current_risk_score(form: submit_schema.Form):
 
 
 def get_risk_assessment(form: submit_schema.Form, timeframe: int) -> RiskAssessment:
+    form_dict = form.dict()
     score_from_current_incident = get_current_risk_score(form)
     score_from_prev_incidents = get_previous_incidents_risk_score(
         form, timeframe)
     risk_assessment = risk_score_combiner.combine_risk_scores(
         score_from_current_incident, score_from_prev_incidents)
+    risk_assessment_str = assessment_ranges[risk_assessment].value
+
     print(
         f"Risk score from current incident: {score_from_current_incident:.3f}")
     print(
         f"Risk score from previous incidents: {score_from_prev_incidents:.3f}")
-
-    form_dict = form.dict()
+    print(f"Critical incident report risk assessment: {risk_assessment_str}")
 
     if risk_assessment >= minimum_email_score_index and credentials.PYTHON_ENV != "development":
-        risk_assessment_str = assessment_ranges[risk_assessment.value]
         print(
             f"Form assessed to be {risk_assessment_str} risk. Sending email.")
         email_dict = {
