@@ -206,7 +206,7 @@ function App() {
       ></ModalBox>
       <img src={logo} alt="YW logo"></img>
       <h1>Critical Incident Report Form</h1>
-      <LastUpdated>Last updated: May 31, 2021</LastUpdated>
+      <LastUpdated>Last updated: June 1, 2021</LastUpdated>
       <FormRow>
         <label>Description of Incident *</label>
         <Textarea
