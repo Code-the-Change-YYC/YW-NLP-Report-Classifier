@@ -1,6 +1,6 @@
 import json
 
-with open('interceptum_form_codes.json') as f:
+with open('form_codes/interceptum_form_codes.json') as f:
     form_codes = json.load(f)
 
 interceptum_boolean_dict = {True: "1", False: "2"}
