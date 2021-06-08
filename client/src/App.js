@@ -438,9 +438,10 @@ function App() {
             onChange={(date) => {
               setDateCompleted(date);
             }}
+            timeInputLabel="Time:"
+            showTimeInput
+            style={{ padding: "5px" }}
             customInput={<Input></Input>}
-            showTimeSelect
-            timeIntervals={15}
             dateFormat="MMMM d, yyyy h:mm aa"
           ></ReactDatePicker>
         </FormRow>
